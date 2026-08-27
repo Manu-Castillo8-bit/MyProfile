@@ -1,0 +1,70 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0">
+  <diagram id="cu_06_diagram" name="CU-06 Gestion del Sistema">
+    <mxGraphModel dx="1030" dy="663" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1100" pageHeight="850" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="title" parent="1" style="text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=wrap;rounded=0;fontSize=16;fontStyle=1;" value="Diagrama de Casos de Uso del Administrador: CU-06 Gestión del Sistema y Soporte a Usuarios." vertex="1">
+          <mxGeometry height="30" width="800" x="100" y="20" as="geometry" />
+        </mxCell>
+        <mxCell id="actor" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" value="Administrador&#xa;(Mantenimiento)" vertex="1">
+          <mxGeometry height="100" width="50" x="40" y="320" as="geometry" />
+        </mxCell>
+        <mxCell id="system" parent="1" style="swimlane;whiteSpace=wrap;html=1;startSize=23;fontStyle=1;collapsible=0;" value="Sistema MyProfile (Backend/Backend Admin)" vertex="1">
+          <mxGeometry height="580" width="750" x="150" y="70" as="geometry" />
+        </mxCell>
+        <mxCell id="note" parent="system" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;align=left;spacingLeft=5;fontSize=11;" value="&lt;b&gt;Precondición:&lt;/b&gt; El administrador debe haber iniciado sesión en el panel de control administrativo (backend) con credenciales de acceso total.&lt;br&gt;&lt;br&gt;&lt;b&gt;Postcondición:&lt;/b&gt; La aplicación mantiene su correcto funcionamiento, los datos se mantienen seguros en la nube y los problemas técnicos de los usuarios quedan resueltos." vertex="1">
+          <mxGeometry height="140" width="260" x="470" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_main" parent="system" style="ellipse;whiteSpace=wrap;html=1;" value="&amp;nbsp;Gestión del&lt;br&gt;Sistema y Soporte&lt;br&gt;a Usuarios" vertex="1">
+          <mxGeometry height="80" width="160" x="30" y="240" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_login" parent="system" style="ellipse;whiteSpace=wrap;html=1;" value="Iniciar Sesión&lt;br&gt;(Backend Admin)&lt;br&gt;(credenciales de acceso total)" vertex="1">
+          <mxGeometry height="70" width="170" x="270" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_supervisar" parent="system" style="ellipse;whiteSpace=wrap;html=1;" value="Supervisar Rendimiento&lt;br&gt;del Sistema" vertex="1">
+          <mxGeometry height="60" width="170" x="270" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_gestionar" parent="system" style="ellipse;whiteSpace=wrap;html=1;" value="Gestionar Cuentas&lt;br&gt;de Usuario" vertex="1">
+          <mxGeometry height="60" width="160" x="270" y="230" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_corregir" parent="system" style="ellipse;whiteSpace=wrap;html=1;" value="Corregir Error&lt;br&gt;Reportado" vertex="1">
+          <mxGeometry height="60" width="160" x="270" y="330" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_mantenimiento" parent="system" style="ellipse;whiteSpace=wrap;html=1;" value="Realizar Mantenimiento&lt;br&gt;del Sistema&lt;br&gt;(configuraciones)" vertex="1">
+          <mxGeometry height="70" width="180" x="260" y="430" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_buscar" parent="system" style="ellipse;whiteSpace=wrap;html=1;" value="Buscar Perfil&lt;br&gt;de Usuario" vertex="1">
+          <mxGeometry height="60" width="130" x="510" y="200" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_acceder" parent="system" style="ellipse;whiteSpace=wrap;html=1;" value="Acceder a Datos&lt;br&gt;del Usuario" vertex="1">
+          <mxGeometry height="60" width="130" x="510" y="280" as="geometry" />
+        </mxCell>
+        <mxCell id="e_login" edge="1" parent="system" source="uc_main" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;exitX=0.8;exitY=0.15;entryX=0;entryY=0.5;" target="uc_login" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_supervisar" edge="1" parent="system" source="uc_main" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;exitX=0.95;exitY=0.3;entryX=0;entryY=0.5;" target="uc_supervisar" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_gestionar" edge="1" parent="system" source="uc_main" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;exitX=1;exitY=0.5;entryX=0;entryY=0.5;" target="uc_gestionar" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_corregir" edge="1" parent="system" source="uc_main" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;exitX=0.95;exitY=0.7;entryX=0;entryY=0.5;" target="uc_corregir" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_mantenimiento" edge="1" parent="system" source="uc_main" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;exitX=0.8;exitY=0.85;entryX=0;entryY=0.5;" target="uc_mantenimiento" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_buscar" edge="1" parent="system" source="uc_gestionar" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;exitX=1;exitY=0.33;entryX=0;entryY=0.5;" target="uc_buscar" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_acceder" edge="1" parent="system" source="uc_gestionar" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;exitX=1;exitY=0.66;entryX=0;entryY=0.5;" target="uc_acceder" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="e_actor" edge="1" parent="1" source="actor" style="edgeStyle=none;html=1;endArrow=none;rounded=0;" target="uc_main">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

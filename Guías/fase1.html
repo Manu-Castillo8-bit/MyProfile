@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FASE 01 — Levantamiento de Requerimientos</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+
+:root{
+  --bg:#050a14; --surface:#0b1628; --surface2:#0f1e36; --border:#1a2e4a;
+  --accent:#00d4ff; --accent2:#ff6b2b; --accent3:#7c3aed; --gold:#f5c842;
+  --text:#e2eaf8; --text-muted:#7a92b4; --text-dim:#3a5070; --success:#22d3a5;
+  --danger:#ff4664;
+  --mono:'JetBrains Mono',monospace; --body:'Space Grotesk',sans-serif; --display:'Syne',sans-serif;
+  /* --ph y --ph-rgb se inyectan por página */
+  --ph:#00d4ff; --ph-rgb:0,212,255;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--body);overflow-x:hidden;line-height:1.5}
+::selection{background:rgba(var(--ph-rgb),0.3);color:#fff}
+a{color:var(--ph)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--ph);outline-offset:3px;border-radius:4px}
+
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:0.55;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E")}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  background:rgba(5,10,20,0.72);border-bottom:1px solid rgba(255,255,255,0.05);
+  padding:0.75rem 1.6rem;display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap}
+.nav-brand{font-family:var(--mono);font-size:0.72rem;color:var(--ph);letter-spacing:0.08em;white-space:nowrap}
+.nav-links{display:flex;gap:1.2rem;flex-wrap:wrap}
+.nav-links a{font-size:0.78rem;color:var(--text-muted);text-decoration:none;transition:color .2s}
+.nav-links a:hover{color:var(--text)}
+.nav-pond{font-family:var(--mono);font-size:0.72rem;font-weight:600;color:var(--ph);
+  border:1px solid rgba(var(--ph-rgb),0.4);background:rgba(var(--ph-rgb),0.08);border-radius:100px;padding:3px 11px}
+@media(max-width:760px){.nav-links{display:none}}
+
+.progress-bar{position:fixed;top:0;left:0;height:2px;width:0;background:linear-gradient(90deg,var(--ph),var(--accent3));z-index:200;transition:width .1s linear}
+
+/* HERO */
+.hero{position:relative;min-height:78vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:6rem 1.5rem 4rem;overflow:hidden}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(var(--ph-rgb),0.06) 1px,transparent 1px),linear-gradient(90deg,rgba(var(--ph-rgb),0.06) 1px,transparent 1px);background-size:42px 42px;mask-image:radial-gradient(ellipse 75% 75% at 50% 45%,#000 38%,transparent 100%)}
+.hero-glow{position:absolute;width:680px;height:680px;max-width:120vw;border-radius:50%;top:46%;left:50%;transform:translate(-50%,-50%);
+  background:radial-gradient(circle,rgba(var(--ph-rgb),0.16) 0%,rgba(124,58,237,0.08) 42%,transparent 70%);animation:pulse 6s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:1}50%{transform:translate(-50%,-50%) scale(1.07);opacity:.7}}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;background:rgba(var(--ph-rgb),0.08);border:1px solid rgba(var(--ph-rgb),0.3);
+  border-radius:100px;padding:6px 16px;font-family:var(--mono);font-size:0.7rem;color:var(--ph);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:1.6rem;position:relative;z-index:1;animation:fd .8s ease both}
+.dot{width:6px;height:6px;background:var(--ph);border-radius:50%;animation:blink 1.5s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.hero h1{position:relative;z-index:1;font-family:var(--display);font-weight:800;line-height:1.04;letter-spacing:-0.02em;
+  font-size:clamp(2.3rem,5.5vw,4.4rem);animation:fu .9s ease .15s both}
+.hero h1 .grad{background:linear-gradient(135deg,var(--ph) 0%,var(--accent3) 58%,var(--accent2) 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hero-sub{position:relative;z-index:1;margin-top:1.2rem;font-size:1.02rem;color:var(--text-muted);max-width:620px;line-height:1.7;animation:fu .9s ease .35s both}
+.pond-badge{position:relative;z-index:1;margin-top:2rem;display:inline-flex;flex-direction:column;align-items:center;gap:2px;
+  padding:0.9rem 2rem;border-radius:18px;border:1px solid rgba(var(--ph-rgb),0.35);background:rgba(var(--ph-rgb),0.06);animation:fu .9s ease .5s both}
+.pond-badge .pct{font-family:var(--display);font-weight:800;font-size:2.6rem;line-height:1;color:var(--ph)}
+.pond-badge .lbl{font-family:var(--mono);font-size:0.64rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-muted)}
+.hero-meta{position:relative;z-index:1;display:flex;gap:1.8rem;margin-top:2.2rem;flex-wrap:wrap;justify-content:center;animation:fu .9s ease .65s both}
+.meta-item{display:flex;align-items:center;gap:8px;font-size:0.84rem;color:var(--text-muted)}
+.meta-item strong{color:var(--text);font-weight:600}
+@keyframes fu{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fd{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:translateY(0)}}
+
+/* ROUTE STEPPER */
+.route-wrap{position:relative;z-index:1;max-width:1180px;margin:-1.5rem auto 0;padding:0 1.5rem}
+.route{display:flex;gap:0;align-items:stretch;overflow-x:auto;padding:1.1rem 1.1rem;background:var(--surface);border:1px solid var(--border);border-radius:16px;scrollbar-width:thin}
+.r-step{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:96px;flex:1;text-align:center;position:relative;padding:0 4px}
+.r-step:not(:last-child)::after{content:'';position:absolute;top:15px;left:calc(50% + 18px);right:calc(-50% + 18px);height:2px;background:var(--border)}
+.r-node{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:0.66rem;font-weight:600;
+  background:var(--surface2);border:1.5px solid var(--border);color:var(--text-dim);position:relative;z-index:1}
+.r-step.done .r-node{border-color:rgba(255,255,255,0.18);color:var(--text-muted)}
+.r-step.active .r-node{background:rgba(var(--ph-rgb),0.15);border-color:var(--ph);color:var(--ph);box-shadow:0 0 0 4px rgba(var(--ph-rgb),0.12)}
+.r-label{font-size:0.66rem;color:var(--text-dim);line-height:1.25}
+.r-step.active .r-label{color:var(--ph);font-weight:600}
+.r-pct{font-family:var(--mono);font-size:0.58rem;color:var(--text-dim)}
+
+/* MAIN */
+main{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:4rem 1.5rem 5rem}
+section{margin-bottom:4.5rem;scroll-margin-top:90px}
+.s-label{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:0.68rem;color:var(--ph);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.9rem}
+.s-label::before{content:'';width:22px;height:1px;background:var(--ph)}
+h2.s-title{font-family:var(--display);font-weight:800;letter-spacing:-0.02em;font-size:clamp(1.7rem,3vw,2.4rem);margin-bottom:0.5rem;line-height:1.1}
+.s-desc{color:var(--text-muted);font-size:0.95rem;line-height:1.75;max-width:760px;margin-bottom:2rem}
+.s-desc strong{color:var(--text)}
+p.lead{color:var(--text-muted);font-size:0.95rem;line-height:1.8;max-width:780px;margin-bottom:1rem}
+p.lead strong{color:var(--text)}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:1.6rem 1.7rem;transition:border-color .3s,box-shadow .3s}
+.card:hover{border-color:rgba(var(--ph-rgb),0.28);box-shadow:0 0 44px rgba(var(--ph-rgb),0.05)}
+
+/* CHECKLIST / ENTREGABLES */
+.check-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:0.85rem}
+.check-item{display:flex;gap:0.85rem;align-items:flex-start;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--ph);border-radius:12px;padding:0.95rem 1.05rem;transition:transform .25s,box-shadow .25s}
+.check-item:hover{transform:translateY(-3px);box-shadow:0 14px 36px rgba(0,0,0,.35)}
+.ci-ico{font-size:1.35rem;flex-shrink:0;line-height:1.2}
+.ci-h{font-weight:700;font-size:0.92rem;margin-bottom:2px}
+.ci-t{font-size:0.8rem;color:var(--text-muted);line-height:1.55}
+
+/* STEPS */
+.steps{display:grid;gap:0.9rem;counter-reset:st}
+.step{display:grid;grid-template-columns:42px 1fr;gap:1rem;align-items:start;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.05rem 1.2rem}
+.step::before{counter-increment:st;content:counter(st,decimal-leading-zero);font-family:var(--mono);font-weight:600;font-size:0.82rem;color:var(--ph);background:rgba(var(--ph-rgb),0.1);border:1px solid rgba(var(--ph-rgb),0.3);border-radius:10px;width:42px;height:42px;display:flex;align-items:center;justify-content:center}
+.step-h{font-weight:700;font-size:0.96rem;margin-bottom:3px}
+.step-t{font-size:0.86rem;color:var(--text-muted);line-height:1.65}
+.step-t code{font-family:var(--mono);font-size:0.8rem;color:var(--gold);background:rgba(245,200,66,0.08);padding:1px 6px;border-radius:5px}
+
+/* CALLOUT */
+.callout{border-radius:0 14px 14px 0;padding:1.1rem 1.3rem;margin:1.4rem 0;font-size:0.9rem;line-height:1.75;color:var(--text-muted)}
+.callout strong{color:var(--text)}
+.callout .co-h{display:flex;align-items:center;gap:9px;font-family:var(--display);font-weight:700;font-size:1.02rem;color:var(--text);margin-bottom:0.4rem}
+.callout.phase{background:rgba(var(--ph-rgb),0.05);border:1px solid rgba(var(--ph-rgb),0.22);border-left:4px solid var(--ph)}
+.callout.phase .co-h{color:var(--ph)}
+.callout.info{background:rgba(0,212,255,0.05);border:1px solid rgba(0,212,255,0.22);border-left:4px solid var(--accent)}
+.callout.info .co-h{color:var(--accent)}
+.callout.warn{background:rgba(245,200,66,0.05);border:1px solid rgba(245,200,66,0.25);border-left:4px solid var(--gold)}
+.callout.warn .co-h{color:var(--gold)}
+.callout.success{background:rgba(34,211,165,0.05);border:1px solid rgba(34,211,165,0.25);border-left:4px solid var(--success)}
+.callout.success .co-h{color:var(--success)}
+.callout.danger{background:rgba(255,70,100,0.05);border:1px solid rgba(255,70,100,0.25);border-left:4px solid var(--danger)}
+.callout.danger .co-h{color:var(--danger)}
+
+/* TABLES */
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-top:1.3rem;overflow-x:auto}
+table.tbl{width:100%;border-collapse:collapse;font-size:0.85rem;min-width:520px}
+table.tbl th{background:rgba(var(--ph-rgb),0.08);color:var(--ph);font-family:var(--mono);font-size:0.66rem;letter-spacing:0.07em;text-transform:uppercase;text-align:left;padding:11px 15px;border-bottom:1px solid var(--border)}
+table.tbl td{padding:11px 15px;border-bottom:1px solid rgba(26,46,74,0.55);color:var(--text-muted);vertical-align:top}
+table.tbl tr:last-child td{border-bottom:none}
+table.tbl tr:hover td{background:rgba(255,255,255,0.02)}
+table.tbl td strong{color:var(--text)}
+.pts{font-family:var(--mono);font-weight:600;color:var(--ph);white-space:nowrap}
+tr.total td{background:rgba(var(--ph-rgb),0.06);color:var(--text);font-weight:700;border-top:1px solid rgba(var(--ph-rgb),0.3)}
+tr.total .pts{color:var(--ph);font-size:0.95rem}
+
+/* CODE BLOCK */
+.code-block{background:#070d18;border:1px solid var(--border);border-radius:14px;overflow:hidden;margin:1.3rem 0;font-family:var(--mono)}
+.cb-bar{display:flex;align-items:center;gap:8px;padding:0.6rem 1rem;background:rgba(255,255,255,0.02);border-bottom:1px solid var(--border)}
+.cb-dot{width:10px;height:10px;border-radius:50%}
+.cb-dot.r{background:#ff5f57}.cb-dot.y{background:#febc2e}.cb-dot.g{background:#28c840}
+.cb-name{margin-left:6px;font-size:0.7rem;color:var(--text-muted)}
+.code-block pre{margin:0;padding:1.1rem 1.3rem;font-size:0.8rem;line-height:1.7;color:var(--text);overflow-x:auto;white-space:pre}
+.code-block pre .c{color:var(--text-dim)}
+.code-block pre .k{color:var(--ph)}
+.code-block pre .s{color:var(--success)}
+.code-block pre .g{color:var(--gold)}
+
+/* PILL TAGS */
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:0.5rem}
+.tag{font-family:var(--mono);font-size:0.68rem;padding:3px 10px;border-radius:6px;border:1px solid rgba(var(--ph-rgb),0.3);background:rgba(var(--ph-rgb),0.06);color:var(--ph)}
+.chip{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:8px;padding:5px 12px;font-size:0.8rem;color:var(--text)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:0.6rem}
+.kbd{font-family:var(--mono);font-size:0.78rem;background:var(--surface2);border:1px solid var(--border);border-bottom-width:2px;border-radius:6px;padding:2px 8px;color:var(--text)}
+
+/* GRID 2 */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:720px){.grid2{grid-template-columns:1fr}}
+
+/* MINI HEADING inside section */
+.sub-h{font-family:var(--display);font-weight:700;font-size:1.15rem;margin:1.8rem 0 0.6rem;display:flex;align-items:center;gap:9px}
+.sub-h .n{font-family:var(--mono);font-size:0.72rem;color:var(--ph);border:1px solid rgba(var(--ph-rgb),0.35);background:rgba(var(--ph-rgb),0.08);border-radius:100px;padding:2px 9px}
+
+/* FOOTER */
+footer{text-align:center;padding:3rem 1.5rem;border-top:1px solid var(--border);position:relative;z-index:1}
+footer p{color:var(--text-dim);font-size:0.8rem;font-family:var(--mono);line-height:1.9}
+footer strong{color:var(--ph)}
+
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}
+
+:root{--ph:#00d4ff;--ph-rgb:0,212,255;}
+</style>
+</head>
+<body>
+<div class="progress-bar" id="progress"></div>
+<nav><span class="nav-brand">INDEL · PROYECTO INTEGRADOR 2026</span><div class="nav-links"><a href="#objetivo">Objetivo</a><a href="#entregables">Entregables</a><a href="#como">Pasos</a><a href="#rubrica">Rúbrica</a><a href="#entrega">Entrega</a></div><span class="nav-pond">5%</span></nav>
+<div class="hero"><div class="hero-grid"></div><div class="hero-glow"></div><div class="eyebrow"><span class="dot"></span>FASE 01 — Levantamiento de Requerimientos</div><h1>Levantamiento de<br/><span class="grad">Requerimientos</span></h1><p class="hero-sub">Descubre y documenta todo lo que el sistema debe hacer. Es el cimiento del proyecto: aquí se gana o se pierde el rumbo.</p><div class="pond-badge"><span class="pct">5%</span><span class="lbl">Ponderación</span></div><div class="hero-meta"><div class="meta-item">📅 <span>Entrega <strong>1</strong></span></div><div class="meta-item">📁 <span>Carpeta <strong>docs/</strong></span></div><div class="meta-item">📑 <span>Producto: <strong>ERS</strong></span></div></div></div>
+<div class="route-wrap"><div class="route"><div class="r-step active"><div class="r-node">01</div><div class="r-label">Requerimientos</div><div class="r-pct">5%</div></div><div class="r-step"><div class="r-node">02·03</div><div class="r-label">Diseño</div><div class="r-pct">10%</div></div><div class="r-step"><div class="r-node">04</div><div class="r-label">Desarrollo</div><div class="r-pct">10%</div></div><div class="r-step"><div class="r-node">05</div><div class="r-label">Pruebas</div><div class="r-pct">5%</div></div><div class="r-step"><div class="r-node">06</div><div class="r-label">Despliegue</div><div class="r-pct">5%</div></div><div class="r-step"><div class="r-node">★</div><div class="r-label">Exposición</div><div class="r-pct">10%</div></div><div class="r-step"><div class="r-node">07</div><div class="r-label">Mantenim.</div><div class="r-pct">5%</div></div><div class="r-step"><div class="r-node">✓</div><div class="r-label">Auto+Docente</div><div class="r-pct">10%</div></div></div></div>
+<main>
+<section id="objetivo"><div class="s-label">Meta de la fase</div><h2 class="s-title">Descubrir qué debe hacer el sistema</h2><p class="lead">Esta es la fase <strong>más crítica</strong> de todo el proyecto: un error aquí se arrastra hasta el final. Vas a recopilar, de forma ordenada, <strong>todo lo que el sistema debe hacer</strong> y dejarlo escrito en un documento formal: la Especificación de Requerimientos de Software (ERS/SRS).</p></section><section id="entregables"><div class="s-label">Lo que entregas</div><h2 class="s-title">Entregables de la FASE 01</h2><div class="check-grid"><div class="check-item"><div class="ci-ico">📑</div><div><div class="ci-h">Documento ERS / SRS</div><div class="ci-t">El documento central de esta fase, ordenado y con portada.</div></div></div><div class="check-item"><div class="ci-ico">📝</div><div><div class="ci-h">Ficha del proyecto</div><div class="ci-t">Nombre del sistema, problema que resuelve, cliente/institución, tipo (web/escritorio/móvil).</div></div></div><div class="check-item"><div class="ci-ico">👤</div><div><div class="ci-h">Stakeholders y usuarios</div><div class="ci-t">Quién usa o necesita el sistema y qué espera de él.</div></div></div><div class="check-item"><div class="ci-ico">🔷</div><div><div class="ci-h">Requerimientos funcionales</div><div class="ci-t">Lo que el sistema hace, con identificador: RF-01, RF-02...</div></div></div><div class="check-item"><div class="ci-ico">🔶</div><div><div class="ci-h">Requerimientos no funcionales</div><div class="ci-t">Rendimiento, seguridad, usabilidad: RNF-01, RNF-02...</div></div></div><div class="check-item"><div class="ci-ico">📋</div><div><div class="ci-h">Instrumento de recolección</div><div class="ci-t">Entrevista o encuesta aplicada, con evidencia (Google Forms / fotos).</div></div></div></div></section><section id="como"><div class="s-label">Paso a paso</div><h2 class="s-title">Cómo levantar los requerimientos</h2><div class="steps"><div class="step"><div><div class="step-h">Definan el sistema y el problema</div><div class="step-t">En 3 líneas: ¿qué problema resuelve y para quién? Pónganle nombre.</div></div></div><div class="step"><div><div class="step-h">Identifiquen a los stakeholders</div><div class="step-t">Listen a todas las personas que usarán o influyen en el sistema (dueño, empleados, clientes).</div></div></div><div class="step"><div><div class="step-h">Apliquen una técnica de recolección</div><div class="step-t">Entrevista al "cliente", encuesta a usuarios u observación del proceso actual. Guarden la evidencia.</div></div></div><div class="step"><div><div class="step-h">Redacten requerimientos funcionales</div><div class="step-t">Frases claras y verificables. Ej.: <code>RF-03: El sistema permite registrar una venta.</code></div></div></div><div class="step"><div><div class="step-h">Redacten requerimientos no funcionales</div><div class="step-t">Ej.: <code>RNF-01: El sistema responde en menos de 3 segundos.</code></div></div></div><div class="step"><div><div class="step-h">Prioricen con MoSCoW</div><div class="step-t">Marquen cada requerimiento como Must, Should, Could o Won't para esta versión.</div></div></div><div class="step"><div><div class="step-h">Consoliden el ERS</div><div class="step-t">Integren todo en un solo documento ordenado y súbanlo a <code>docs/</code>.</div></div></div></div></section><section id="ers"><div class="s-label">Plantilla</div><h2 class="s-title">Estructura del documento ERS</h2><p class="s-desc">No improvises el orden. Usa esta estructura como esqueleto del documento.</p><div class="code-block"><div class="cb-bar"><span class="cb-dot r"></span><span class="cb-dot y"></span><span class="cb-dot g"></span><span class="cb-name">ERS.docx — índice</span></div><pre><span class="c"># Estructura mínima del documento ERS / SRS</span>
+1. Introducción          <span class="c"># propósito, alcance, definiciones</span>
+2. Descripción general    <span class="c"># problema actual, usuarios, supuestos</span>
+3. Requerimientos funcionales     <span class="c"># RF-01, RF-02, RF-03 ...</span>
+4. Requerimientos no funcionales  <span class="c"># RNF-01: rendimiento, seguridad...</span>
+5. Casos de uso (texto)   <span class="c"># actor, precondición, flujo, postcondición</span>
+6. Priorización (MoSCoW)  <span class="c"># Must / Should / Could / Won't</span></pre></div></section><section id="ejemplo"><div class="s-label">Ejemplo guía</div><h2 class="s-title">Caso: «Tiendita La Bendición»</h2><p class="s-desc">Sistema de control de inventario y ventas para una tienda de barrio salvadoreña. Este ejemplo nos acompañará en todas las fases.</p><div class="table-wrap"><table class="tbl"><thead><tr><th>Tipo</th><th>ID</th><th>Requerimiento</th></tr></thead><tbody><tr><td>Funcional</td><td>RF-01</td><td>El sistema permite registrar productos con nombre, precio y stock.</td></tr><tr><td>Funcional</td><td>RF-02</td><td>El sistema permite registrar una venta y descontar el stock.</td></tr><tr><td>Funcional</td><td>RF-03</td><td>El sistema muestra el stock disponible de cada producto.</td></tr><tr><td>Funcional</td><td>RF-04</td><td>El sistema genera un reporte de ventas por día.</td></tr><tr><td>No funcional</td><td>RNF-01</td><td>El sistema funciona en una laptop con 4&nbsp;GB de RAM.</td></tr><tr><td>No funcional</td><td>RNF-02</td><td>Solo el administrador puede eliminar productos (acceso por rol).</td></tr></tbody></table></div><div class="callout info"><div class="co-h">💡 Elijan algo cercano</div>Una pupusería, la biblioteca del instituto, una clínica comunal, un taller mecánico, una agrotienda. Mientras más conozcan el proceso real, mejores requerimientos van a escribir.</div></section><section id="rubrica"><div class="s-label">Cómo se califica</div><h2 class="s-title">Rúbrica · FASE 01</h2><p class="s-desc">1 punto = 1% de la nota global del proyecto.</p><div class="table-wrap"><table class="tbl"><thead><tr><th>Criterio</th><th>Qué se evalúa</th><th>Pts.</th></tr></thead><tbody><tr><td><strong>Identificación y stakeholders</strong></td><td>La ficha define con claridad el sistema, el problema y quiénes lo usan.</td><td class="pts">1</td></tr><tr><td><strong>Requerimientos funcionales</strong></td><td>Tienen ID, están bien redactados, son verificables y cubren el sistema.</td><td class="pts">1.5</td></tr><tr><td><strong>Requerimientos no funcionales</strong></td><td>Incluyen al menos rendimiento, seguridad y usabilidad.</td><td class="pts">1</td></tr><tr><td><strong>Técnica de recolección</strong></td><td>Aplicaron entrevista o encuesta y adjuntan evidencia.</td><td class="pts">1</td></tr><tr><td><strong>Calidad del documento ERS</strong></td><td>Orden, formato, portada y consistencia de nombres.</td><td class="pts">0.5</td></tr><tr class="total"><td>FASE 01 — Requerimientos</td><td>Puntos = % del total del proyecto</td><td class="pts">5</td></tr></tbody></table></div></section><section id="entrega"><div class="s-label">Entrega</div><h2 class="s-title">Cómo y dónde entregar</h2><p class="s-desc">Suban el documento a la carpeta <code style="font-family:var(--mono);color:var(--gold)">docs/</code> del repositorio y registren el avance con un commit.</p><div class="code-block"><div class="cb-bar"><span class="cb-dot r"></span><span class="cb-dot y"></span><span class="cb-dot g"></span><span class="cb-name">terminal</span></div><pre><span class="k">git</span> add docs/ERS.pdf
+<span class="k">git</span> commit -m <span class="s">"docs: ERS con requerimientos funcionales y no funcionales (FASE 01)"</span>
+<span class="k">git</span> push</pre></div><div class="callout warn"><div class="co-h">⚠️ Errores comunes</div>Requerimientos vagos ("que sea bonito"), confundir lo que el sistema <em>hace</em> con cómo se ve, y olvidar los no funcionales. Un buen requerimiento se puede probar: si no se puede verificar, está mal redactado.</div></section>
+</main>
+<footer><p>Módulo: <strong>Desarrollo y Documentación de Sistemas Informáticos</strong><br/>Docente: Ing. Javier Mineros &nbsp;·&nbsp; Instituto Nacional Cantón Lourdes (INDEL)<br/>El Salvador &nbsp;·&nbsp; 2026</p></footer>
+<script>
+var pb=document.getElementById("progress");window.addEventListener("scroll",function(){var st=window.scrollY,dh=document.documentElement.scrollHeight-window.innerHeight;pb.style.width=(dh>0?(st/dh*100):0)+"%";});
+var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.style.opacity="1";e.target.style.transform="none";}});},{threshold:0.06});
+document.querySelectorAll(".card,.check-item,.step,.callout,.table-wrap,.code-block").forEach(function(el){el.style.opacity="0";el.style.transform="translateY(18px)";el.style.transition="opacity .55s ease, transform .55s ease";io.observe(el);});
+</script>
+</body>
+</html>

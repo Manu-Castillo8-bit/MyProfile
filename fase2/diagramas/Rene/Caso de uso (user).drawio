@@ -1,0 +1,170 @@
+<mxfile host="app.diagrams.net" agent="Mozilla/5.0">
+  <diagram id="uc_diagram" name="Casos de Uso - MyProfile">
+    <mxGraphModel dx="2289" dy="1473" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="actor" parent="1" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;outlineConnect=0;" value="Usuario" vertex="1">
+          <mxGeometry height="100" width="50" x="30" y="380" as="geometry" />
+        </mxCell>
+        <mxCell id="system" parent="1" style="swimlane;whiteSpace=wrap;html=1;startSize=23;fontStyle=1" value="Sistema MyProfile" vertex="1">
+          <mxGeometry height="1020" width="1200" x="120" y="10" as="geometry" />
+        </mxCell>
+        <mxCell id="box_finanzas" parent="system" style="swimlane;whiteSpace=wrap;html=1;" value="Gestionar Finanzas (CU-01)" vertex="1">
+          <mxGeometry height="200" width="390" x="90" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_movimiento" parent="box_finanzas" style="ellipse;whiteSpace=wrap;html=1;" value="Registrar Movimiento&lt;br&gt;(Ingreso / Gasto)" vertex="1">
+          <mxGeometry height="60" width="120" x="20" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uRGQCn_6XlT_0nIFw8h3-1" parent="box_finanzas" style="ellipse;whiteSpace=wrap;html=1;" value="Visualizar -ResumenFinanciero" vertex="1">
+          <mxGeometry height="60" width="120" x="210" y="30" as="geometry" />
+        </mxCell>
+        <mxCell id="uRGQCn_6XlT_0nIFw8h3-2" parent="box_finanzas" style="ellipse;whiteSpace=wrap;html=1;" value="Registrar secion" vertex="1">
+          <mxGeometry height="60" width="105" x="120" y="110" as="geometry" />
+        </mxCell>
+        <mxCell id="box_pass" parent="system" style="swimlane;whiteSpace=wrap;html=1;" value="Gestionar Contraseñas y Cuentas (CU-02)" vertex="1">
+          <mxGeometry height="230" width="360" x="70" y="500" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_reg_pass" parent="box_pass" style="ellipse;whiteSpace=wrap;html=1;" value="Registrar Cuenta" vertex="1">
+          <mxGeometry height="60" width="130" x="40" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_edit_pass" parent="box_pass" style="ellipse;whiteSpace=wrap;html=1;" value="Editar Cuenta" vertex="1">
+          <mxGeometry height="60" width="130" x="200" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_del_pass" parent="box_pass" style="ellipse;whiteSpace=wrap;html=1;" value="Eliminar Cuenta" vertex="1">
+          <mxGeometry height="60" width="130" x="30" y="140" as="geometry" />
+        </mxCell>
+        <mxCell id="uRGQCn_6XlT_0nIFw8h3-11" parent="box_pass" style="ellipse;whiteSpace=wrap;html=1;" value="Actualizar&lt;div&gt;Contraseña&lt;/div&gt;" vertex="1">
+          <mxGeometry height="60" width="130" x="200" y="130" as="geometry" />
+        </mxCell>
+        <mxCell id="box_tareas" parent="system" style="swimlane;whiteSpace=wrap;html=1;" value="Gestión de Tareas Diarias (CU-03)" vertex="1">
+          <mxGeometry height="290" width="420" x="640" y="60" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_reg_tarea" parent="box_tareas" style="ellipse;whiteSpace=wrap;html=1;" value="Registrar Tarea" vertex="1">
+          <mxGeometry height="70" width="130" x="40" y="40" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_est_tarea" parent="box_tareas" style="ellipse;whiteSpace=wrap;html=1;" value="Cambiar Estado&lt;br&gt;(Pendiente/Completada)" vertex="1">
+          <mxGeometry height="70" width="140" x="230" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_del_tarea" parent="box_tareas" style="ellipse;whiteSpace=wrap;html=1;" value="Eliminar Tarea" vertex="1">
+          <mxGeometry height="60" width="120" x="80" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="uRGQCn_6XlT_0nIFw8h3-5" parent="box_tareas" style="ellipse;whiteSpace=wrap;html=1;" value="Actualizar Tareas&lt;div&gt;&lt;br&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="60" width="120" x="270" y="170" as="geometry" />
+        </mxCell>
+        <mxCell id="box_salud" parent="system" style="swimlane;whiteSpace=wrap;html=1;" value="Recordatorios de Salud (CU-04)" vertex="1">
+          <mxGeometry height="140" width="360" x="40" y="820" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_salud" parent="box_salud" style="ellipse;whiteSpace=wrap;html=1;" value="Configurar Recordatorios&lt;br&gt;(Agua / Descanso visual)" vertex="1">
+          <mxGeometry height="65" width="180" x="90" y="50" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_dashboard" parent="system" style="ellipse;whiteSpace=wrap;html=1;" value="Visualizar Dashboard&lt;br&gt;(Resumen General)" vertex="1">
+          <mxGeometry height="90" width="180" x="640" y="370" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_dash_login" edge="1" parent="system" source="uc_dashboard" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;exitX=1;exitY=0.5;entryX=1;entryY=0.5;entryDx=0;entryDy=0;" target="uc_login" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="uc_login" parent="system" style="ellipse;whiteSpace=wrap;html=1;" value="Iniciar Sesión" vertex="1">
+          <mxGeometry height="60" width="120" x="690" y="530" as="geometry" />
+        </mxCell>
+        <mxCell id="nota_cifrado" parent="system" style="shape=note;whiteSpace=wrap;html=1;backgroundOutline=1;darkOpacity=0.05;" value="Políticas de cifrado aplicadas a cuentas&lt;br&gt;(Actualización en BD)" vertex="1">
+          <mxGeometry height="60" width="170" x="460" y="585" as="geometry" />
+        </mxCell>
+        <mxCell id="edge_nota_cifrado" edge="1" parent="system" source="nota_cifrado" style="edgeStyle=none;html=1;endArrow=none;dashed=1;exitX=0;exitY=0.5;entryX=1;entryY=0.5;" target="box_pass">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="uRGQCn_6XlT_0nIFw8h3-4" edge="1" parent="system" style="edgeStyle=none;html=1;endArrow=none;rounded=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" target="uRGQCn_6XlT_0nIFw8h3-1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="80" y="277" />
+              <mxPoint x="210" y="150" />
+            </Array>
+            <mxPoint x="-40" y="390" as="sourcePoint" />
+            <mxPoint x="215" y="200" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="uRGQCn_6XlT_0nIFw8h3-6" edge="1" parent="system" style="edgeStyle=none;html=1;endArrow=none;rounded=0;entryX=0.5;entryY=1;entryDx=0;entryDy=0;" target="uRGQCn_6XlT_0nIFw8h3-5">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="500" y="330" />
+            </Array>
+            <mxPoint x="-40" y="410" as="sourcePoint" />
+            <mxPoint x="879" y="170" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="uRGQCn_6XlT_0nIFw8h3-8" parent="system" style="ellipse;whiteSpace=wrap;html=1;" value="&lt;span style=&quot;font-size: 14px;&quot;&gt;Visualizar Movimiento de las&lt;/span&gt;&lt;div&gt;&lt;span style=&quot;font-size: 14px;&quot;&gt;(Finanzas)&lt;/span&gt;&lt;/div&gt;" vertex="1">
+          <mxGeometry height="90" width="180" x="970" y="365" as="geometry" />
+        </mxCell>
+        <mxCell id="uRGQCn_6XlT_0nIFw8h3-9" edge="1" parent="system" source="uc_dashboard" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;exitX=1;exitY=0.5;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitDx=0;exitDy=0;" target="uRGQCn_6XlT_0nIFw8h3-13" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="880" y="550" as="sourcePoint" />
+            <mxPoint x="950" y="530" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="uRGQCn_6XlT_0nIFw8h3-10" edge="1" parent="system" source="uc_dashboard" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;exitX=1;exitY=0.5;entryX=0;entryY=0.5;entryDx=0;entryDy=0;exitDx=0;exitDy=0;" target="uRGQCn_6XlT_0nIFw8h3-8" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="1000" y="420" as="sourcePoint" />
+            <mxPoint x="960" y="520" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="uRGQCn_6XlT_0nIFw8h3-13" parent="system" style="ellipse;whiteSpace=wrap;html=1;" value="&lt;span style=&quot;font-size: 14px;&quot;&gt;Visualización de Registro de (Gasto)&lt;/span&gt;" vertex="1">
+          <mxGeometry height="90" width="180" x="970" y="515" as="geometry" />
+        </mxCell>
+        <mxCell id="uRGQCn_6XlT_0nIFw8h3-14" parent="system" style="ellipse;whiteSpace=wrap;html=1;" value="&lt;span style=&quot;font-size: 14px;&quot;&gt;Visualización del movimiento (Ingreso)&lt;/span&gt;" vertex="1">
+          <mxGeometry height="90" width="180" x="840" y="605" as="geometry" />
+        </mxCell>
+        <mxCell id="uRGQCn_6XlT_0nIFw8h3-15" edge="1" parent="system" source="uc_dashboard" style="html=1;verticalAlign=bottom;endArrow=open;dashed=1;endSize=8;rounded=0;exitX=1;exitY=0.5;entryX=0.5;entryY=0;entryDx=0;entryDy=0;exitDx=0;exitDy=0;" target="uRGQCn_6XlT_0nIFw8h3-14" value="&amp;lt;&amp;lt;include&amp;gt;&amp;gt;">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="850" y="565" as="sourcePoint" />
+            <mxPoint x="1090" y="665" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="link1" edge="1" parent="1" source="actor" style="edgeStyle=none;html=1;endArrow=none;rounded=0;" target="uc_movimiento">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="link2" edge="1" parent="1" source="actor" style="edgeStyle=none;html=1;endArrow=none;rounded=0;" target="uc_reg_pass">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="link3" edge="1" parent="1" source="actor" style="edgeStyle=none;html=1;endArrow=none;rounded=0;" target="uc_edit_pass">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="link4" edge="1" parent="1" source="actor" style="edgeStyle=none;html=1;endArrow=none;rounded=0;" target="uc_del_pass">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="link5" edge="1" parent="1" source="actor" style="edgeStyle=none;html=1;endArrow=none;rounded=0;" target="uc_reg_tarea">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="link6" edge="1" parent="1" source="actor" style="edgeStyle=none;html=1;endArrow=none;rounded=0;" target="uc_est_tarea">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="link7" edge="1" parent="1" source="actor" style="edgeStyle=none;html=1;endArrow=none;rounded=0;" target="uc_del_tarea">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="link8" edge="1" parent="1" source="actor" style="edgeStyle=none;html=1;endArrow=none;rounded=0;" target="uc_salud">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="link9" edge="1" parent="1" source="actor" style="edgeStyle=none;html=1;endArrow=none;rounded=0;" target="uc_dashboard">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="link10" edge="1" parent="1" source="actor" style="edgeStyle=none;html=1;endArrow=none;rounded=0;" target="uc_login">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="uRGQCn_6XlT_0nIFw8h3-3" edge="1" parent="1" source="actor" style="edgeStyle=none;html=1;endArrow=none;rounded=0;exitX=1;exitY=0.3333333333333333;exitDx=0;exitDy=0;exitPerimeter=0;entryX=0.044;entryY=0.722;entryDx=0;entryDy=0;entryPerimeter=0;" target="uRGQCn_6XlT_0nIFw8h3-2">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="240" y="280" />
+            </Array>
+            <mxPoint x="240" y="536" as="sourcePoint" />
+            <mxPoint x="420" y="280" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="uRGQCn_6XlT_0nIFw8h3-12" edge="1" parent="1" style="edgeStyle=none;html=1;endArrow=none;rounded=0;entryX=0.5;entryY=0;entryDx=0;entryDy=0;" target="uRGQCn_6XlT_0nIFw8h3-11">
+          <mxGeometry relative="1" as="geometry">
+            <mxPoint x="80" y="440" as="sourcePoint" />
+            <mxPoint x="331" y="605" as="targetPoint" />
+          </mxGeometry>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
