@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<Shell
+    x:Class="Proyecto.AppShell"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:local="clr-namespace:Proyecto"
+    Title="Proyecto"
+    Shell.FlyoutBehavior="Disabled">
+
+    <TabBar>
+        <ShellContent
+            Title="Tareas"
+            Icon="icon_home.png"
+            ContentTemplate="{DataTemplate local:MainPage}"
+            Route="MainPage" />
+
+        <ShellContent
+            Title="Dashboard"
+            Icon="icon_dashboard.png"
+            ContentTemplate="{DataTemplate local:DashboardPage}"
+            Route="DashboardPage" />
+
+        <ShellContent
+            Title="Salud"
+            Icon="icon_salud.png"
+            ContentTemplate="{DataTemplate local:Salud}"
+            Route="Salud" />
+
+        <ShellContent
+            Title="Ahorro"
+            Icon="icon_ahorro.png"
+            ContentTemplate="{DataTemplate local:Ahorro}"
+            Route="Ahorro" />
+
+        <ShellContent
+            Title="Contraseñas"
+            Icon="icon_password.png"
+            ContentTemplate="{DataTemplate local:Password}"
+            Route="Password" />
+
+        <ShellContent
+            Title="Login"
+            Icon="icon_login.png"
+            ContentTemplate="{DataTemplate local:LoginPage}"
+            Route="LoginPage" />
+    </TabBar>
+
+</Shell>

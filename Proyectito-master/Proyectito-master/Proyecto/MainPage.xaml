@@ -1,0 +1,65 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Proyecto.MainPage"
+    BackgroundColor="#121212"
+             Shell.NavBarIsVisible="False">
+
+    <Grid RowDefinitions="Auto, Auto, *">
+        <!-- Título y Botón Agregar -->
+        <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Padding="20,20,20,10">
+            <Label Grid.Column="0" Text="Mis Tareas" FontSize="22" FontAttributes="Bold" TextColor="White" VerticalOptions="Center" />
+            <Button Grid.Column="1" Text="+" BackgroundColor="#1E1E1E" TextColor="White" FontAttributes="Bold" CornerRadius="10" WidthRequest="40" HeightRequest="40" />
+        </Grid>
+
+        <!-- Selector de Pestañas (Pendientes / Completadas) -->
+        <Grid Grid.Row="1" ColumnDefinitions="*, *" Padding="20,0,20,15" ColumnSpacing="10">
+            <Button Grid.Column="0" Text="Pendientes" BackgroundColor="White" TextColor="Black" FontAttributes="Bold" CornerRadius="12" HeightRequest="40" />
+            <Button Grid.Column="1" Text="Completadas" BackgroundColor="#1E1E1E" TextColor="#8E8E93" CornerRadius="12" HeightRequest="40" />
+        </Grid>
+
+        <!-- Lista de Tareas -->
+        <ScrollView Grid.Row="2">
+            <VerticalStackLayout Padding="20,0,20,20" Spacing="10">
+
+                <!-- Tarea 1 -->
+                <Frame BackgroundColor="#1E1E1E" BorderColor="#2C2C2C" CornerRadius="14" Padding="14" HasShadow="False">
+                    <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="12">
+                        <CheckBox Grid.Column="0" Color="White" VerticalOptions="Center" />
+                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                            <Label Text="Entregar informe" TextColor="White" FontSize="14" FontAttributes="Bold" />
+                            <Label Text="Enviar informe final de POO al equipo" TextColor="#8E8E93" FontSize="12" />
+                        </VerticalStackLayout>
+                        <Label Grid.Column="2" Text="30 Ago" TextColor="#8E8E93" FontSize="11" VerticalOptions="Center" />
+                    </Grid>
+                </Frame>
+
+                <!-- Tarea 2 -->
+                <Frame BackgroundColor="#1E1E1E" BorderColor="#2C2C2C" CornerRadius="14" Padding="14" HasShadow="False">
+                    <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="12">
+                        <CheckBox Grid.Column="0" Color="White" VerticalOptions="Center" />
+                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                            <Label Text="Comprar víveres" TextColor="White" FontSize="14" FontAttributes="Bold" />
+                            <Label Text="Leche, huevos, verduras y otros" TextColor="#8E8E93" FontSize="12" />
+                        </VerticalStackLayout>
+                        <Label Grid.Column="2" Text="31 Ago" TextColor="#8E8E93" FontSize="11" VerticalOptions="Center" />
+                    </Grid>
+                </Frame>
+
+                <!-- Tarea 3 -->
+                <Frame BackgroundColor="#1E1E1E" BorderColor="#2C2C2C" CornerRadius="14" Padding="14" HasShadow="False">
+                    <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="12">
+                        <CheckBox Grid.Column="0" Color="White" VerticalOptions="Center" />
+                        <VerticalStackLayout Grid.Column="1" Spacing="2" VerticalOptions="Center">
+                            <Label Text="Reunión médica" TextColor="White" FontSize="14" FontAttributes="Bold" />
+                            <Label Text="Chequeo visual con el doctor" TextColor="#8E8E93" FontSize="12" />
+                        </VerticalStackLayout>
+                        <Label Grid.Column="2" Text="01 Sep" TextColor="#8E8E93" FontSize="11" VerticalOptions="Center" />
+                    </Grid>
+                </Frame>
+
+            </VerticalStackLayout>
+        </ScrollView>
+    </Grid>
+
+</ContentPage>

@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Proyecto.DashboardPage"
+             Title="DashboardPage"
+    BackgroundColor="#121212"
+             Shell.NavBarIsVisible="False">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20,40,20,30" Spacing="20">
+
+            <!-- Cabecera de Usuario -->
+            <Grid ColumnDefinitions="*, Auto">
+                <VerticalStackLayout Grid.Column="0" Spacing="2">
+                    <Label Text="Hola, Usuario" FontSize="22" FontAttributes="Bold" TextColor="White" />
+                    <Label Text="Bienvenido de vuelta a tu espacio" FontSize="13" TextColor="#8E8E93" />
+                </VerticalStackLayout>
+                <Frame Grid.Column="1" WidthRequest="42" HeightRequest="42" CornerRadius="21" BackgroundColor="#1E1E1E" BorderColor="#2C2C2C" Padding="0" HorizontalOptions="End">
+                    <Image Source="user_icon.png" WidthRequest="20" HeightRequest="20" HorizontalOptions="Center" VerticalOptions="Center" />
+                </Frame>
+            </Grid>
+
+            <!-- Tarjeta: Tareas Activas -->
+            <Frame BackgroundColor="#1E1E1E" BorderColor="#2C2C2C" CornerRadius="16" Padding="16" HasShadow="False">
+                <VerticalStackLayout Spacing="10">
+                    <Grid ColumnDefinitions="*, Auto">
+                        <HorizontalStackLayout Grid.Column="0" Spacing="8">
+                            <Label Text="≡" TextColor="White" FontSize="16" VerticalOptions="Center" />
+                            <Label Text="Tareas activas" TextColor="White" FontSize="15" FontAttributes="Bold" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                        <Label Grid.Column="1" Text="5 pendientes" TextColor="#8E8E93" FontSize="13" VerticalOptions="Center" />
+                    </Grid>
+                    <!-- Barra de progreso simulada -->
+                    <ProgressBar Progress="0.4" ProgressColor="White" BackgroundColor="#2C2C2C" HeightRequest="4" />
+                    <Label Text="40% completado" FontSize="12" TextColor="#8E8E93" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Tarjeta: Saldo de Ahorro -->
+            <Frame BackgroundColor="#1E1E1E" BorderColor="#2C2C2C" CornerRadius="16" Padding="16" HasShadow="False">
+                <Grid ColumnDefinitions="*, Auto">
+                    <VerticalStackLayout Grid.Column="0" Spacing="4">
+                        <HorizontalStackLayout Spacing="8">
+                            <Label Text="📅" FontSize="14" VerticalOptions="Center" />
+                            <Label Text="Saldo de ahorro" TextColor="#8E8E93" FontSize="13" VerticalOptions="Center" />
+                        </HorizontalStackLayout>
+                        <Label Text="$1,250.00" TextColor="White" FontSize="24" FontAttributes="Bold" />
+                    </VerticalStackLayout>
+                </Grid>
+            </Frame>
+
+            <!-- Tarjetas de Recordatorios de Salud (Dos columnas) -->
+            <Grid ColumnDefinitions="*, *" ColumnSpacing="12">
+                <!-- Agua -->
+                <Frame Grid.Column="0" BackgroundColor="#1E1E1E" BorderColor="#2C2C2C" CornerRadius="16" Padding="14" HasShadow="False">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="💧" FontSize="16" />
+                        <Label Text="Próximo vaso de agua" TextColor="#8E8E93" FontSize="11" />
+                        <Label Text="En 12 min" TextColor="White" FontSize="15" FontAttributes="Bold" />
+                    </VerticalStackLayout>
+                </Frame>
+                <!-- Descanso Visual -->
+                <Frame Grid.Column="1" BackgroundColor="#1E1E1E" BorderColor="#2C2C2C" CornerRadius="16" Padding="14" HasShadow="False">
+                    <VerticalStackLayout Spacing="8">
+                        <Label Text="👁️" FontSize="16" />
+                        <Label Text="Descanso visual" TextColor="#8E8E93" FontSize="11" />
+                        <Label Text="En 8 min" TextColor="White" FontSize="15" FontAttributes="Bold" />
+                    </VerticalStackLayout>
+                </Frame>
+            </Grid>
+
+            <!-- Accesos Rápidos -->
+            <VerticalStackLayout Spacing="10">
+                <Label Text="Accesos rápidos" TextColor="White" FontSize="15" FontAttributes="Bold" />
+                <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Never">
+                    <HorizontalStackLayout Spacing="10">
+                        <Button Text="Gmail" BackgroundColor="#1E1E1E" TextColor="White" CornerRadius="10" HeightRequest="38" FontSize="13" />
+                        <Button Text="Instagram" BackgroundColor="#1E1E1E" TextColor="White" CornerRadius="10" HeightRequest="38" FontSize="13" />
+                        <Button Text="Netflix" BackgroundColor="#1E1E1E" TextColor="White" CornerRadius="10" HeightRequest="38" FontSize="13" />
+                        <Button Text="Github" BackgroundColor="#1E1E1E" TextColor="White" CornerRadius="10" HeightRequest="38" FontSize="13" />
+                    </HorizontalStackLayout>
+                </ScrollView>
+            </VerticalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

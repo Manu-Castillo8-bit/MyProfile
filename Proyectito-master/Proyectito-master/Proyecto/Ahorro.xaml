@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Proyecto.Ahorro"
+             Title="Ahorro"
+             BackgroundColor="#121212"
+             Shell.NavBarIsVisible="False">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20,40,20,30" Spacing="20">
+
+            <Label Text="Control de Ahorros" FontSize="22" FontAttributes="Bold" TextColor="White" />
+
+            <!-- Tarjeta Principal de Saldo -->
+            <Frame BackgroundColor="#1E1E1E" BorderColor="#2C2C2C" CornerRadius="16" Padding="20" HasShadow="False">
+                <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
+                    <Label Text="Saldo actual" TextColor="#8E8E93" FontSize="13" HorizontalTextAlignment="Center" />
+                    <Label Text="$1,250.00" TextColor="White" FontSize="28" FontAttributes="Bold" HorizontalTextAlignment="Center" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Botones de Acción (Ingreso / Gasto) -->
+            <Grid ColumnDefinitions="*, *" ColumnSpacing="12">
+                <Button Grid.Column="0" Text="+ Ingreso" BackgroundColor="White" TextColor="Black" FontAttributes="Bold" CornerRadius="12" HeightRequest="45" />
+                <Button Grid.Column="1" Text="- Gasto" BackgroundColor="#1E1E1E" TextColor="White" FontAttributes="Bold" CornerRadius="12" HeightRequest="45" BorderColor="#2C2C2C" />
+            </Grid>
+
+            <!-- Historial de Últimas Transacciones -->
+            <VerticalStackLayout Spacing="12">
+                <Label Text="Últimas transacciones" TextColor="White" FontSize="16" FontAttributes="Bold" />
+
+                <!-- Transacción 1 -->
+                <Frame BackgroundColor="#1E1E1E" BorderColor="#2C2C2C" CornerRadius="14" Padding="14" HasShadow="False">
+                    <Grid ColumnDefinitions="*, Auto">
+                        <VerticalStackLayout Grid.Column="0" Spacing="2">
+                            <Label Text="Pago de freelance" TextColor="White" FontSize="14" FontAttributes="Bold" />
+                            <Label Text="24 Ago • Ingreso" TextColor="#8E8E93" FontSize="12" />
+                        </VerticalStackLayout>
+                        <Label Grid.Column="1" Text="+$450.00" TextColor="#4CD964" FontSize="15" FontAttributes="Bold" VerticalOptions="Center" />
+                    </Grid>
+                </Frame>
+
+                <!-- Transacción 2 -->
+                <Frame BackgroundColor="#1E1E1E" BorderColor="#2C2C2C" CornerRadius="14" Padding="14" HasShadow="False">
+                    <Grid ColumnDefinitions="*, Auto">
+                        <VerticalStackLayout Grid.Column="0" Spacing="2">
+                            <Label Text="Supermercado Semanal" TextColor="White" FontSize="14" FontAttributes="Bold" />
+                            <Label Text="22 Ago • Gasto" TextColor="#8E8E93" FontSize="12" />
+                        </VerticalStackLayout>
+                        <Label Grid.Column="1" Text="-$85.50" TextColor="#FF3B30" FontSize="15" FontAttributes="Bold" VerticalOptions="Center" />
+                    </Grid>
+                </Frame>
+
+                <!-- Transacción 3 -->
+                <Frame BackgroundColor="#1E1E1E" BorderColor="#2C2C2C" CornerRadius="14" Padding="14" HasShadow="False">
+                    <Grid ColumnDefinitions="*, Auto">
+                        <VerticalStackLayout Grid.Column="0" Spacing="2">
+                            <Label Text="Suscripción streaming" TextColor="White" FontSize="14" FontAttributes="Bold" />
+                            <Label Text="18 Ago • Gasto" TextColor="#8E8E93" FontSize="12" />
+                        </VerticalStackLayout>
+                        <Label Grid.Column="1" Text="-$12.99" TextColor="#FF3B30" FontSize="15" FontAttributes="Bold" VerticalOptions="Center" />
+                    </Grid>
+                </Frame>
+
+            </VerticalStackLayout>
+
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
