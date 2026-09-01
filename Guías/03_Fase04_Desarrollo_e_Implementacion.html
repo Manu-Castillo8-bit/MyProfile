@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FASE 04 — Desarrollo / Implementación</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+
+:root{
+  --bg:#050a14; --surface:#0b1628; --surface2:#0f1e36; --border:#1a2e4a;
+  --accent:#00d4ff; --accent2:#ff6b2b; --accent3:#7c3aed; --gold:#f5c842;
+  --text:#e2eaf8; --text-muted:#7a92b4; --text-dim:#3a5070; --success:#22d3a5;
+  --danger:#ff4664;
+  --mono:'JetBrains Mono',monospace; --body:'Space Grotesk',sans-serif; --display:'Syne',sans-serif;
+  /* --ph y --ph-rgb se inyectan por página */
+  --ph:#00d4ff; --ph-rgb:0,212,255;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--body);overflow-x:hidden;line-height:1.5}
+::selection{background:rgba(var(--ph-rgb),0.3);color:#fff}
+a{color:var(--ph)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--ph);outline-offset:3px;border-radius:4px}
+
+body::before{content:'';position:fixed;inset:0;pointer-events:none;z-index:0;opacity:0.55;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E")}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+  background:rgba(5,10,20,0.72);border-bottom:1px solid rgba(255,255,255,0.05);
+  padding:0.75rem 1.6rem;display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap}
+.nav-brand{font-family:var(--mono);font-size:0.72rem;color:var(--ph);letter-spacing:0.08em;white-space:nowrap}
+.nav-links{display:flex;gap:1.2rem;flex-wrap:wrap}
+.nav-links a{font-size:0.78rem;color:var(--text-muted);text-decoration:none;transition:color .2s}
+.nav-links a:hover{color:var(--text)}
+.nav-pond{font-family:var(--mono);font-size:0.72rem;font-weight:600;color:var(--ph);
+  border:1px solid rgba(var(--ph-rgb),0.4);background:rgba(var(--ph-rgb),0.08);border-radius:100px;padding:3px 11px}
+@media(max-width:760px){.nav-links{display:none}}
+
+.progress-bar{position:fixed;top:0;left:0;height:2px;width:0;background:linear-gradient(90deg,var(--ph),var(--accent3));z-index:200;transition:width .1s linear}
+
+/* HERO */
+.hero{position:relative;min-height:78vh;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center;padding:6rem 1.5rem 4rem;overflow:hidden}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(var(--ph-rgb),0.06) 1px,transparent 1px),linear-gradient(90deg,rgba(var(--ph-rgb),0.06) 1px,transparent 1px);background-size:42px 42px;mask-image:radial-gradient(ellipse 75% 75% at 50% 45%,#000 38%,transparent 100%)}
+.hero-glow{position:absolute;width:680px;height:680px;max-width:120vw;border-radius:50%;top:46%;left:50%;transform:translate(-50%,-50%);
+  background:radial-gradient(circle,rgba(var(--ph-rgb),0.16) 0%,rgba(124,58,237,0.08) 42%,transparent 70%);animation:pulse 6s ease-in-out infinite}
+@keyframes pulse{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:1}50%{transform:translate(-50%,-50%) scale(1.07);opacity:.7}}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;background:rgba(var(--ph-rgb),0.08);border:1px solid rgba(var(--ph-rgb),0.3);
+  border-radius:100px;padding:6px 16px;font-family:var(--mono);font-size:0.7rem;color:var(--ph);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:1.6rem;position:relative;z-index:1;animation:fd .8s ease both}
+.dot{width:6px;height:6px;background:var(--ph);border-radius:50%;animation:blink 1.5s ease-in-out infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+.hero h1{position:relative;z-index:1;font-family:var(--display);font-weight:800;line-height:1.04;letter-spacing:-0.02em;
+  font-size:clamp(2.3rem,5.5vw,4.4rem);animation:fu .9s ease .15s both}
+.hero h1 .grad{background:linear-gradient(135deg,var(--ph) 0%,var(--accent3) 58%,var(--accent2) 100%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.hero-sub{position:relative;z-index:1;margin-top:1.2rem;font-size:1.02rem;color:var(--text-muted);max-width:620px;line-height:1.7;animation:fu .9s ease .35s both}
+.pond-badge{position:relative;z-index:1;margin-top:2rem;display:inline-flex;flex-direction:column;align-items:center;gap:2px;
+  padding:0.9rem 2rem;border-radius:18px;border:1px solid rgba(var(--ph-rgb),0.35);background:rgba(var(--ph-rgb),0.06);animation:fu .9s ease .5s both}
+.pond-badge .pct{font-family:var(--display);font-weight:800;font-size:2.6rem;line-height:1;color:var(--ph)}
+.pond-badge .lbl{font-family:var(--mono);font-size:0.64rem;letter-spacing:0.14em;text-transform:uppercase;color:var(--text-muted)}
+.hero-meta{position:relative;z-index:1;display:flex;gap:1.8rem;margin-top:2.2rem;flex-wrap:wrap;justify-content:center;animation:fu .9s ease .65s both}
+.meta-item{display:flex;align-items:center;gap:8px;font-size:0.84rem;color:var(--text-muted)}
+.meta-item strong{color:var(--text);font-weight:600}
+@keyframes fu{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fd{from{opacity:0;transform:translateY(-14px)}to{opacity:1;transform:translateY(0)}}
+
+/* ROUTE STEPPER */
+.route-wrap{position:relative;z-index:1;max-width:1180px;margin:-1.5rem auto 0;padding:0 1.5rem}
+.route{display:flex;gap:0;align-items:stretch;overflow-x:auto;padding:1.1rem 1.1rem;background:var(--surface);border:1px solid var(--border);border-radius:16px;scrollbar-width:thin}
+.r-step{display:flex;flex-direction:column;align-items:center;gap:6px;min-width:96px;flex:1;text-align:center;position:relative;padding:0 4px}
+.r-step:not(:last-child)::after{content:'';position:absolute;top:15px;left:calc(50% + 18px);right:calc(-50% + 18px);height:2px;background:var(--border)}
+.r-node{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:0.66rem;font-weight:600;
+  background:var(--surface2);border:1.5px solid var(--border);color:var(--text-dim);position:relative;z-index:1}
+.r-step.done .r-node{border-color:rgba(255,255,255,0.18);color:var(--text-muted)}
+.r-step.active .r-node{background:rgba(var(--ph-rgb),0.15);border-color:var(--ph);color:var(--ph);box-shadow:0 0 0 4px rgba(var(--ph-rgb),0.12)}
+.r-label{font-size:0.66rem;color:var(--text-dim);line-height:1.25}
+.r-step.active .r-label{color:var(--ph);font-weight:600}
+.r-pct{font-family:var(--mono);font-size:0.58rem;color:var(--text-dim)}
+
+/* MAIN */
+main{position:relative;z-index:1;max-width:1100px;margin:0 auto;padding:4rem 1.5rem 5rem}
+section{margin-bottom:4.5rem;scroll-margin-top:90px}
+.s-label{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:0.68rem;color:var(--ph);letter-spacing:0.12em;text-transform:uppercase;margin-bottom:0.9rem}
+.s-label::before{content:'';width:22px;height:1px;background:var(--ph)}
+h2.s-title{font-family:var(--display);font-weight:800;letter-spacing:-0.02em;font-size:clamp(1.7rem,3vw,2.4rem);margin-bottom:0.5rem;line-height:1.1}
+.s-desc{color:var(--text-muted);font-size:0.95rem;line-height:1.75;max-width:760px;margin-bottom:2rem}
+.s-desc strong{color:var(--text)}
+p.lead{color:var(--text-muted);font-size:0.95rem;line-height:1.8;max-width:780px;margin-bottom:1rem}
+p.lead strong{color:var(--text)}
+
+.card{background:var(--surface);border:1px solid var(--border);border-radius:18px;padding:1.6rem 1.7rem;transition:border-color .3s,box-shadow .3s}
+.card:hover{border-color:rgba(var(--ph-rgb),0.28);box-shadow:0 0 44px rgba(var(--ph-rgb),0.05)}
+
+/* CHECKLIST / ENTREGABLES */
+.check-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:0.85rem}
+.check-item{display:flex;gap:0.85rem;align-items:flex-start;background:var(--surface);border:1px solid var(--border);border-left:3px solid var(--ph);border-radius:12px;padding:0.95rem 1.05rem;transition:transform .25s,box-shadow .25s}
+.check-item:hover{transform:translateY(-3px);box-shadow:0 14px 36px rgba(0,0,0,.35)}
+.ci-ico{font-size:1.35rem;flex-shrink:0;line-height:1.2}
+.ci-h{font-weight:700;font-size:0.92rem;margin-bottom:2px}
+.ci-t{font-size:0.8rem;color:var(--text-muted);line-height:1.55}
+
+/* STEPS */
+.steps{display:grid;gap:0.9rem;counter-reset:st}
+.step{display:grid;grid-template-columns:42px 1fr;gap:1rem;align-items:start;background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:1.05rem 1.2rem}
+.step::before{counter-increment:st;content:counter(st,decimal-leading-zero);font-family:var(--mono);font-weight:600;font-size:0.82rem;color:var(--ph);background:rgba(var(--ph-rgb),0.1);border:1px solid rgba(var(--ph-rgb),0.3);border-radius:10px;width:42px;height:42px;display:flex;align-items:center;justify-content:center}
+.step-h{font-weight:700;font-size:0.96rem;margin-bottom:3px}
+.step-t{font-size:0.86rem;color:var(--text-muted);line-height:1.65}
+.step-t code{font-family:var(--mono);font-size:0.8rem;color:var(--gold);background:rgba(245,200,66,0.08);padding:1px 6px;border-radius:5px}
+
+/* CALLOUT */
+.callout{border-radius:0 14px 14px 0;padding:1.1rem 1.3rem;margin:1.4rem 0;font-size:0.9rem;line-height:1.75;color:var(--text-muted)}
+.callout strong{color:var(--text)}
+.callout .co-h{display:flex;align-items:center;gap:9px;font-family:var(--display);font-weight:700;font-size:1.02rem;color:var(--text);margin-bottom:0.4rem}
+.callout.phase{background:rgba(var(--ph-rgb),0.05);border:1px solid rgba(var(--ph-rgb),0.22);border-left:4px solid var(--ph)}
+.callout.phase .co-h{color:var(--ph)}
+.callout.info{background:rgba(0,212,255,0.05);border:1px solid rgba(0,212,255,0.22);border-left:4px solid var(--accent)}
+.callout.info .co-h{color:var(--accent)}
+.callout.warn{background:rgba(245,200,66,0.05);border:1px solid rgba(245,200,66,0.25);border-left:4px solid var(--gold)}
+.callout.warn .co-h{color:var(--gold)}
+.callout.success{background:rgba(34,211,165,0.05);border:1px solid rgba(34,211,165,0.25);border-left:4px solid var(--success)}
+.callout.success .co-h{color:var(--success)}
+.callout.danger{background:rgba(255,70,100,0.05);border:1px solid rgba(255,70,100,0.25);border-left:4px solid var(--danger)}
+.callout.danger .co-h{color:var(--danger)}
+
+/* TABLES */
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-top:1.3rem;overflow-x:auto}
+table.tbl{width:100%;border-collapse:collapse;font-size:0.85rem;min-width:520px}
+table.tbl th{background:rgba(var(--ph-rgb),0.08);color:var(--ph);font-family:var(--mono);font-size:0.66rem;letter-spacing:0.07em;text-transform:uppercase;text-align:left;padding:11px 15px;border-bottom:1px solid var(--border)}
+table.tbl td{padding:11px 15px;border-bottom:1px solid rgba(26,46,74,0.55);color:var(--text-muted);vertical-align:top}
+table.tbl tr:last-child td{border-bottom:none}
+table.tbl tr:hover td{background:rgba(255,255,255,0.02)}
+table.tbl td strong{color:var(--text)}
+.pts{font-family:var(--mono);font-weight:600;color:var(--ph);white-space:nowrap}
+tr.total td{background:rgba(var(--ph-rgb),0.06);color:var(--text);font-weight:700;border-top:1px solid rgba(var(--ph-rgb),0.3)}
+tr.total .pts{color:var(--ph);font-size:0.95rem}
+
+/* CODE BLOCK */
+.code-block{background:#070d18;border:1px solid var(--border);border-radius:14px;overflow:hidden;margin:1.3rem 0;font-family:var(--mono)}
+.cb-bar{display:flex;align-items:center;gap:8px;padding:0.6rem 1rem;background:rgba(255,255,255,0.02);border-bottom:1px solid var(--border)}
+.cb-dot{width:10px;height:10px;border-radius:50%}
+.cb-dot.r{background:#ff5f57}.cb-dot.y{background:#febc2e}.cb-dot.g{background:#28c840}
+.cb-name{margin-left:6px;font-size:0.7rem;color:var(--text-muted)}
+.code-block pre{margin:0;padding:1.1rem 1.3rem;font-size:0.8rem;line-height:1.7;color:var(--text);overflow-x:auto;white-space:pre}
+.code-block pre .c{color:var(--text-dim)}
+.code-block pre .k{color:var(--ph)}
+.code-block pre .s{color:var(--success)}
+.code-block pre .g{color:var(--gold)}
+
+/* PILL TAGS */
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:0.5rem}
+.tag{font-family:var(--mono);font-size:0.68rem;padding:3px 10px;border-radius:6px;border:1px solid rgba(var(--ph-rgb),0.3);background:rgba(var(--ph-rgb),0.06);color:var(--ph)}
+.chip{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.03);border:1px solid var(--border);border-radius:8px;padding:5px 12px;font-size:0.8rem;color:var(--text)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:0.6rem}
+.kbd{font-family:var(--mono);font-size:0.78rem;background:var(--surface2);border:1px solid var(--border);border-bottom-width:2px;border-radius:6px;padding:2px 8px;color:var(--text)}
+
+/* GRID 2 */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:1rem}
+@media(max-width:720px){.grid2{grid-template-columns:1fr}}
+
+/* MINI HEADING inside section */
+.sub-h{font-family:var(--display);font-weight:700;font-size:1.15rem;margin:1.8rem 0 0.6rem;display:flex;align-items:center;gap:9px}
+.sub-h .n{font-family:var(--mono);font-size:0.72rem;color:var(--ph);border:1px solid rgba(var(--ph-rgb),0.35);background:rgba(var(--ph-rgb),0.08);border-radius:100px;padding:2px 9px}
+
+/* FOOTER */
+footer{text-align:center;padding:3rem 1.5rem;border-top:1px solid var(--border);position:relative;z-index:1}
+footer p{color:var(--text-dim);font-size:0.8rem;font-family:var(--mono);line-height:1.9}
+footer strong{color:var(--ph)}
+
+@media(prefers-reduced-motion:reduce){
+  *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
+}
+
+:root{--ph:#f5c842;--ph-rgb:245,200,66;}
+</style>
+</head>
+<body>
+<div class="progress-bar" id="progress"></div>
+<nav><span class="nav-brand">INDEL · PROYECTO INTEGRADOR 2026</span><div class="nav-links"><a href="#objetivo">Objetivo</a><a href="#manuales">Manuales</a><a href="#entregables">Entregables</a><a href="#rubrica">Rúbrica</a><a href="#entrega">Entrega</a></div><span class="nav-pond">10%</span></nav>
+<div class="hero"><div class="hero-grid"></div><div class="hero-glow"></div><div class="eyebrow"><span class="dot"></span>FASE 04 — Desarrollo / Implementación</div><h1>Desarrollo e<br/><span class="grad">Implementación</span></h1><p class="hero-sub">Programa el sistema siguiendo tus diseños y respáldalo con manuales que crecen fase a fase. El código vive en tu repositorio.</p><div class="pond-badge"><span class="pct">10%</span><span class="lbl">Ponderación</span></div><div class="hero-meta"><div class="meta-item">📅 <span>Entrega <strong>3</strong></span></div><div class="meta-item">🐙 <span>Todo en <strong>GitHub</strong></span></div><div class="meta-item">📚 <span>Manuales <strong>acumulativos</strong></span></div></div></div>
+<div class="route-wrap"><div class="route"><div class="r-step done"><div class="r-node">01</div><div class="r-label">Requerimientos</div><div class="r-pct">5%</div></div><div class="r-step done"><div class="r-node">02·03</div><div class="r-label">Diseño</div><div class="r-pct">10%</div></div><div class="r-step active"><div class="r-node">04</div><div class="r-label">Desarrollo</div><div class="r-pct">10%</div></div><div class="r-step"><div class="r-node">05</div><div class="r-label">Pruebas</div><div class="r-pct">5%</div></div><div class="r-step"><div class="r-node">06</div><div class="r-label">Despliegue</div><div class="r-pct">5%</div></div><div class="r-step"><div class="r-node">★</div><div class="r-label">Exposición</div><div class="r-pct">10%</div></div><div class="r-step"><div class="r-node">07</div><div class="r-label">Mantenim.</div><div class="r-pct">5%</div></div><div class="r-step"><div class="r-node">✓</div><div class="r-label">Auto+Docente</div><div class="r-pct">10%</div></div></div></div>
+<main>
+<section id="objetivo"><div class="s-label">Meta de la fase</div><h2 class="s-title">Construir el sistema, documentando a la par</h2><p class="lead">Aquí el equipo <strong>programa el sistema</strong> siguiendo los diseños de la fase anterior. Pero no solo se evalúa el código: cada avance se sube al repositorio y se respalda con <strong>manuales que crecen junto al proyecto</strong>.</p></section><section id="manuales"><div class="s-label">Importante</div><h2 class="s-title">Los manuales son acumulativos</h2><div class="callout danger"><div class="co-h">📚 Léelo bien</div>Los manuales <strong>no se entregan al final de golpe</strong>: se van cargando y actualizando fase a fase en la carpeta <code>manuales/</code>, preferentemente en <strong>GitHub</strong> (Drive como alternativa). Al cerrar el proyecto se revisan <strong>completos</strong>. Quien los deja para el último día, lo paga caro.</div><p class="s-desc">Este es el tablero de control de tus manuales. Mantenlo presente toda la fase.</p><div class="table-wrap"><table class="tbl"><thead><tr><th>Manual</th><th>Nace en</th><th>Se actualiza en</th><th>Estado</th></tr></thead><tbody><tr><td>📘 Manual Técnico</td><td>FASE 04</td><td>04 → 07</td><td>En construcción</td></tr><tr><td>⚙️ Manual de Sistema</td><td>FASE 04</td><td>04 → 06</td><td>En construcción</td></tr><tr><td>📗 Manual de Usuario</td><td>FASE 04</td><td>04 → 06</td><td>Borrador</td></tr><tr><td>📦 Diccionario de Datos</td><td>FASE 02-03</td><td>Cada fase</td><td>Se actualiza</td></tr><tr><td>🧪 Documentación de pruebas</td><td>FASE 05</td><td>FASE 05</td><td>Pendiente</td></tr><tr><td>🛠️ Manual de Instalación</td><td>FASE 06</td><td>FASE 06</td><td>Pendiente</td></tr></tbody></table></div></section><section id="entregables"><div class="s-label">Lo que entregas</div><h2 class="s-title">Entregables de la FASE 04</h2><div class="check-grid"><div class="check-item"><div class="ci-ico">💻</div><div><div class="ci-h">Código funcional en el repo</div><div class="ci-t">El sistema avanzando, subido a <code>src/</code>.</div></div></div><div class="check-item"><div class="ci-ico">🔀</div><div><div class="ci-h">Historial de commits</div><div class="ci-t">Commits frecuentes y descriptivos que muestran el avance real.</div></div></div><div class="check-item"><div class="ci-ico">📘</div><div><div class="ci-h">Manual Técnico</div><div class="ci-t">Arquitectura, módulos y decisiones de implementación.</div></div></div><div class="check-item"><div class="ci-ico">⚙️</div><div><div class="ci-h">Manual de Sistema</div><div class="ci-t">Cómo está construido y configurado el sistema por dentro.</div></div></div><div class="check-item"><div class="ci-ico">📗</div><div><div class="ci-h">Manual de Usuario (borrador)</div><div class="ci-t">Cómo se usa el sistema, paso a paso, con capturas.</div></div></div><div class="check-item"><div class="ci-ico">📦</div><div><div class="ci-h">Diccionario de Datos actualizado</div><div class="ci-t">Sincronizado con la base de datos real ya implementada.</div></div></div></div></section><section id="git"><div class="s-label">Buenas prácticas</div><h2 class="s-title">Cómo trabajar con Git</h2><div class="steps"><div class="step"><div><div class="step-h">Commits con mensaje claro</div><div class="step-t">Describe qué se hizo. Usa el formato <code>tipo: descripción</code>.</div></div></div><div class="step"><div><div class="step-h">Sube seguido, no todo junto</div><div class="step-t">Muchos commits pequeños cuentan la historia del proyecto mejor que uno gigante.</div></div></div><div class="step"><div><div class="step-h">Usa .gitignore</div><div class="step-t">No subas <code>node_modules/</code>, contraseñas ni archivos pesados generados.</div></div></div><div class="step"><div><div class="step-h">Actualiza el README</div><div class="step-t">Que cualquiera pueda clonar el repo y saber qué es y cómo correrlo.</div></div></div></div><div class="code-block"><div class="cb-bar"><span class="cb-dot r"></span><span class="cb-dot y"></span><span class="cb-dot g"></span><span class="cb-name">ejemplos de commits</span></div><pre><span class="k">git</span> commit -m <span class="s">"feat: registro de productos con validación de stock"</span>
+<span class="k">git</span> commit -m <span class="s">"fix: corrige cálculo del total en la venta"</span>
+<span class="k">git</span> commit -m <span class="s">"docs: actualiza manual de usuario, módulo de ventas"</span></pre></div></section><section id="estructura"><div class="s-label">Repositorio</div><h2 class="s-title">Cómo queda tu repo en esta fase</h2><div class="code-block"><div class="cb-bar"><span class="cb-dot r"></span><span class="cb-dot y"></span><span class="cb-dot g"></span><span class="cb-name">estructura — FASE 04</span></div><pre>src/                 <span class="c"># código fuente</span>
+manuales/
+├─ manual_tecnico.md       <span class="c"># arquitectura, módulos, decisiones</span>
+├─ manual_sistema.md       <span class="c"># cómo está construido y configurado</span>
+├─ manual_usuario.md       <span class="c"># cómo se usa (borrador)</span>
+└─ diccionario_datos.pdf   <span class="c"># actualizado desde la FASE 02-03</span>
+.gitignore           <span class="c"># node_modules/, /vendor, *.env ...</span>
+README.md            <span class="c"># nombre, equipo y cómo ejecutar</span></pre></div></section><section id="rubrica"><div class="s-label">Cómo se califica</div><h2 class="s-title">Rúbrica · FASE 04</h2><p class="s-desc">1 punto = 1% de la nota global del proyecto.</p><div class="table-wrap"><table class="tbl"><thead><tr><th>Criterio</th><th>Qué se evalúa</th><th>Pts.</th></tr></thead><tbody><tr><td><strong>Avance funcional</strong></td><td>Cuánto del sistema ya corre y cumple los requerimientos.</td><td class="pts">3</td></tr><tr><td><strong>Calidad del código</strong></td><td>Orden, nombres claros, código entendible y comentado donde hace falta.</td><td class="pts">1.5</td></tr><tr><td><strong>Historial Git</strong></td><td>Commits frecuentes y con mensajes descriptivos.</td><td class="pts">1.5</td></tr><tr><td><strong>Manual Técnico + de Sistema</strong></td><td>Documentan arquitectura, módulos y configuración.</td><td class="pts">2</td></tr><tr><td><strong>Manual de Usuario (borrador)</strong></td><td>Explica el uso del sistema con capturas.</td><td class="pts">1</td></tr><tr><td><strong>Diccionario de Datos</strong></td><td>Actualizado y coherente con la BD implementada.</td><td class="pts">1</td></tr><tr class="total"><td>FASE 04 — Desarrollo</td><td>Puntos = % del total del proyecto</td><td class="pts">10</td></tr></tbody></table></div></section><section id="entrega"><div class="s-label">Entrega</div><h2 class="s-title">Cómo y dónde entregar</h2><p class="s-desc">Comparte el <strong>enlace del repositorio</strong>. El docente revisa el código, los commits y los manuales directamente en GitHub.</p><div class="callout warn"><div class="co-h">⚠️ Errores comunes</div>Subir todo el código en un solo commit el día de la entrega (no muestra el proceso), dejar los manuales vacíos, o que el diccionario de datos no coincida con la base de datos real. Programa <em>y</em> documenta: las dos cosas valen.</div></section>
+</main>
+<footer><p>Módulo: <strong>Desarrollo y Documentación de Sistemas Informáticos</strong><br/>Docente: Ing. Javier Mineros &nbsp;·&nbsp; Instituto Nacional Cantón Lourdes (INDEL)<br/>El Salvador &nbsp;·&nbsp; 2026</p></footer>
+<script>
+var pb=document.getElementById("progress");window.addEventListener("scroll",function(){var st=window.scrollY,dh=document.documentElement.scrollHeight-window.innerHeight;pb.style.width=(dh>0?(st/dh*100):0)+"%";});
+var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.style.opacity="1";e.target.style.transform="none";}});},{threshold:0.06});
+document.querySelectorAll(".card,.check-item,.step,.callout,.table-wrap,.code-block").forEach(function(el){el.style.opacity="0";el.style.transform="translateY(18px)";el.style.transition="opacity .55s ease, transform .55s ease";io.observe(el);});
+</script>
+</body>
+</html>
