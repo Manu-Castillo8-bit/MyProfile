@@ -15,7 +15,7 @@
             <Frame BackgroundColor="#1E1E1E" BorderColor="#2C2C2C" CornerRadius="16" Padding="20" HasShadow="False">
                 <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
                     <Label Text="Saldo actual" TextColor="#8E8E93" FontSize="13" HorizontalTextAlignment="Center" />
-                    <Label Text="$1,250.00" TextColor="White" FontSize="28" FontAttributes="Bold" HorizontalTextAlignment="Center" />
+                    <Label Text="$0.00" TextColor="White" FontSize="28" FontAttributes="Bold" HorizontalTextAlignment="Center" />
                 </VerticalStackLayout>
             </Frame>
 
@@ -29,39 +29,7 @@
             <VerticalStackLayout Spacing="12">
                 <Label Text="Últimas transacciones" TextColor="White" FontSize="16" FontAttributes="Bold" />
 
-                <!-- Transacción 1 -->
-                <Frame BackgroundColor="#1E1E1E" BorderColor="#2C2C2C" CornerRadius="14" Padding="14" HasShadow="False">
-                    <Grid ColumnDefinitions="*, Auto">
-                        <VerticalStackLayout Grid.Column="0" Spacing="2">
-                            <Label Text="Pago de freelance" TextColor="White" FontSize="14" FontAttributes="Bold" />
-                            <Label Text="24 Ago • Ingreso" TextColor="#8E8E93" FontSize="12" />
-                        </VerticalStackLayout>
-                        <Label Grid.Column="1" Text="+$450.00" TextColor="#4CD964" FontSize="15" FontAttributes="Bold" VerticalOptions="Center" />
-                    </Grid>
-                </Frame>
-
-                <!-- Transacción 2 -->
-                <Frame BackgroundColor="#1E1E1E" BorderColor="#2C2C2C" CornerRadius="14" Padding="14" HasShadow="False">
-                    <Grid ColumnDefinitions="*, Auto">
-                        <VerticalStackLayout Grid.Column="0" Spacing="2">
-                            <Label Text="Supermercado Semanal" TextColor="White" FontSize="14" FontAttributes="Bold" />
-                            <Label Text="22 Ago • Gasto" TextColor="#8E8E93" FontSize="12" />
-                        </VerticalStackLayout>
-                        <Label Grid.Column="1" Text="-$85.50" TextColor="#FF3B30" FontSize="15" FontAttributes="Bold" VerticalOptions="Center" />
-                    </Grid>
-                </Frame>
-
-                <!-- Transacción 3 -->
-                <Frame BackgroundColor="#1E1E1E" BorderColor="#2C2C2C" CornerRadius="14" Padding="14" HasShadow="False">
-                    <Grid ColumnDefinitions="*, Auto">
-                        <VerticalStackLayout Grid.Column="0" Spacing="2">
-                            <Label Text="Suscripción streaming" TextColor="White" FontSize="14" FontAttributes="Bold" />
-                            <Label Text="18 Ago • Gasto" TextColor="#8E8E93" FontSize="12" />
-                        </VerticalStackLayout>
-                        <Label Grid.Column="1" Text="-$12.99" TextColor="#FF3B30" FontSize="15" FontAttributes="Bold" VerticalOptions="Center" />
-                    </Grid>
-                </Frame>
-
+               
             </VerticalStackLayout>
 
         </VerticalStackLayout>

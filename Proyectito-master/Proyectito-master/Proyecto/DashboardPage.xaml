@@ -28,11 +28,11 @@
                             <Label Text="≡" TextColor="White" FontSize="16" VerticalOptions="Center" />
                             <Label Text="Tareas activas" TextColor="White" FontSize="15" FontAttributes="Bold" VerticalOptions="Center" />
                         </HorizontalStackLayout>
-                        <Label Grid.Column="1" Text="5 pendientes" TextColor="#8E8E93" FontSize="13" VerticalOptions="Center" />
+                        <Label Grid.Column="1" Text="N pendientes" TextColor="#8E8E93" FontSize="13" VerticalOptions="Center" />
                     </Grid>
                     <!-- Barra de progreso simulada -->
-                    <ProgressBar Progress="0.4" ProgressColor="White" BackgroundColor="#2C2C2C" HeightRequest="4" />
-                    <Label Text="40% completado" FontSize="12" TextColor="#8E8E93" />
+                    <ProgressBar Progress="0.0" ProgressColor="White" BackgroundColor="#2C2C2C" HeightRequest="4" />
+                    <Label Text="0% completado" FontSize="12" TextColor="#8E8E93" />
                 </VerticalStackLayout>
             </Frame>
 
@@ -44,7 +44,7 @@
                             <Label Text="📅" FontSize="14" VerticalOptions="Center" />
                             <Label Text="Saldo de ahorro" TextColor="#8E8E93" FontSize="13" VerticalOptions="Center" />
                         </HorizontalStackLayout>
-                        <Label Text="$1,250.00" TextColor="White" FontSize="24" FontAttributes="Bold" />
+                        <Label Text="$0.00" TextColor="White" FontSize="24" FontAttributes="Bold" />
                     </VerticalStackLayout>
                 </Grid>
             </Frame>
@@ -56,7 +56,7 @@
                     <VerticalStackLayout Spacing="8">
                         <Label Text="💧" FontSize="16" />
                         <Label Text="Próximo vaso de agua" TextColor="#8E8E93" FontSize="11" />
-                        <Label Text="En 12 min" TextColor="White" FontSize="15" FontAttributes="Bold" />
+                        <Label Text="En N min" TextColor="White" FontSize="15" FontAttributes="Bold" />
                     </VerticalStackLayout>
                 </Frame>
                 <!-- Descanso Visual -->
@@ -64,7 +64,7 @@
                     <VerticalStackLayout Spacing="8">
                         <Label Text="👁️" FontSize="16" />
                         <Label Text="Descanso visual" TextColor="#8E8E93" FontSize="11" />
-                        <Label Text="En 8 min" TextColor="White" FontSize="15" FontAttributes="Bold" />
+                        <Label Text="En N min" TextColor="White" FontSize="15" FontAttributes="Bold" />
                     </VerticalStackLayout>
                 </Frame>
             </Grid>
@@ -74,10 +74,7 @@
                 <Label Text="Accesos rápidos" TextColor="White" FontSize="15" FontAttributes="Bold" />
                 <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Never">
                     <HorizontalStackLayout Spacing="10">
-                        <Button Text="Gmail" BackgroundColor="#1E1E1E" TextColor="White" CornerRadius="10" HeightRequest="38" FontSize="13" />
-                        <Button Text="Instagram" BackgroundColor="#1E1E1E" TextColor="White" CornerRadius="10" HeightRequest="38" FontSize="13" />
-                        <Button Text="Netflix" BackgroundColor="#1E1E1E" TextColor="White" CornerRadius="10" HeightRequest="38" FontSize="13" />
-                        <Button Text="Github" BackgroundColor="#1E1E1E" TextColor="White" CornerRadius="10" HeightRequest="38" FontSize="13" />
+                        <Button Text="..." BackgroundColor="#1E1E1E" TextColor="White" CornerRadius="10" HeightRequest="38" FontSize="13" />
                     </HorizontalStackLayout>
                 </ScrollView>
             </VerticalStackLayout>
