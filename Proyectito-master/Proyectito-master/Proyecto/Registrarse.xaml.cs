@@ -48,6 +48,6 @@ public partial class Registrarse : ContentPage
 
     private async void OnRegisterTapped(object sender, TappedEventArgs e)
     {
-        await Navigation.PopAsync();
+        await Shell.Current.GoToAsync("//LoginPage");
     }
 }

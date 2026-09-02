@@ -36,7 +36,7 @@ public partial class LoginPage : ContentPage
                 return;
             }
 
-            await Navigation.PushAsync(new DashboardPage());
+            await Shell.Current.GoToAsync("//Principal/DashboardPage");
         }
         catch (Exception ex)
         {
@@ -50,6 +50,6 @@ public partial class LoginPage : ContentPage
 
     private async void OnRegisterTapped(object sender, TappedEventArgs e)
     {
-        await Navigation.PushAsync(new Registrarse());
+        await Shell.Current.GoToAsync("Registrarse");
     }
 }

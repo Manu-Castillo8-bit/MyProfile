@@ -7,7 +7,19 @@
     Title="Proyecto"
     Shell.FlyoutBehavior="Disabled">
 
-    <TabBar>
+    <ShellContent
+        Title="Login"
+        Icon="icon_login.png"
+        ContentTemplate="{DataTemplate local:LoginPage}"
+        Route="LoginPage" />
+
+    <ShellContent
+        Title="Registrarse"
+        Icon="icon_login.png"
+        ContentTemplate="{DataTemplate local:Registrarse}"
+        Route="Registrarse" />
+
+    <TabBar Route="Principal">
         <ShellContent
             Title="Tareas"
             Icon="icon_home.png"
@@ -37,12 +49,6 @@
             Icon="icon_password.png"
             ContentTemplate="{DataTemplate local:Password}"
             Route="Password" />
-
-        <ShellContent
-            Title="Login"
-            Icon="icon_login.png"
-            ContentTemplate="{DataTemplate local:LoginPage}"
-            Route="LoginPage" />
     </TabBar>
 
 </Shell>
