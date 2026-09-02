@@ -1,0 +1,67 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Proyecto.BottomNavBar"
+             BackgroundColor="#1E1E1E"
+             HeightRequest="68">
+
+    <Grid RowDefinitions="1, *">
+
+        <!-- Separador superior -->
+        <BoxView Grid.Row="0" Color="#2C2C2C" VerticalOptions="Fill" HorizontalOptions="Fill" />
+
+        <Grid Grid.Row="1" ColumnDefinitions="*,*,*,*,*" Padding="4,6,4,6" ColumnSpacing="2">
+
+            <Grid Grid.Column="0" BackgroundColor="Transparent">
+                <Grid.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnTareasTapped" />
+                </Grid.GestureRecognizers>
+                <VerticalStackLayout Spacing="3" HorizontalOptions="Center" VerticalOptions="Center">
+                    <Image Source="icon_home.png" WidthRequest="22" HeightRequest="22" HorizontalOptions="Center" />
+                    <Label x:Name="LblTareas" Text="Tareas" FontSize="10" FontAttributes="Bold" HorizontalTextAlignment="Center" TextColor="#8E8E93" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <Grid Grid.Column="1" BackgroundColor="Transparent">
+                <Grid.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnDashboardTapped" />
+                </Grid.GestureRecognizers>
+                <VerticalStackLayout Spacing="3" HorizontalOptions="Center" VerticalOptions="Center">
+                    <Image Source="icon_dashboard.png" WidthRequest="22" HeightRequest="22" HorizontalOptions="Center" />
+                    <Label x:Name="LblDashboard" Text="Dashboard" FontSize="10" FontAttributes="Bold" HorizontalTextAlignment="Center" TextColor="#8E8E93" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <Grid Grid.Column="2" BackgroundColor="Transparent">
+                <Grid.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnSaludTapped" />
+                </Grid.GestureRecognizers>
+                <VerticalStackLayout Spacing="3" HorizontalOptions="Center" VerticalOptions="Center">
+                    <Image Source="icon_salud.png" WidthRequest="22" HeightRequest="22" HorizontalOptions="Center" />
+                    <Label x:Name="LblSalud" Text="Salud" FontSize="10" FontAttributes="Bold" HorizontalTextAlignment="Center" TextColor="#8E8E93" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <Grid Grid.Column="3" BackgroundColor="Transparent">
+                <Grid.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnAhorroTapped" />
+                </Grid.GestureRecognizers>
+                <VerticalStackLayout Spacing="3" HorizontalOptions="Center" VerticalOptions="Center">
+                    <Image Source="icon_ahorro.png" WidthRequest="22" HeightRequest="22" HorizontalOptions="Center" />
+                    <Label x:Name="LblAhorro" Text="Ahorro" FontSize="10" FontAttributes="Bold" HorizontalTextAlignment="Center" TextColor="#8E8E93" />
+                </VerticalStackLayout>
+            </Grid>
+
+            <Grid Grid.Column="4" BackgroundColor="Transparent">
+                <Grid.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnPasswordTapped" />
+                </Grid.GestureRecognizers>
+                <VerticalStackLayout Spacing="3" HorizontalOptions="Center" VerticalOptions="Center">
+                    <Image Source="icon_password.png" WidthRequest="22" HeightRequest="22" HorizontalOptions="Center" />
+                    <Label x:Name="LblPassword" Text="Contraseñas" FontSize="10" FontAttributes="Bold" HorizontalTextAlignment="Center" TextColor="#8E8E93" />
+                </VerticalStackLayout>
+            </Grid>
+
+        </Grid>
+    </Grid>
+</ContentView>
