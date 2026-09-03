@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Threading;
@@ -13,7 +14,8 @@ namespace Proyecto.Services;
 [Table("usuario")]
 public class Usuario : BaseModel
 {
-    [PrimaryKey("id", false)]
+    [PrimaryKey("id_usuario", false)] // <- CORREGIDO: ahora coincide con el campo de Supabase
+    [Column("id_usuario")]
     public int Id { get; set; }
 
     [Column("nombre")]
@@ -24,6 +26,50 @@ public class Usuario : BaseModel
 
     [Column("contrasena")]
     public string Contrasena { get; set; } = string.Empty;
+}
+
+// MODELO: MOVIMIENTO FINANCIERO
+[Table("movimiento_financiero")]
+public class MovimientoFinanciero : BaseModel
+{
+    [PrimaryKey("id_movimiento", false)]
+    [Column("id_movimiento")]
+    public int IdMovimiento { get; set; }
+
+    [Column("id_usuario")]
+    public int IdUsuario { get; set; }
+
+    [Column("monto")]
+    public decimal Monto { get; set; }
+
+    [Column("tipo")]
+    public string Tipo { get; set; } = string.Empty;
+
+    [Column("descripcion")]
+    public string Descripcion { get; set; } = string.Empty;
+
+    [Column("fecha")]
+    public DateTime Fecha { get; set; }
+}
+
+// MODELO: CONTRASEÑA
+[Table("contrasenas")]
+public class Contrasena : BaseModel
+{
+    [PrimaryKey("id_contrasena", false)]
+    public int IdContrasena { get; set; }
+
+    [Column("id_usuario")]
+    public int IdUsuario { get; set; }
+
+    [Column("sitio_web")]
+    public string SitioWeb { get; set; } = string.Empty;
+
+    [Column("usuario_cuenta")]
+    public string UsuarioCuenta { get; set; } = string.Empty;
+
+    [Column("clave_cifrada")]
+    public string ClaveCifrada { get; set; } = string.Empty;
 }
 
 // 2. CONFIGURACIÓN DE CONEXIÓN
@@ -78,6 +124,12 @@ public static class SupabaseService
     private static Client? _client;
     private static readonly SemaphoreSlim InitLock = new(1, 1);
 
+    // Sesión del usuario actual
+    public static Usuario? UsuarioActual { get; private set; }
+
+    public static void EstablecerSesion(Usuario usuario) => UsuarioActual = usuario;
+    public static void CerrarSesion() => UsuarioActual = null;
+
     public static async Task<Client> GetClientAsync()
     {
         if (_client is not null)
@@ -110,8 +162,6 @@ public static class SupabaseService
     public static async Task<Usuario?> LoginAsync(string correo, string contrasena)
     {
         var client = await GetClientAsync();
-
-        // Guardar el correo procesado en una variable local antes de filtrar
         var correoNormalizado = NormalizarCorreo(correo);
 
         var resultado = await client
@@ -122,6 +172,9 @@ public static class SupabaseService
         var usuario = resultado.Models.FirstOrDefault();
         if (usuario is null || !PasswordHasher.Verify(contrasena, usuario.Contrasena))
             return null;
+
+        // Inicia sesión en memoria guardando el objeto cargado con su ID correcto
+        EstablecerSesion(usuario);
 
         return usuario;
     }
@@ -147,9 +200,135 @@ public static class SupabaseService
         };
 
         var respuesta = await cliente.From<Usuario>().Insert(nuevo);
-        if (respuesta.Model is null)
-            throw new InvalidOperationException("No se pudo crear el usuario.");
+        var usuarioCreado = respuesta.Models.FirstOrDefault();
+
+        if (usuarioCreado is not null)
+        {
+            EstablecerSesion(usuarioCreado);
+        }
     }
 
     private static string NormalizarCorreo(string correo) => correo.Trim().ToLower();
+
+    // ── MOVIMIENTOS FINANCIEROS ──
+
+    public static async Task<decimal> ObtenerSaldoAsync()
+    {
+        var usuario = UsuarioActual;
+        if (usuario is null) return 0;
+
+        var client = await GetClientAsync();
+        var resultado = await client
+            .From<MovimientoFinanciero>()
+            .Where(m => m.IdUsuario == usuario.Id)
+            .Get();
+
+        decimal saldo = 0;
+        foreach (var m in resultado.Models)
+        {
+            if (m.Tipo == "ingreso")
+                saldo += m.Monto;
+            else if (m.Tipo == "gasto")
+                saldo -= m.Monto;
+        }
+        return saldo;
+    }
+
+    public static async Task<List<MovimientoFinanciero>> ObtenerMovimientosAsync()
+    {
+        var usuario = UsuarioActual;
+        if (usuario is null) return new List<MovimientoFinanciero>();
+
+        var client = await GetClientAsync();
+        var resultado = await client
+            .From<MovimientoFinanciero>()
+            .Where(m => m.IdUsuario == usuario.Id)
+            .Order(m => m.Fecha, Supabase.Postgrest.Constants.Ordering.Descending)
+            .Get();
+
+        return resultado.Models;
+    }
+
+    public static async Task RegistrarMovimientoAsync(decimal monto, string tipo, string descripcion)
+    {
+        var usuario = UsuarioActual;
+
+        if (usuario is null || usuario.Id <= 0)
+            throw new InvalidOperationException("No hay una sesión activa con ID de usuario válido.");
+
+        var client = await GetClientAsync();
+        var movimiento = new MovimientoFinanciero
+        {
+            IdUsuario = usuario.Id,
+            Monto = monto,
+            Tipo = tipo,
+            Descripcion = descripcion.Trim(),
+            Fecha = DateTime.UtcNow
+        };
+
+        await client.From<MovimientoFinanciero>().Insert(movimiento);
+    }
+
+    // ── CONTRASEÑAS (CRUD) ──
+
+    public static async Task<List<Contrasena>> ObtenerContrasenasAsync()
+    {
+        var usuario = UsuarioActual;
+        if (usuario is null) return new List<Contrasena>();
+
+        var client = await GetClientAsync();
+        var resultado = await client
+            .From<Contrasena>()
+            .Where(c => c.IdUsuario == usuario.Id)
+            .Get();
+
+        return resultado.Models;
+    }
+
+    public static async Task CrearContrasenaAsync(string sitioWeb, string usuarioCuenta, string clave)
+    {
+        var usuario = UsuarioActual;
+        if (usuario is null)
+            throw new InvalidOperationException("No hay sesión activa.");
+
+        var client = await GetClientAsync();
+        var nueva = new Contrasena
+        {
+            IdUsuario = usuario.Id,
+            SitioWeb = sitioWeb.Trim(),
+            UsuarioCuenta = usuarioCuenta.Trim(),
+            ClaveCifrada = PasswordHasher.Hash(clave)
+        };
+
+        await client.From<Contrasena>().Insert(nueva);
+    }
+
+    public static async Task ActualizarContrasenaAsync(int idContrasena, string sitioWeb, string usuarioCuenta, string clave)
+    {
+        var client = await GetClientAsync();
+
+        var actualizaciones = new Dictionary<string, object>
+        {
+            { "sitio_web", sitioWeb.Trim() },
+            { "usuario_cuenta", usuarioCuenta.Trim() }
+        };
+
+        if (!string.IsNullOrWhiteSpace(clave))
+            actualizaciones.Add("clave_cifrada", PasswordHasher.Hash(clave));
+
+        await client
+            .From<Contrasena>()
+            .Where(c => c.IdContrasena == idContrasena)
+            .Set(actualizaciones)
+            .Update();
+    }
+
+    public static async Task EliminarContrasenaAsync(int idContrasena)
+    {
+        var client = await GetClientAsync();
+        await client
+            .From<Contrasena>()
+            .Where(c => c.IdContrasena == idContrasena)
+            .Delete();
+    }
 }

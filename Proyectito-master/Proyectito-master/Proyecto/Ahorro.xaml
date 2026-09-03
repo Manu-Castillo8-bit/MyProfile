@@ -15,21 +15,46 @@
             <Frame BackgroundColor="#1E1E1E" BorderColor="#2C2C2C" CornerRadius="16" Padding="20" HasShadow="False">
                 <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
                     <Label Text="Saldo actual" TextColor="#8E8E93" FontSize="13" HorizontalTextAlignment="Center" />
-                    <Label Text="$0.00" TextColor="White" FontSize="28" FontAttributes="Bold" HorizontalTextAlignment="Center" />
+                    <Label x:Name="LblSaldo" Text="$0.00" TextColor="White" FontSize="28" FontAttributes="Bold" HorizontalTextAlignment="Center" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- Campos de entrada -->
+            <Frame BackgroundColor="#1E1E1E" BorderColor="#2C2C2C" CornerRadius="16" Padding="16" HasShadow="False">
+                <VerticalStackLayout Spacing="12">
+                    <Label Text="Monto" TextColor="#8E8E93" FontSize="13" />
+                    <Entry x:Name="TxtMonto"
+                           Keyboard="Numeric"
+                           Placeholder="0.00"
+                           TextColor="White"
+                           PlaceholderColor="#555"
+                           BackgroundColor="#2C2C2C"
+                           
+                           HeightRequest="45"
+                           FontSize="18" />
+
+                    <Label Text="Descripción" TextColor="#8E8E93" FontSize="13" />
+                    <Entry x:Name="TxtDescripcion"
+                           Placeholder="Ej: Compra en supermercado"
+                           TextColor="White"
+                           PlaceholderColor="#555"
+                           BackgroundColor="#2C2C2C"
+                         
+                           HeightRequest="45"
+                           MaxLength="100" />
                 </VerticalStackLayout>
             </Frame>
 
             <!-- Botones de Acción (Ingreso / Gasto) -->
             <Grid ColumnDefinitions="*, *" ColumnSpacing="12">
-                <Button Grid.Column="0" Text="+ Ingreso" BackgroundColor="White" TextColor="Black" FontAttributes="Bold" CornerRadius="12" HeightRequest="45" />
-                <Button Grid.Column="1" Text="- Gasto" BackgroundColor="#1E1E1E" TextColor="White" FontAttributes="Bold" CornerRadius="12" HeightRequest="45" BorderColor="#2C2C2C" />
+                <Button Grid.Column="0" x:Name="BtnIngreso" Text="+ Ingreso" BackgroundColor="White" TextColor="Black" FontAttributes="Bold" CornerRadius="12" HeightRequest="45" Clicked="OnIngresoClicked" />
+                <Button Grid.Column="1" x:Name="BtnGasto" Text="- Gasto" BackgroundColor="#1E1E1E" TextColor="White" FontAttributes="Bold" CornerRadius="12" HeightRequest="45" BorderColor="#2C2C2C" Clicked="OnGastoClicked" />
             </Grid>
 
             <!-- Historial de Últimas Transacciones -->
             <VerticalStackLayout Spacing="12">
                 <Label Text="Últimas transacciones" TextColor="White" FontSize="16" FontAttributes="Bold" />
-
-               
+                <VerticalStackLayout x:Name="HistorialStack" Spacing="8" />
             </VerticalStackLayout>
 
         </VerticalStackLayout>

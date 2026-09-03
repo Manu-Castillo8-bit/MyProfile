@@ -36,6 +36,7 @@ public partial class LoginPage : ContentPage
                 return;
             }
 
+            SupabaseService.EstablecerSesion(usuario);
             await Shell.Current.GoToAsync("//Principal/DashboardPage");
         }
         catch (Exception ex)
