@@ -72,6 +72,30 @@ public class Contrasena : BaseModel
     public string ClaveCifrada { get; set; } = string.Empty;
 }
 
+// MODELO: TAREA
+[Table("tarea")]
+public class Tarea : BaseModel
+{
+    [PrimaryKey("id_tarea", false)]
+    [Column("id_tarea")]
+    public int IdTarea { get; set; }
+
+    [Column("id_usuario")]
+    public int IdUsuario { get; set; }
+
+    [Column("titulo")]
+    public string Titulo { get; set; } = string.Empty;
+
+    [Column("descripcion")]
+    public string Descripcion { get; set; } = string.Empty;
+
+    [Column("fecha_vencimiento")]
+    public DateTime? FechaVencimiento { get; set; }
+
+    [Column("estado")]
+    public string Estado { get; set; } = "pendiente";
+}
+
 // 2. CONFIGURACIÓN DE CONEXIÓN
 public static class SupabaseConfig
 {
@@ -333,6 +357,74 @@ public static class SupabaseService
         await client
             .From<Contrasena>()
             .Where(c => c.IdContrasena == idContrasena)
+            .Delete();
+    }
+
+    // ── TAREAS (CRUD) ──
+
+    public static async Task<List<Tarea>> ObtenerTareasAsync()
+    {
+        var usuario = UsuarioActual;
+        if (usuario is null) return new List<Tarea>();
+
+        var client = await GetClientAsync();
+        var resultado = await client
+            .From<Tarea>()
+            .Where(t => t.IdUsuario == usuario.Id)
+            .Order(t => t.IdTarea, Supabase.Postgrest.Constants.Ordering.Descending)
+            .Get();
+
+        return resultado.Models;
+    }
+
+    public static async Task CrearTareaAsync(string titulo, string descripcion, DateTime? fechaVencimiento, string estado)
+    {
+        var usuario = UsuarioActual;
+        if (usuario is null)
+            throw new InvalidOperationException("No hay sesión activa.");
+
+        var client = await GetClientAsync();
+        var nueva = new Tarea
+        {
+            IdUsuario = usuario.Id,
+            Titulo = titulo.Trim(),
+            Descripcion = descripcion?.Trim() ?? "",
+            FechaVencimiento = fechaVencimiento,
+            Estado = string.IsNullOrWhiteSpace(estado) ? "pendiente" : estado.Trim()
+        };
+
+        await client.From<Tarea>().Insert(nueva);
+    }
+
+    public static async Task ActualizarTareaAsync(int idTarea, string titulo, string descripcion, DateTime? fechaVencimiento, string estado)
+    {
+        var client = await GetClientAsync();
+
+        var query = client.From<Tarea>().Where(t => t.IdTarea == idTarea);
+        query = query.Set(t => t.Titulo, titulo.Trim());
+        query = query.Set(t => t.Descripcion, descripcion?.Trim() ?? "");
+        query = query.Set(t => t.FechaVencimiento, fechaVencimiento);
+        query = query.Set(t => t.Estado, string.IsNullOrWhiteSpace(estado) ? "pendiente" : estado.Trim());
+
+        await query.Update();
+    }
+
+    public static async Task CambiarEstadoTareaAsync(int idTarea, string estado)
+    {
+        var client = await GetClientAsync();
+        await client
+            .From<Tarea>()
+            .Where(t => t.IdTarea == idTarea)
+            .Set(t => t.Estado, estado.Trim())
+            .Update();
+    }
+
+    public static async Task EliminarTareaAsync(int idTarea)
+    {
+        var client = await GetClientAsync();
+        await client
+            .From<Tarea>()
+            .Where(t => t.IdTarea == idTarea)
             .Delete();
     }
 }
