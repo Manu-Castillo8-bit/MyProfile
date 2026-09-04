@@ -14,7 +14,7 @@ namespace Proyecto.Services;
 [Table("usuario")]
 public class Usuario : BaseModel
 {
-    [PrimaryKey("id_usuario", false)] // <- CORREGIDO: ahora coincide con el campo de Supabase
+    [PrimaryKey("id_usuario", false)]
     [Column("id_usuario")]
     public int Id { get; set; }
 
@@ -24,8 +24,8 @@ public class Usuario : BaseModel
     [Column("correo")]
     public string Correo { get; set; } = string.Empty;
 
-    [Column("contrasena")]
-    public string Contrasena { get; set; } = string.Empty;
+    [Column("auth_user_id")]
+    public string? AuthUserId { get; set; }
 }
 
 // MODELO: MOVIMIENTO FINANCIERO
@@ -164,18 +164,25 @@ public static class SupabaseService
         var client = await GetClientAsync();
         var correoNormalizado = NormalizarCorreo(correo);
 
+        try
+        {
+            await client.Auth.SignIn(correoNormalizado, contrasena);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+
         var resultado = await client
             .From<Usuario>()
             .Where(u => u.Correo == correoNormalizado)
             .Get();
 
         var usuario = resultado.Models.FirstOrDefault();
-        if (usuario is null || !PasswordHasher.Verify(contrasena, usuario.Contrasena))
+        if (usuario is null)
             return null;
 
-        // Inicia sesión en memoria guardando el objeto cargado con su ID correcto
         EstablecerSesion(usuario);
-
         return usuario;
     }
 
@@ -184,19 +191,22 @@ public static class SupabaseService
         var cliente = await GetClientAsync();
         var correoNormalizado = NormalizarCorreo(correo);
 
-        var existentes = await cliente
-            .From<Usuario>()
-            .Where(u => u.Correo == correoNormalizado)
-            .Get();
+        try
+        {
+            await cliente.Auth.SignUp(correoNormalizado, contrasena);
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException($"No se pudo crear la cuenta: {ex.Message}");
+        }
 
-        if (existentes.Models.Any())
-            throw new InvalidOperationException("Ese correo ya está registrado.");
+        var usuarioAutenticado = cliente.Auth.CurrentUser;
 
         var nuevo = new Usuario
         {
             Nombre = nombre.Trim(),
             Correo = correoNormalizado,
-            Contrasena = PasswordHasher.Hash(contrasena)
+            AuthUserId = usuarioAutenticado?.Id
         };
 
         var respuesta = await cliente.From<Usuario>().Insert(nuevo);
@@ -307,20 +317,14 @@ public static class SupabaseService
     {
         var client = await GetClientAsync();
 
-        var actualizaciones = new Dictionary<string, object>
-        {
-            { "sitio_web", sitioWeb.Trim() },
-            { "usuario_cuenta", usuarioCuenta.Trim() }
-        };
+        var query = client.From<Contrasena>().Where(c => c.IdContrasena == idContrasena);
+        query = query.Set(c => c.SitioWeb, sitioWeb.Trim());
+        query = query.Set(c => c.UsuarioCuenta, usuarioCuenta.Trim());
 
         if (!string.IsNullOrWhiteSpace(clave))
-            actualizaciones.Add("clave_cifrada", PasswordHasher.Hash(clave));
+            query = query.Set(c => c.ClaveCifrada, PasswordHasher.Hash(clave));
 
-        await client
-            .From<Contrasena>()
-            .Where(c => c.IdContrasena == idContrasena)
-            .Set(actualizaciones)
-            .Update();
+        await query.Update();
     }
 
     public static async Task EliminarContrasenaAsync(int idContrasena)
