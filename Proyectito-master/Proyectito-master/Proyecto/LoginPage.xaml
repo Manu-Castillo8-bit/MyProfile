@@ -81,9 +81,9 @@
                             <!-- Botón o icono opcional para mostrar/ocultar contraseña -->
                             <ImageButton x:Name="BtnTogglePassword"
                                          Grid.Column="1"
-                                         Source="eye_icon.png"
-                                         WidthRequest="20"
-                                         HeightRequest="20"
+                                         Source="ver_contra.png"
+                                         WidthRequest="10"
+                                         HeightRequest="10"
                                          BackgroundColor="Transparent"
                                          Clicked="OnTogglePasswordClicked" />
                         </Grid>
@@ -93,14 +93,14 @@
                 <!-- Opciones adicionales (Recordarme / Olvidaste contraseña) -->
                 <Grid ColumnDefinitions="Auto, *" Margin="0,5">
                     <HorizontalStackLayout Grid.Column="0" Spacing="8" VerticalOptions="Center">
-                        <CheckBox x:Name="ChkRecordarme" Color="White" />
+                    <!--    <CheckBox x:Name="ChkRecordarme" Color="White" />
                         <Label Text="Ver contraseña" 
                                TextColor="#8E8E93" 
                                FontSize="13" 
-                               VerticalOptions="Center" />
+                               VerticalOptions="Center" />-->
                     </HorizontalStackLayout>
                     
-                    <Label Grid.Column="1" 
+        <!--       <Label Grid.Column="1" 
                            Text="¿Olvidaste tu contraseña?" 
                            TextColor="#8E8E93" 
                            FontSize="13" 
@@ -109,7 +109,7 @@
                         <Label.GestureRecognizers>
                             <TapGestureRecognizer Tapped="OnForgotPasswordTapped" />
                         </Label.GestureRecognizers>
-                    </Label>
+                    </Label> -->
                 </Grid>
 
             </VerticalStackLayout>

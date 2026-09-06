@@ -40,7 +40,7 @@
 
                         <Grid ColumnDefinitions="*, Auto" VerticalOptions="Center">
                             <Label Grid.Column="0" Text="Activar recordatorio cada 20 min" TextColor="#8E8E93" FontSize="14" VerticalOptions="Center" />
-                            <Switch Grid.Column="1" IsToggled="True" OnColor="White" />
+                            <Switch Grid.Column="1" IsToggled="True" OnColor="Black" />
                         </Grid>
 
                         <BoxView HeightRequest="1" BackgroundColor="#2C2C2C" />
