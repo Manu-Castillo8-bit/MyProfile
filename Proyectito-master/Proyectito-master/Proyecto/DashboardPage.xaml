@@ -9,13 +9,20 @@
     <ScrollView>
         <VerticalStackLayout Padding="20,40,20,30" Spacing="20">
 
-            <!-- Cabecera de Usuario -->
-            <Grid ColumnDefinitions="*, Auto">
+            <!-- Cabecera de Usuario + Cerrar Sesión -->
+            <Grid ColumnDefinitions="*, Auto, Auto" ColumnSpacing="10">
                 <VerticalStackLayout Grid.Column="0" Spacing="2">
-                    <Label Text="Hola, Usuario" FontSize="22" FontAttributes="Bold" TextColor="White" />
+                    <Label x:Name="LblNombre" Text="Hola, Usuario" FontSize="22" FontAttributes="Bold" TextColor="White" />
                     <Label Text="Bienvenido de vuelta a tu espacio" FontSize="13" TextColor="#8E8E93" />
                 </VerticalStackLayout>
-                <Frame Grid.Column="1" WidthRequest="42" HeightRequest="42" CornerRadius="21" BackgroundColor="#1E1E1E" BorderColor="#2C2C2C" Padding="0" HorizontalOptions="End">
+                <Button Grid.Column="1"
+                        Text="Salir"
+                        BackgroundColor="#1E1E1E" TextColor="#FF3B30"
+                        FontAttributes="Bold" FontSize="13"
+                        CornerRadius="10" HeightRequest="42" WidthRequest="62"
+                        VerticalOptions="Center"
+                        Clicked="OnLogoutClicked" />
+                <Frame Grid.Column="2" WidthRequest="42" HeightRequest="42" CornerRadius="21" BackgroundColor="#1E1E1E" BorderColor="#2C2C2C" Padding="0" HorizontalOptions="End" VerticalOptions="Center">
                     <Image Source="user_icon.png" WidthRequest="20" HeightRequest="20" HorizontalOptions="Center" VerticalOptions="Center" />
                 </Frame>
             </Grid>
@@ -28,11 +35,10 @@
                             <Label Text="≡" TextColor="White" FontSize="16" VerticalOptions="Center" />
                             <Label Text="Tareas activas" TextColor="White" FontSize="15" FontAttributes="Bold" VerticalOptions="Center" />
                         </HorizontalStackLayout>
-                        <Label Grid.Column="1" Text="N pendientes" TextColor="#8E8E93" FontSize="13" VerticalOptions="Center" />
+                        <Label x:Name="LblConteoTareas" Grid.Column="1" Text="N pendientes" TextColor="#8E8E93" FontSize="13" VerticalOptions="Center" />
                     </Grid>
-                    <!-- Barra de progreso simulada -->
-                    <ProgressBar Progress="0.0" ProgressColor="White" BackgroundColor="#2C2C2C" HeightRequest="4" />
-                    <Label Text="0% completado" FontSize="12" TextColor="#8E8E93" />
+                    <ProgressBar x:Name="ProgTareas" Progress="0.0" ProgressColor="White" BackgroundColor="#2C2C2C" HeightRequest="4" />
+                    <Label x:Name="LblProgresoTareas" Text="0% completado" FontSize="12" TextColor="#8E8E93" />
                 </VerticalStackLayout>
             </Frame>
 
@@ -44,39 +50,38 @@
                             <Label Text="📅" FontSize="14" VerticalOptions="Center" />
                             <Label Text="Saldo de ahorro" TextColor="#8E8E93" FontSize="13" VerticalOptions="Center" />
                         </HorizontalStackLayout>
-                        <Label Text="$0.00" TextColor="White" FontSize="24" FontAttributes="Bold" />
+                        <Label x:Name="LblSaldoDashboard" Text="$0.00" TextColor="White" FontSize="24" FontAttributes="Bold" />
                     </VerticalStackLayout>
                 </Grid>
             </Frame>
 
-            <!-- Tarjetas de Recordatorios de Salud (Dos columnas) -->
+            <!-- Tarjetas de Salud (Dos columnas) -->
             <Grid ColumnDefinitions="*, *" ColumnSpacing="12">
-                <!-- Agua -->
                 <Frame Grid.Column="0" BackgroundColor="#1E1E1E" BorderColor="#2C2C2C" CornerRadius="16" Padding="14" HasShadow="False">
                     <VerticalStackLayout Spacing="8">
                         <Label Text="💧" FontSize="16" />
-                        <Label Text="Próximo vaso de agua" TextColor="#8E8E93" FontSize="11" />
-                        <Label Text="En N min" TextColor="White" FontSize="15" FontAttributes="Bold" />
+                        <Label Text="Hidratación hoy" TextColor="#8E8E93" FontSize="11" />
+                        <Label x:Name="LblDatosAgua" Text="Vasos hoy: 0" TextColor="White" FontSize="15" FontAttributes="Bold" />
                     </VerticalStackLayout>
                 </Frame>
-                <!-- Descanso Visual -->
                 <Frame Grid.Column="1" BackgroundColor="#1E1E1E" BorderColor="#2C2C2C" CornerRadius="16" Padding="14" HasShadow="False">
                     <VerticalStackLayout Spacing="8">
                         <Label Text="👁️" FontSize="16" />
                         <Label Text="Descanso visual" TextColor="#8E8E93" FontSize="11" />
-                        <Label Text="En N min" TextColor="White" FontSize="15" FontAttributes="Bold" />
+                        <Label x:Name="LblDatosDescanso" Text="0 hoy" TextColor="White" FontSize="15" FontAttributes="Bold" />
                     </VerticalStackLayout>
                 </Frame>
             </Grid>
 
             <!-- Accesos Rápidos -->
-            <VerticalStackLayout Spacing="10">
+            <VerticalStackLayout Spacing="12">
                 <Label Text="Accesos rápidos" TextColor="White" FontSize="15" FontAttributes="Bold" />
-                <ScrollView Orientation="Horizontal" HorizontalScrollBarVisibility="Never">
-                    <HorizontalStackLayout Spacing="10">
-                        <Button Text="..." BackgroundColor="#1E1E1E" TextColor="White" CornerRadius="10" HeightRequest="38" FontSize="13" />
-                    </HorizontalStackLayout>
-                </ScrollView>
+                <Grid ColumnDefinitions="*, *" RowDefinitions="Auto, Auto" ColumnSpacing="10" RowSpacing="10">
+                    <Button Grid.Row="0" Grid.Column="0" Text="📝  Tareas" BackgroundColor="#1E1E1E" TextColor="White" CornerRadius="10" HeightRequest="44" FontSize="14" Clicked="OnAccesoTareasClicked" />
+                    <Button Grid.Row="0" Grid.Column="1" Text="💰  Ahorro" BackgroundColor="#1E1E1E" TextColor="White" CornerRadius="10" HeightRequest="44" FontSize="14" Clicked="OnAccesoAhorroClicked" />
+                    <Button Grid.Row="1" Grid.Column="0" Text="💧  Salud" BackgroundColor="#1E1E1E" TextColor="White" CornerRadius="10" HeightRequest="44" FontSize="14" Clicked="OnAccesoSaludClicked" />
+                    <Button Grid.Row="1" Grid.Column="1" Text="🔑  Contraseñas" BackgroundColor="#1E1E1E" TextColor="White" CornerRadius="10" HeightRequest="44" FontSize="14" Clicked="OnAccesoPasswordClicked" />
+                </Grid>
             </VerticalStackLayout>
 
         </VerticalStackLayout>

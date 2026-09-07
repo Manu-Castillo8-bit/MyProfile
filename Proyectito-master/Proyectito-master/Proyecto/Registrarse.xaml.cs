@@ -5,6 +5,7 @@ namespace Proyecto;
 public partial class Registrarse : ContentPage
 {
     private bool _isPasswordVisible = false;
+    private bool _procesando = false;
 	public Registrarse()
 	{
 		InitializeComponent();
@@ -32,9 +33,25 @@ public partial class Registrarse : ContentPage
             return;
         }
 
+        if (_procesando) return;
+        _procesando = true;
+
+        var btn = (Button)sender;
+        var textoOriginal = btn.Text;
+        btn.IsEnabled = false;
+        btn.Text = "";
+        IndicadorRegistro.IsVisible = true;
+        IndicadorRegistro.IsRunning = true;
+
+        // Animación de presionado (rebote)
+        await btn.ScaleTo(0.93, 80, Easing.CubicOut);
+        await btn.ScaleTo(1.0, 130, Easing.CubicOut);
+
+        // Pulso tecnológico mientras se procesa
+        _ = AnimarPulsosAsync(btn);
+
         try
         {
-            // Pasa el nombre como primer argumento
             await SupabaseService.RegistrarAsync(nombre, correo, contrasena);
 
             await DisplayAlert("Éxito", "Usuario registrado correctamente.", "OK");
@@ -43,11 +60,37 @@ public partial class Registrarse : ContentPage
         {
             await DisplayAlert("Error", ex.Message, "OK");
         }
+        finally
+        {
+            _procesando = false;
+            IndicatorDetenido(IndicadorRegistro, btn, textoOriginal);
+        }
+    }
 
+    private static void IndicatorDetenido(ActivityIndicator indicador, Button btn, string textoOriginal)
+    {
+        indicador.IsRunning = false;
+        indicador.IsVisible = false;
+        btn.Text = textoOriginal;
+        btn.IsEnabled = true;
+        btn.Scale = 1;
+        btn.Opacity = 1;
+    }
+
+    private async Task AnimarPulsosAsync(Button btn)
+    {
+        while (_procesando)
+        {
+            await btn.ScaleTo(0.97, 180, Easing.SinInOut);
+            await btn.ScaleTo(1.05, 180, Easing.SinInOut);
+        }
     }
 
     private async void OnRegisterTapped(object sender, TappedEventArgs e)
     {
+        var label = (Label)sender;
+        await label.ScaleTo(0.92, 80, Easing.CubicOut);
+        await label.ScaleTo(1.0, 120, Easing.CubicOut);
         await Shell.Current.GoToAsync("//LoginPage");
     }
 }

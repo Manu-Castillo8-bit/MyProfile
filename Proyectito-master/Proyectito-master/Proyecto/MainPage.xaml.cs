@@ -26,8 +26,8 @@ namespace Proyecto
             if (SupabaseService.UsuarioActual is null)
             {
                 LblDepuracion.Text = "Depuración: SIN SESIÓN (UsuarioActual es null)";
-                await DisplayAlert("Aviso", "Debes iniciar sesión primero.", "OK");
                 MostrarTareas(new List<Tarea>()); // Limpia la vista si no hay usuario
+                await Shell.Current.GoToAsync("//LoginPage");
                 return;
             }
 
@@ -251,6 +251,13 @@ namespace Proyecto
 
         private async void OnGuardarClicked(object sender, EventArgs e)
         {
+            if (SupabaseService.UsuarioActual is null)
+            {
+                FormOverlay.IsVisible = false;
+                await Shell.Current.GoToAsync("//LoginPage");
+                return;
+            }
+
             var titulo = TxtTitulo.Text?.Trim() ?? "";
             var descripcion = TxtDescripcion.Text?.Trim() ?? "";
             var fecha = FchVencimiento.Date;

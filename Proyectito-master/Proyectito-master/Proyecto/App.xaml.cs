@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+using Proyecto.Services;
 
 namespace Proyecto
 {
@@ -11,6 +12,7 @@ namespace Proyecto
 
         protected override Window CreateWindow(IActivationState? activationState)
         {
+            SupabaseService.RestaurarSesion();
             return new Window(new AppShell());
         }
     }
