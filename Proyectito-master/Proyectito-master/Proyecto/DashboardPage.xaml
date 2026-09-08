@@ -28,7 +28,7 @@
             </Grid>
 
             <!-- Tarjeta: Tareas Activas -->
-            <Frame BackgroundColor="#111827" BorderColor="#245b78" CornerRadius="16" Padding="16" HasShadow="False">
+            <Frame BackgroundColor="#172033" BorderColor="#245b78" CornerRadius="16" Padding="16" HasShadow="False">
                 <VerticalStackLayout Spacing="10">
                     <Grid ColumnDefinitions="*, Auto">
                         <HorizontalStackLayout Grid.Column="0" Spacing="8">
@@ -43,7 +43,7 @@
             </Frame>
 
             <!-- Tarjeta: Saldo de Ahorro -->
-            <Frame BackgroundColor="#111827" BorderColor="#245b78" CornerRadius="16" Padding="16" HasShadow="False">
+            <Frame BackgroundColor="#172033" BorderColor="#245b78" CornerRadius="16" Padding="16" HasShadow="False">
                 <Grid ColumnDefinitions="*, Auto">
                     <VerticalStackLayout Grid.Column="0" Spacing="4">
                         <HorizontalStackLayout Spacing="8">
@@ -57,14 +57,14 @@
 
             <!-- Tarjetas de Salud (Dos columnas) -->
             <Grid ColumnDefinitions="*, *" ColumnSpacing="12">
-                <Frame Grid.Column="0" BackgroundColor="#111827" BorderColor="#245b78" CornerRadius="16" Padding="14" HasShadow="False">
+                <Frame Grid.Column="0" BackgroundColor="#172033" BorderColor="#245b78" CornerRadius="16" Padding="14" HasShadow="False">
                     <VerticalStackLayout Spacing="8">
                         <Label Text="💧" FontSize="16" />
                         <Label Text="Hidratación hoy" TextColor="#8E8E93" FontSize="11" />
                         <Label x:Name="LblDatosAgua" Text="Vasos hoy: 0" TextColor="White" FontSize="15" FontAttributes="Bold" />
                     </VerticalStackLayout>
                 </Frame>
-                <Frame Grid.Column="1" BackgroundColor="#111827" BorderColor="#245b78" CornerRadius="16" Padding="14" HasShadow="False">
+                <Frame Grid.Column="1" BackgroundColor="#172033" BorderColor="#245b78" CornerRadius="16" Padding="14" HasShadow="False">
                     <VerticalStackLayout Spacing="8">
                         <Label Text="👁️" FontSize="16" />
                         <Label Text="Descanso visual" TextColor="#8E8E93" FontSize="11" />

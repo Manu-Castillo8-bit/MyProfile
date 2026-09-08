@@ -13,18 +13,18 @@
                     <Label Text="Mis Tareas" FontSize="22" FontAttributes="Bold" TextColor="White" VerticalOptions="Center" />
                     <Label x:Name="LblDepuracion" Text="Depuración: esperando..." FontSize="11" TextColor="#FFD700" />
                 </VerticalStackLayout>
-                <Button Grid.Column="1" x:Name="BtnAgregar" Text="+" BackgroundColor="#1E1E1E" TextColor="White" FontAttributes="Bold" CornerRadius="10" WidthRequest="40" HeightRequest="40" Clicked="OnAgregarClicked" />
+                <Button Grid.Column="1" x:Name="BtnAgregar" Text="+" BackgroundColor="#4F46E5" TextColor="White" FontAttributes="Bold" CornerRadius="10" WidthRequest="40" HeightRequest="40" Clicked="OnAgregarClicked" />
             </Grid>
 
             <!-- Selector de Pestañas (Pendientes / Completadas) -->
             <Grid Grid.Row="1" ColumnDefinitions="*, *" Padding="20,0,20,15" ColumnSpacing="10">
                 <Button Grid.Column="0" x:Name="BtnPendientes" Text="Pendientes" BackgroundColor="White" TextColor="Black" FontAttributes="Bold" CornerRadius="12" HeightRequest="40" Clicked="OnPendientesClicked" />
-                <Button Grid.Column="1" x:Name="BtnCompletadas" Text="Completadas" BackgroundColor="#1E1E1E" TextColor="#8E8E93" CornerRadius="12" HeightRequest="40" Clicked="OnCompletadasClicked" />
+                <Button Grid.Column="1" x:Name="BtnCompletadas" Text="Completadas" BackgroundColor="#1E1E1E" TextColor="White" CornerRadius="12" HeightRequest="40" Clicked="OnCompletadasClicked" />
             </Grid>
 
             <!-- Lista de Tareas -->
             <ScrollView Grid.Row="2">
-                <VerticalStackLayout x:Name="ListaTareas" Padding="20,0,20,20" Spacing="10">
+                <VerticalStackLayout x:Name="ListaTareas"   Padding="20,0,20,20" Spacing="10">
 
                 </VerticalStackLayout>
             </ScrollView>

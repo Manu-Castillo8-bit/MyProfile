@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Proyecto.Ahorro"
              Title="Ahorro"
-             BackgroundColor="#121212"
+             BackgroundColor="#0b1120"
              Shell.NavBarIsVisible="False">
 
     <ScrollView>
@@ -12,7 +12,7 @@
             <Label Text="Control de Ahorros" FontSize="22" FontAttributes="Bold" TextColor="White" />
 
             <!-- Tarjeta Principal de Saldo -->
-            <Frame BackgroundColor="#1E1E1E" BorderColor="#2C2C2C" CornerRadius="16" Padding="20" HasShadow="False">
+            <Frame BackgroundColor="#1E1E1E" BorderColor="#245B78" CornerRadius="16" Padding="20" HasShadow="False">
                 <VerticalStackLayout Spacing="5" HorizontalOptions="Center">
                     <Label Text="Saldo actual" TextColor="#8E8E93" FontSize="13" HorizontalTextAlignment="Center" />
                     <Label x:Name="LblSaldo" Text="$0.00" TextColor="White" FontSize="28" FontAttributes="Bold" HorizontalTextAlignment="Center" />
@@ -20,7 +20,7 @@
             </Frame>
 
             <!-- Campos de entrada -->
-            <Frame BackgroundColor="#1E1E1E" BorderColor="#2C2C2C" CornerRadius="16" Padding="16" HasShadow="False">
+            <Frame BackgroundColor="#1E1E1E" BorderColor="#245B78" CornerRadius="16" Padding="16" HasShadow="False">
                 <VerticalStackLayout Spacing="12">
                     <Label Text="Monto" TextColor="#8E8E93" FontSize="13" />
                     <Entry x:Name="TxtMonto"
@@ -53,8 +53,8 @@
 
             <!-- Historial de Últimas Transacciones -->
             <VerticalStackLayout Spacing="12">
-                <Label Text="Últimas transacciones" TextColor="White" FontSize="16" FontAttributes="Bold" />
-                <VerticalStackLayout x:Name="HistorialStack" Spacing="8" />
+                <Label Text="Últimas transacciones"  TextColor="White" FontSize="16" FontAttributes="Bold" />
+                <VerticalStackLayout  x:Name="HistorialStack" Spacing="8" />
             </VerticalStackLayout>
 
         </VerticalStackLayout>
