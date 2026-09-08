@@ -2,7 +2,7 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Proyecto.LoginPage"
-             BackgroundColor="#121212"
+             BackgroundColor="#0b1120"
              Title="LoginPage">
     <ScrollView>
         <VerticalStackLayout Padding="30,60,30,30" 
@@ -34,7 +34,7 @@
                        HorizontalTextAlignment="Center" />
                 <Label Text="Inicia sesión para continuar" 
                        FontSize="14" 
-                       TextColor="#8E8E93" 
+                       TextColor="gray" 
                        HorizontalTextAlignment="Center" />
             </VerticalStackLayout>
 
@@ -45,15 +45,16 @@
                 <VerticalStackLayout Spacing="6">
                     <Label Text="Correo electrónico" 
                            FontSize="12" 
-                           TextColor="#8E8E93" />
-                    <Frame BackgroundColor="#1E1E1E" 
-                           BorderColor="#2C2C2C" 
+                           FontAttributes="Bold"
+                           TextColor="#ffffff" />
+                    <Frame BackgroundColor="#111c30" 
+                           BorderColor="#245b78" 
                            CornerRadius="12" 
                            Padding="14,5" 
                            HasShadow="False">
                         <Entry x:Name="TxtCorreo"
                                Placeholder="correo@ejemplo.com" 
-                               PlaceholderColor="#555555"
+                               PlaceholderColor="#64748b"
                                TextColor="White" 
                                FontSize="14"
                                Keyboard="Email" />
@@ -64,9 +65,10 @@
                 <VerticalStackLayout Spacing="5">
                     <Label Text="Contraseña" 
                            FontSize="12" 
-                           TextColor="#8E8E93" />
-                    <Frame BackgroundColor="#1E1E1E" 
-                           BorderColor="#2C2C2C" 
+                           FontAttributes="Bold"
+                           TextColor="#ffffff" />
+                    <Frame BackgroundColor="#111c30" 
+                           BorderColor="#245b78" 
                            CornerRadius="12" 
                            Padding="12,5" 
                            HasShadow="False">
@@ -74,7 +76,7 @@
                             <Entry x:Name="TxtContrasena"
                                    Grid.Column="0"
                                    Placeholder="••••••••••••" 
-                                   PlaceholderColor="#555555"
+                                   PlaceholderColor="#64748b"
                                    TextColor="White" 
                                    FontSize="14"
                                    IsPassword="True" />
@@ -117,8 +119,8 @@
             <!-- Botón Iniciar Sesión -->
             <Grid HeightRequest="50">
                 <Button Text="Iniciar Sesión" 
-                        BackgroundColor="White" 
-                        TextColor="Black" 
+                        BackgroundColor="#2563EB" 
+                        TextColor="White" 
                         FontAttributes="Bold"
                         CornerRadius="14"
                         HeightRequest="50"
@@ -135,7 +137,7 @@
             <!-- Enlace de Registro -->
             <HorizontalStackLayout HorizontalOptions="Center" Spacing="5" Margin="0,10,0,0">
                 <Label Text="¿No tienes cuenta?" 
-                       TextColor="#8E8E93" 
+                       TextColor="gray" 
                        FontSize="13" />
                 <Label Text="Regístrate" 
                        TextColor="White" 
