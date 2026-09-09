@@ -5,8 +5,9 @@ namespace Proyecto;
 public partial class Salud : ContentPage
 {
     private const int MetaVasos = 8;
-    private const string TipoAgua = "agua";
-    private const string TipoDescanso = "descanso";
+    private const string TipoAgua = RecordatorioScheduler.TipoAgua;
+    private const string TipoDescanso = RecordatorioScheduler.TipoDescanso;
+    private const string TipoTareas = RecordatorioScheduler.TipoTareas;
     private List<RecordatorioSalud> _recordatorios = new();
 
 	public Salud()
@@ -40,6 +41,10 @@ public partial class Salud : ContentPage
             SwDescanso.IsToggled = descanso?.Activo ?? false;
             TxtFrecDescanso.Text = (descanso?.FrecuenciaMinutos ?? 20).ToString();
 
+            var tareas = _recordatorios.FirstOrDefault(r => r.Tipo == TipoTareas);
+            SwTareas.IsToggled = tareas?.Activo ?? false;
+            TxtFrecTareas.Text = (tareas?.FrecuenciaMinutos ?? 60).ToString();
+
             RefrescarVista();
         }
         catch (Exception ex)
@@ -62,6 +67,11 @@ public partial class Salud : ContentPage
             LblProximo.Text = $"Próximo descanso en {frecuencia} min";
         else
             LblProximo.Text = "Activa el recordatorio para ver el próximo descanso";
+
+        if (SwTareas.IsToggled && int.TryParse(TxtFrecTareas.Text, out int frecuenciaTareas) && frecuenciaTareas > 0)
+            LblEstadoTareas.Text = $"Aviso de pendientes cada {frecuenciaTareas} min";
+        else
+            LblEstadoTareas.Text = "Activa el recordatorio para recibir avisos";
     }
 
     private async void OnGuardarAguaClicked(object sender, EventArgs e)
@@ -72,6 +82,11 @@ public partial class Salud : ContentPage
     private async void OnGuardarDescansoClicked(object sender, EventArgs e)
     {
         await GuardarPreferencia(TipoDescanso, TxtFrecDescanso, SwDescanso);
+    }
+
+    private async void OnGuardarTareasClicked(object sender, EventArgs e)
+    {
+        await GuardarPreferencia(TipoTareas, TxtFrecTareas, SwTareas);
     }
 
     private async Task GuardarPreferencia(string tipo, Entry txtFrecuencia, Switch sw)
@@ -91,6 +106,11 @@ public partial class Salud : ContentPage
         try
         {
             await SupabaseService.GuardarRecordatorioAsync(tipo, frecuencia, sw.IsToggled);
+
+            if (sw.IsToggled)
+                await RecordatorioScheduler.AsegurarPermisoAsync();
+
+            await RecordatorioScheduler.RefrescarAsync();
             await DisplayAlert("Listo", "Preferencias guardadas.", "OK");
             await CargarDatosAsync();
         }

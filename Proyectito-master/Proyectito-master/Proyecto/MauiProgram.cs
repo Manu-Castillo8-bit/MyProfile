@@ -1,4 +1,6 @@
 ﻿using Microsoft.Extensions.Logging;
+using Plugin.LocalNotification;
+using Plugin.LocalNotification.Core.Models.AndroidOption;
 
 namespace Proyecto
 {
@@ -13,6 +15,18 @@ namespace Proyecto
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
+                })
+                .UseLocalNotification(config =>
+                {
+                    config.AddAndroid(android =>
+                    {
+                        android.AddChannel(new AndroidNotificationChannelRequest
+                        {
+                            Id = "recordatorios",
+                            Name = "Recordatorios",
+                            Description = "Avisos de tareas, hidratación y descanso visual"
+                        });
+                    });
                 });
 
 #if DEBUG

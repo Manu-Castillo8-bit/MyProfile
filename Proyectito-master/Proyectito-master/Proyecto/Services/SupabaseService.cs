@@ -106,7 +106,7 @@ public class Tarea : BaseModel
 public class RecordatorioSalud : BaseModel
 {
     [PrimaryKey("id_recordatorio", false)]
-    [Column("id_recordatorio")]
+    [Column("id_recordatorio", ignoreOnInsert: true)] // <-- La PK la genera la base de datos
     public int Id { get; set; }
 
     [Column("id_usuario")]
@@ -186,11 +186,13 @@ public static class SupabaseService
     {
         UsuarioActual = usuario;
         GuardarSesion();
+        _ = RecordatorioScheduler.IniciarAsync();
     }
 
     public static void CerrarSesion()
     {
         UsuarioActual = null;
+        RecordatorioScheduler.Detener();
         Preferences.Default.Remove(PrefId);
         Preferences.Default.Remove(PrefNombre);
         Preferences.Default.Remove(PrefCorreo);
