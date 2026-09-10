@@ -38,13 +38,6 @@ public partial class LoginPage : ContentPage
         IndicadorLogin.IsVisible = true;
         IndicadorLogin.IsRunning = true;
 
-        // Animación de presionado (rebote)
-        await btn.ScaleTo(0.93, 80, Easing.CubicOut);
-        await btn.ScaleTo(1.0, 130, Easing.CubicOut);
-
-        // Pulso tecnológico mientras se procesa
-        _ = AnimarPulsosAsync(btn);
-
         try
         {
             var usuario = await SupabaseService.LoginAsync(correo, contrasena);
@@ -76,15 +69,6 @@ public partial class LoginPage : ContentPage
         btn.IsEnabled = true;
         btn.Scale = 1;
         btn.Opacity = 1;
-    }
-
-    private async Task AnimarPulsosAsync(Button btn)
-    {
-        while (_procesando)
-        {
-            await btn.ScaleTo(0.97, 180, Easing.SinInOut);
-            await btn.ScaleTo(1.05, 180, Easing.SinInOut);
-        }
     }
 
     private async void OnForgotPasswordTapped(object sender, TappedEventArgs e)

@@ -39,18 +39,35 @@
                         <Switch x:Name="SwAgua" Grid.Column="1" IsToggled="False" OnColor="Black" Toggled="OnRecordatorioToggled" />
                     </Grid>
 
-                    <!-- Frecuencia + Guardar -->
+                    <!-- Frecuencia + unidades + Guardar -->
                     <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="10">
-                        <Label Grid.Column="0" Text="Frecuencia (min)" TextColor="#8E8E93" FontSize="13" VerticalOptions="Center" />
-                        <Entry x:Name="TxtFrecAgua" Grid.Column="1"
-                               Keyboard="Numeric"
-                               Placeholder="45"
-                               TextColor="White"
-                               PlaceholderColor="#555"
-                               BackgroundColor="#2C2C2C"
-                               HeightRequest="42"
-                               FontSize="14"
-                               HorizontalOptions="Fill" />
+                        <Label Grid.Column="0" Text="Cada" TextColor="#8E8E93" FontSize="13" VerticalOptions="Center" />
+                        <Grid Grid.Column="1" ColumnDefinitions="*, Auto" ColumnSpacing="8">
+                            <Entry x:Name="TxtFrecAgua" Grid.Column="0"
+                                   Keyboard="Numeric"
+                                   Placeholder="45"
+                                   TextColor="White"
+                                   PlaceholderColor="#555"
+                                   BackgroundColor="#2C2C2C"
+                                   HeightRequest="42"
+                                   FontSize="14"
+                                   HorizontalOptions="Fill" />
+                            <Picker x:Name="PckUnidadAgua" Grid.Column="1"
+                                    Title="Unidad" TitleColor="#8E8E93"
+                                    SelectedIndex="0"
+                                    WidthRequest="110" HeightRequest="42"
+                                    FontSize="13" TextColor="White"
+                                    BackgroundColor="#2C2C2C"
+                                    VerticalOptions="Center">
+                                <Picker.ItemsSource>
+                                    <x:Array Type="{x:Type x:String}">
+                                        <x:String>Minutos</x:String>
+                                        <x:String>Horas</x:String>
+                                        <x:String>Días</x:String>
+                                    </x:Array>
+                                </Picker.ItemsSource>
+                            </Picker>
+                        </Grid>
                         <Button Grid.Column="2" Text="Guardar"
                                 BackgroundColor="White"
                                 TextColor="Black"
@@ -112,18 +129,35 @@
                         <Switch x:Name="SwDescanso" Grid.Column="1" IsToggled="True" OnColor="Black" Toggled="OnRecordatorioToggled" />
                     </Grid>
 
-                    <!-- Frecuencia + Guardar -->
+                    <!-- Frecuencia + unidades + Guardar -->
                     <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="10">
-                        <Label Grid.Column="0" Text="Frecuencia (min)" TextColor="#8E8E93" FontSize="13" VerticalOptions="Center" />
-                        <Entry x:Name="TxtFrecDescanso" Grid.Column="1"
-                               Keyboard="Numeric"
-                               Placeholder="20"
-                               TextColor="White"
-                               PlaceholderColor="#555"
-                               BackgroundColor="#2C2C2C"
-                               HeightRequest="42"
-                               FontSize="14"
-                               HorizontalOptions="Fill" />
+                        <Label Grid.Column="0" Text="Cada" TextColor="#8E8E93" FontSize="13" VerticalOptions="Center" />
+                        <Grid Grid.Column="1" ColumnDefinitions="*, Auto" ColumnSpacing="8">
+                            <Entry x:Name="TxtFrecDescanso" Grid.Column="0"
+                                   Keyboard="Numeric"
+                                   Placeholder="20"
+                                   TextColor="White"
+                                   PlaceholderColor="#555"
+                                   BackgroundColor="#2C2C2C"
+                                   HeightRequest="42"
+                                   FontSize="14"
+                                   HorizontalOptions="Fill" />
+                            <Picker x:Name="PckUnidadDescanso" Grid.Column="1"
+                                    Title="Unidad" TitleColor="#8E8E93"
+                                    SelectedIndex="0"
+                                    WidthRequest="110" HeightRequest="42"
+                                    FontSize="13" TextColor="White"
+                                    BackgroundColor="#2C2C2C"
+                                    VerticalOptions="Center">
+                                <Picker.ItemsSource>
+                                    <x:Array Type="{x:Type x:String}">
+                                        <x:String>Minutos</x:String>
+                                        <x:String>Horas</x:String>
+                                        <x:String>Días</x:String>
+                                    </x:Array>
+                                </Picker.ItemsSource>
+                            </Picker>
+                        </Grid>
                         <Button Grid.Column="2" Text="Guardar"
                                 BackgroundColor="White"
                                 TextColor="Black"
@@ -179,21 +213,38 @@
                             <Label Text="Recuérdame revisar mis tareas" TextColor="White" FontSize="14" />
                             <Label Text="Te avisará mientras tengas pendientes" TextColor="#8E8E93" FontSize="12" />
                         </VerticalStackLayout>
-                        <Switch x:Name="SwTareas" Grid.Column="1" IsToggled="False" OnColor="Black" />
+                        <Switch x:Name="SwTareas" Grid.Column="1" IsToggled="False" OnColor="Black" Toggled="OnRecordatorioToggled" />
                     </Grid>
 
-                    <!-- Frecuencia + Guardar -->
+                    <!-- Frecuencia + unidades + Guardar -->
                     <Grid ColumnDefinitions="Auto, *, Auto" ColumnSpacing="10">
-                        <Label Grid.Column="0" Text="Frecuencia (min)" TextColor="#8E8E93" FontSize="13" VerticalOptions="Center" />
-                        <Entry x:Name="TxtFrecTareas" Grid.Column="1"
-                               Keyboard="Numeric"
-                               Placeholder="60"
-                               TextColor="White"
-                               PlaceholderColor="#555"
-                               BackgroundColor="#2C2C2C"
-                               HeightRequest="42"
-                               FontSize="14"
-                               HorizontalOptions="Fill" />
+                        <Label Grid.Column="0" Text="Cada" TextColor="#8E8E93" FontSize="13" VerticalOptions="Center" />
+                        <Grid Grid.Column="1" ColumnDefinitions="*, Auto" ColumnSpacing="8">
+                            <Entry x:Name="TxtFrecTareas" Grid.Column="0"
+                                   Keyboard="Numeric"
+                                   Placeholder="60"
+                                   TextColor="White"
+                                   PlaceholderColor="#555"
+                                   BackgroundColor="#2C2C2C"
+                                   HeightRequest="42"
+                                   FontSize="14"
+                                   HorizontalOptions="Fill" />
+                            <Picker x:Name="PckUnidadTareas" Grid.Column="1"
+                                    Title="Unidad" TitleColor="#8E8E93"
+                                    SelectedIndex="0"
+                                    WidthRequest="110" HeightRequest="42"
+                                    FontSize="13" TextColor="White"
+                                    BackgroundColor="#2C2C2C"
+                                    VerticalOptions="Center">
+                                <Picker.ItemsSource>
+                                    <x:Array Type="{x:Type x:String}">
+                                        <x:String>Minutos</x:String>
+                                        <x:String>Horas</x:String>
+                                        <x:String>Días</x:String>
+                                    </x:Array>
+                                </Picker.ItemsSource>
+                            </Picker>
+                        </Grid>
                         <Button Grid.Column="2" Text="Guardar"
                                 BackgroundColor="White"
                                 TextColor="Black"

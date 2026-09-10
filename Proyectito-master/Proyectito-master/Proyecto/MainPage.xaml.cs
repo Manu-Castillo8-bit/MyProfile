@@ -242,6 +242,43 @@ namespace Proyecto
             FchVencimiento.Date = DateTime.Today;
             FormOverlay.IsVisible = true;
         }
+        private async void OnSincronizarClicked(object sender, EventArgs e)
+        {
+            if (!SyncService.Conectado)
+            {
+                await DisplayAlert("Sin conexión", "No hay conexión a internet. Conéctate e inténtalo de nuevo.", "OK");
+                return;
+            }
+
+            if (SupabaseService.UsuarioActual is null)
+            {
+                await Shell.Current.GoToAsync("//LoginPage");
+                return;
+            }
+
+            try
+            {
+                BtnSincronizar.IsEnabled = false;
+                BtnSincronizar.Text = "Sincronizando...";
+                LblDepuracion.Text = "Depuración: sincronizando...";
+
+                await SyncService.SincronizarAsync();
+                await CargarTareasAsync();
+
+                LblDepuracion.Text = "Depuración: sincronización completa";
+                await DisplayAlert("Listo", "Datos sincronizados: base local y base en línea están al día.", "OK");
+            }
+            catch (Exception ex)
+            {
+                LblDepuracion.Text = "Depuración: ERROR sincronización " + ex.Message;
+                await DisplayAlert("Error", $"No se pudo sincronizar: {ex.Message}", "OK");
+            }
+            finally
+            {
+                BtnSincronizar.Text = "Sincronizar datos (local ↔ en línea)";
+                BtnSincronizar.IsEnabled = true;
+            }
+        }
 
         private void OnCancelarClicked(object sender, EventArgs e)
         {

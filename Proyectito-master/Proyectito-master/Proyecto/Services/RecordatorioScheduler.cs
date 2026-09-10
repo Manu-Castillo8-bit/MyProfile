@@ -4,6 +4,11 @@ using Microsoft.Maui.Storage;
 using Plugin.LocalNotification;
 using Plugin.LocalNotification.Core.Models;
 
+#if WINDOWS
+using Microsoft.Windows.AppNotifications;
+using Microsoft.Windows.AppNotifications.Builder;
+#endif
+
 namespace Proyecto.Services;
 
 // Planificador de recordatorios (híbrido):
@@ -16,6 +21,9 @@ public static class RecordatorioScheduler
     public const string TipoAgua = "agua";
     public const string TipoDescanso = "descanso";
     public const string TipoTareas = "tareas";
+    public const string UnidadMin = "min";
+    public const string UnidadHora = "h";
+    public const string UnidadDia = "d";
 
     private const string PrefUltimo = "rec_ultimo_";
     private const int AppIdBase = 1100;
@@ -44,7 +52,7 @@ public static class RecordatorioScheduler
 
         _iniciado = true;
         _temporizador = timer;
-        timer.Interval = TimeSpan.FromSeconds(60);
+        timer.Interval = TimeSpan.FromSeconds(30);
         timer.Tick += async (_, _) => await EvaluarAsync();
         timer.Start();
 
@@ -81,6 +89,42 @@ public static class RecordatorioScheduler
                 await LocalNotificationCenter.Current.RequestNotificationPermission();
         }
         catch { }
+    }
+
+#if ANDROID
+    // Se llama una sola vez, al ACTIVAR un recordatorio: pide el permiso
+    // "Alarmas y recordatorios" si Android aún no lo ha concedido.
+    public static void AsegurarAlarmasExactas()
+    {
+        try
+        {
+            var contexto = Microsoft.Maui.ApplicationModel.Platform.AppContext;
+            var alarmas = Android.App.AlarmManager.FromContext(contexto);
+            if (alarmas is not null && !alarmas.CanScheduleExactAlarms())
+            {
+                var intent = new Android.Content.Intent(
+                    Android.Provider.Settings.ActionRequestScheduleExactAlarm,
+                    Android.Net.Uri.Parse("package:" + contexto.PackageName));
+                intent.AddFlags(Android.Content.ActivityFlags.NewTask);
+                contexto.StartActivity(intent);
+            }
+        }
+        catch { }
+    }
+#else
+    public static void AsegurarAlarmasExactas()
+    {
+    }
+#endif
+
+    // Resuelve el intervalo real (minutos/horas/días) elegido por el usuario.
+    public static TimeSpan ObtenerIntervalo(RecordatorioSalud rec)
+    {
+        if (rec is null)
+            return TimeSpan.FromMinutes(1);
+
+        int valor = rec.FrecuenciaValor > 0 ? rec.FrecuenciaValor : rec.FrecuenciaMinutos;
+        return TimeSpan.FromMinutes(SupabaseService.ResolverMinutos(valor, rec.FrecuenciaUnidad));
     }
 
     private static async Task EvaluarAsync(bool onlyReSchedule = false)
@@ -125,20 +169,34 @@ public static class RecordatorioScheduler
         var rec = lista.FirstOrDefault(r => string.Equals(r.Tipo, tipo, StringComparison.OrdinalIgnoreCase));
         int id = IdsPorTipo[tipo];
 
-        if (rec is null || !rec.Activo || rec.FrecuenciaMinutos <= 0)
+        if (rec is null || !rec.Activo)
         {
             try { LocalNotificationCenter.Current.Cancel(id); } catch { }
             return;
         }
 
-        if (!onlyReSchedule && LeDebeAvisar(tipo, rec.FrecuenciaMinutos))
+        var intervalo = ObtenerIntervalo(rec);
+        if (intervalo <= TimeSpan.Zero)
+        {
+            try { LocalNotificationCenter.Current.Cancel(id); } catch { }
+            return;
+        }
+
+        if (!onlyReSchedule && LeDebeAvisar(tipo, intervalo))
         {
             GuardarUltimo(tipo, DateTime.Now);
             try { LocalNotificationCenter.Current.Cancel(id); } catch { }
             await MostrarAsync(id, titulo, mensaje);
         }
+        else if (ObtenerUltimo(tipo) == DateTime.MinValue)
+        {
+            // Primera vez: fija el ancla para que tanto el aviso en pantalla
+            // como la notificación del sistema salgan exactamente dentro de
+            // "intervalo" (y que no se vaya desplazando en cada ciclo).
+            GuardarUltimo(tipo, DateTime.Now);
+        }
 
-        ProgramarProximaNotificacion(id, tipo, rec.FrecuenciaMinutos, titulo, mensaje);
+        ProgramarProximaNotificacion(id, tipo, intervalo, titulo, mensaje);
     }
 
     private static async Task EvaluarTipoTareasAsync(List<RecordatorioSalud> lista, bool onlyReSchedule)
@@ -146,7 +204,14 @@ public static class RecordatorioScheduler
         var rec = lista.FirstOrDefault(r => string.Equals(r.Tipo, TipoTareas, StringComparison.OrdinalIgnoreCase));
         int id = IdsPorTipo[TipoTareas];
 
-        if (rec is null || !rec.Activo || rec.FrecuenciaMinutos <= 0)
+        if (rec is null || !rec.Activo)
+        {
+            try { LocalNotificationCenter.Current.Cancel(id); } catch { }
+            return;
+        }
+
+        var intervalo = ObtenerIntervalo(rec);
+        if (intervalo <= TimeSpan.Zero)
         {
             try { LocalNotificationCenter.Current.Cancel(id); } catch { }
             return;
@@ -165,52 +230,78 @@ public static class RecordatorioScheduler
         var titulo = pendientes == 1 ? "Tienes 1 tarea pendiente" : $"Tienes {pendientes} tareas pendientes";
         var mensaje = "Abre tu lista de tareas y organiza tu día 📝";
 
-        if (!onlyReSchedule && LeDebeAvisar(TipoTareas, rec.FrecuenciaMinutos))
+        if (!onlyReSchedule && LeDebeAvisar(TipoTareas, intervalo))
         {
             GuardarUltimo(TipoTareas, DateTime.Now);
             try { LocalNotificationCenter.Current.Cancel(id); } catch { }
             await MostrarAsync(id, titulo, mensaje);
         }
+        else if (ObtenerUltimo(TipoTareas) == DateTime.MinValue)
+        {
+            GuardarUltimo(TipoTareas, DateTime.Now);
+        }
 
-        ProgramarProximaNotificacion(id, TipoTareas, rec.FrecuenciaMinutos, titulo, mensaje);
+        ProgramarProximaNotificacion(id, TipoTareas, intervalo, titulo, mensaje);
     }
 
-    private static bool LeDebeAvisar(string tipo, int frecuenciaMin)
+    private static bool LeDebeAvisar(string tipo, TimeSpan intervalo)
     {
         var ultimo = ObtenerUltimo(tipo);
         if (ultimo == DateTime.MinValue)
             return false;
 
-        return DateTime.Now >= ultimo.AddMinutes(frecuenciaMin);
+        return DateTime.Now >= ultimo.Add(intervalo);
     }
 
-    private static void ProgramarProximaNotificacion(int id, string tipo, int frecuenciaMin, string titulo, string mensaje)
+    private static void ProgramarProximaNotificacion(int id, string tipo, TimeSpan intervalo, string titulo, string mensaje)
     {
         try
         {
-            var proximo = ObtenerUltimo(tipo) == DateTime.MinValue
-                ? DateTime.Now.AddMinutes(frecuenciaMin)
-                : ObtenerUltimo(tipo).AddMinutes(frecuenciaMin);
+            var ultimo = ObtenerUltimo(tipo);
+            var proximo = ultimo == DateTime.MinValue
+                ? DateTime.Now.Add(intervalo)
+                : ultimo.Add(intervalo);
 
             if (proximo <= DateTime.Now)
-                proximo = DateTime.Now.AddMinutes(frecuenciaMin);
+                proximo = DateTime.Now.Add(intervalo);
+
+#if !WINDOWS
+            // En Android la repetición la gestiona el propio sistema: la
+            // notificación sigue llegando a la hora fijada cada ciclo aunque
+            // la app esté cerrada o el teléfono bloqueado. El temporizador
+            // in-app solo la re-arranca al cambiar la configuración.
+            // En iOS/Mac la combinación "retraso + repetición por intervalo"
+            // no está soportada, así que ahí solo se agenda la próxima.
+            var schedule = new NotificationRequestSchedule
+            {
+                NotifyTime = new DateTimeOffset(proximo)
+            };
+
+#if ANDROID
+            schedule.RepeatType = NotificationRepeat.TimeInterval;
+            schedule.NotifyRepeatInterval = intervalo;
+#endif
 
             var request = new NotificationRequest
             {
                 NotificationId = id,
                 Title = titulo,
                 Description = mensaje,
-                Schedule = new NotificationRequestSchedule
-                {
-                    NotifyTime = new DateTimeOffset(proximo)
-                }
+                Schedule = schedule
             };
 
             LocalNotificationCenter.Current.Show(request);
+#else
+            // Windows: el Windows App SDK no soporta notificaciones
+            // "programadas" (se muestran solo mientras la app está en
+            // ejecución). El temporizador in-app dispara cada aviso a su
+            // hora; aquí no se agenda nada para evitar avisos duplicados.
+#endif
         }
         catch
         {
-            // En Windows el agendamiento puede no estar disponible; el temporizador in-app cubre ese caso.
+            // El agendamiento puede fallar temporalmente (permisos, plataforma):
+            // el temporizador in-app reintenta en el siguiente ciclo.
         }
     }
 
@@ -222,12 +313,16 @@ public static class RecordatorioScheduler
         {
             try
             {
+#if WINDOWS
+                MostrarNotificacionWindows(id, titulo, mensaje);
+#else
                 await LocalNotificationCenter.Current.Show(new NotificationRequest
                 {
                     NotificationId = id,
                     Title = titulo,
                     Description = mensaje
                 });
+#endif
             }
             catch { }
 
@@ -238,6 +333,22 @@ public static class RecordatorioScheduler
             }
         });
     }
+
+#if WINDOWS
+    // Toast nativo de Windows. Requiere que el Windows App SDK esté
+    // disponible y la app registrada (ver Platforms/Windows/App.xaml.cs).
+    private static void MostrarNotificacionWindows(int id, string titulo, string mensaje)
+    {
+        var notificacion = new AppNotificationBuilder()
+            .AddArgument("notificationId", id.ToString(System.Globalization.CultureInfo.InvariantCulture))
+            .AddText(titulo)
+            .AddText(mensaje)
+            .BuildNotification();
+
+        notificacion.Tag = id.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        AppNotificationManager.Default.Show(notificacion);
+    }
+#endif
 
     private static DateTime ObtenerUltimo(string tipo)
     {

@@ -6,7 +6,7 @@
              Shell.NavBarIsVisible="False">
 
     <Grid>
-        <Grid RowDefinitions="Auto, Auto, *">
+        <Grid RowDefinitions="Auto, Auto, Auto, *">
             <!-- Título y Botón Agregar -->
             <Grid Grid.Row="0" ColumnDefinitions="*, Auto" Padding="20,20,20,10">
                 <VerticalStackLayout Grid.Column="0" Spacing="2">
@@ -22,8 +22,14 @@
                 <Button Grid.Column="1" x:Name="BtnCompletadas" Text="Completadas" BackgroundColor="#1E1E1E" TextColor="White" CornerRadius="12" HeightRequest="40" Clicked="OnCompletadasClicked" />
             </Grid>
 
+            <!-- Botón de sincronización local ↔ en línea -->
+            <Button Grid.Row="2" x:Name="BtnSincronizar" Text="Actualizar datos"
+                    BackgroundColor="#1E1E1E" TextColor="#FFD700"
+                    FontAttributes="Bold" CornerRadius="12" HeightRequest="42"
+                    Margin="20,0,20,15" Clicked="OnSincronizarClicked" />
+
             <!-- Lista de Tareas -->
-            <ScrollView Grid.Row="2">
+            <ScrollView Grid.Row="3">
                 <VerticalStackLayout x:Name="ListaTareas"   Padding="20,0,20,20" Spacing="10">
 
                 </VerticalStackLayout>

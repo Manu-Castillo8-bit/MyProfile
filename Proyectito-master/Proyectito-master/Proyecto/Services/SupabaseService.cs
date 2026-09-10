@@ -11,13 +11,13 @@ using Supabase.Postgrest.Models;
 
 namespace Proyecto.Services;
 
-// 1. ESTRUCTURA DE LA TABLA (Modelo)
+// 1. ESTRUCTURA DE LAS TABLAS (Modelos de Supabase)
 
 [Table("usuario")]
 public class Usuario : BaseModel
 {
     [PrimaryKey("id_usuario", false)]
-    [Column("id_usuario", ignoreOnInsert: true)] // <-- CAMBIO AQUÍ
+    [Column("id_usuario", ignoreOnInsert: true)]
     public int Id { get; set; }
 
     [Column("nombre")]
@@ -30,13 +30,11 @@ public class Usuario : BaseModel
     public string? AuthUserId { get; set; }
 }
 
-
-// MODELO: MOVIMIENTO FINANCIERO
 [Table("movimiento_financiero")]
 public class MovimientoFinanciero : BaseModel
 {
     [PrimaryKey("id_movimiento", false)]
-    [Column("id_movimiento", ignoreOnInsert: true)] // <-- Recomendado para evitar el mismo error
+    [Column("id_movimiento", ignoreOnInsert: true)]
     public int IdMovimiento { get; set; }
 
     [Column("id_usuario")]
@@ -55,13 +53,11 @@ public class MovimientoFinanciero : BaseModel
     public DateTime Fecha { get; set; }
 }
 
-
-// MODELO: CONTRASEÑA
 [Table("contrasenas")]
 public class Contrasena : BaseModel
 {
     [PrimaryKey("id_contrasena", false)]
-    [Column("id_contrasena", ignoreOnInsert: true)] // <-- Recomendado
+    [Column("id_contrasena", ignoreOnInsert: true)]
     public int IdContrasena { get; set; }
 
     [Column("id_usuario")]
@@ -77,12 +73,11 @@ public class Contrasena : BaseModel
     public string ClaveCifrada { get; set; } = string.Empty;
 }
 
-// MODELO: TAREA
 [Table("tarea")]
 public class Tarea : BaseModel
 {
     [PrimaryKey("id_tarea", false)]
-    [Column("id_tarea", ignoreOnInsert: true)] // <-- Recomendado
+    [Column("id_tarea", ignoreOnInsert: true)]
     public int IdTarea { get; set; }
 
     [Column("id_usuario")]
@@ -101,12 +96,11 @@ public class Tarea : BaseModel
     public string Estado { get; set; } = "pendiente";
 }
 
-// MODELO: RECORDATORIOS DE SALUD (PREFERENCIAS)
 [Table("recordatorio_salud")]
 public class RecordatorioSalud : BaseModel
 {
     [PrimaryKey("id_recordatorio", false)]
-    [Column("id_recordatorio", ignoreOnInsert: true)] // <-- La PK la genera la base de datos
+    [Column("id_recordatorio", ignoreOnInsert: true)]
     public int Id { get; set; }
 
     [Column("id_usuario")]
@@ -117,6 +111,12 @@ public class RecordatorioSalud : BaseModel
 
     [Column("frecuencia_minutos")]
     public int FrecuenciaMinutos { get; set; }
+
+    [Column("frecuencia_valor")]
+    public int FrecuenciaValor { get; set; }
+
+    [Column("frecuencia_unidad")]
+    public string FrecuenciaUnidad { get; set; } = "min";
 
     [Column("activo")]
     public bool Activo { get; set; }
@@ -168,7 +168,7 @@ public static class PasswordHasher
     }
 }
 
-// 4. OPERACIONES CON LA BASE DE DATOS
+// 4. OPERACIONES DE NEGOCIO (offline-first)
 public static class SupabaseService
 {
     private static Client? _client;
@@ -254,62 +254,131 @@ public static class SupabaseService
         return client;
     }
 
+    // ── INICIO DE SESIÓN (online + offline) ──
+
     public static async Task<Usuario?> LoginAsync(string correo, string contrasena)
     {
-        var client = await GetClientAsync();
         var correoNormalizado = NormalizarCorreo(correo);
 
-        try
+        // 1) Intentar autenticación en Supabase (si hay conexión).
+        if (SyncService.Conectado)
         {
-            await client.Auth.SignIn(correoNormalizado, contrasena);
-        }
-        catch (Exception)
-        {
-            return null;
-        }
-
-        var resultado = await client
-            .From<Usuario>()
-            .Where(u => u.Correo == correoNormalizado)
-            .Get();
-
-        var usuario = resultado.Models.FirstOrDefault();
-        if (usuario is null)
-        {
-            // El correo existe en Auth pero no en la tabla "usuario":
-            // podría haberse quedado huérfano. Lo creamos para no bloquear el acceso.
-            var autenticado = client.Auth.CurrentUser;
-
-            string nombreRegistrado = "Usuario";
-            if (autenticado?.UserMetadata is { } meta &&
-                meta.TryGetValue("nombre", out var nombreMeta) &&
-                !string.IsNullOrWhiteSpace(nombreMeta?.ToString()))
+            try
             {
-                nombreRegistrado = nombreMeta.ToString()!;
+                var client = await GetClientAsync();
+                await client.Auth.SignIn(correoNormalizado, contrasena);
+
+                var resultado = await client
+                    .From<Usuario>()
+                    .Where(u => u.Correo == correoNormalizado)
+                    .Get();
+
+                var usuario = resultado.Models.FirstOrDefault();
+                if (usuario is null)
+                {
+                    var autenticado = client.Auth.CurrentUser;
+                    string nombreRegistrado = "Usuario";
+                    if (autenticado?.UserMetadata is { } meta &&
+                        meta.TryGetValue("nombre", out var nombreMeta) &&
+                        !string.IsNullOrWhiteSpace(nombreMeta?.ToString()))
+                    {
+                        nombreRegistrado = nombreMeta.ToString()!;
+                    }
+
+                    var porCrear = new Usuario
+                    {
+                        Nombre = nombreRegistrado,
+                        Correo = correoNormalizado,
+                        AuthUserId = autenticado?.Id
+                    };
+
+                    var insertado = await client.From<Usuario>().Insert(porCrear);
+                    usuario = insertado.Models.FirstOrDefault();
+                    if (usuario is null)
+                        return null;
+                }
+
+                // Cacheamos el hash para permitir login offline la próxima vez.
+                await LocalDatabase.GuardarCredencialesAsync(
+                    correoNormalizado,
+                    PasswordHasher.Hash(contrasena),
+                    usuario.Nombre,
+                    usuario.Id,
+                    usuario.AuthUserId);
+
+                EstablecerSesion(usuario);
+
+                // Actualizamos los datos locales desde el servidor.
+                await SyncService.SincronizarAsync();
+
+                return usuario;
             }
-
-            var porCrear = new Usuario
+            catch
             {
-                Nombre = nombreRegistrado,
-                Correo = correoNormalizado,
-                AuthUserId = autenticado?.Id
+                // Si el servidor rechaza las credenciales, seguimos para no
+                // ocultarle el error al usuario (ver comprobación final).
+            }
+        }
+
+        // 2) Fallback OFFLINE: validar contra credenciales cacheadas.
+        var cache = await LocalDatabase.ObtenerUsuarioPorCorreoAsync(correoNormalizado);
+        if (cache is not null && PasswordHasher.Verify(contrasena, cache.HashContrasena))
+        {
+            var usuarioOffline = new Usuario
+            {
+                Id = cache.ServerId ?? 0,
+                Nombre = cache.Nombre,
+                Correo = cache.Correo,
+                AuthUserId = cache.AuthUserId
             };
 
-            var insertado = await client.From<Usuario>().Insert(porCrear);
-            usuario = insertado.Models.FirstOrDefault();
-            if (usuario is null)
-                return null;
+            if (usuarioOffline.Id <= 0)
+            {
+                // Usuario creado localmente antes de sincronizar: no tenemos
+                // id de servidor, así que recurrimos a una sesión nominal.
+                usuarioOffline.Id = ObtenerIdUsuarioNominal(correoNormalizado);
+            }
+
+            EstablecerSesion(usuarioOffline);
+            return usuarioOffline;
         }
 
-        EstablecerSesion(usuario);
-        return usuario;
+        // 3) Ni online (por error) ni offline: credenciales inválidas.
+        if (SyncService.Conectado)
+        {
+            try
+            {
+                // Reconfirmamos online para diferenciar "sin red" de "credenciales incorrectas".
+                var client = await GetClientAsync();
+                await client.Auth.SignIn(correoNormalizado, contrasena);
+            }
+            catch
+            {
+                return null; // credenciales incorrectas en servidor
+            }
+        }
+
+        return null;
+    }
+
+    // Id estable y positivo para usuarios que aún no tienen un id real de servidor.
+    private static int ObtenerIdUsuarioNominal(string correo)
+    {
+        // Basado en el hash del correo: garantiza ser determinista y no colisionar
+        // con ids reales pequeños en la práctica (suelen ser ≤ algunos miles).
+        var bytes = SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(correo));
+        int valor = BitConverter.ToInt32(bytes, 0) & 0x7FFFFFFF;
+        return 1_000_000 + (valor % 900_000_000);
     }
 
     public static async Task RegistrarAsync(string nombre, string correo, string contrasena)
     {
-        var cliente = await GetClientAsync();
         var correoNormalizado = NormalizarCorreo(correo);
 
+        if (!SyncService.Conectado)
+            throw new InvalidOperationException("No hay conexión a internet. Conéctate para poder crear tu cuenta.");
+
+        var cliente = await GetClientAsync();
         try
         {
             await cliente.Auth.SignUp(correoNormalizado, contrasena);
@@ -321,9 +390,6 @@ public static class SupabaseService
 
         var usuarioAutenticado = cliente.Auth.CurrentUser;
 
-        // Si ya existe un registro en la tabla "usuario" con ese correo, no
-        // se debe insertar otro (evita el error 23505). Se enlaza el usuario
-        // de Auth con esa fila y se inicia sesión con la cuenta existente.
         var existente = await cliente
             .From<Usuario>()
             .Where(u => u.Correo == correoNormalizado)
@@ -340,22 +406,34 @@ public static class SupabaseService
                     .Update();
             }
 
+            await LocalDatabase.GuardarCredencialesAsync(
+                correoNormalizado,
+                PasswordHasher.Hash(contrasena),
+                usuarioExistente.Nombre,
+                usuarioExistente.Id,
+                usuarioExistente.AuthUserId);
+
             EstablecerSesion(usuarioExistente);
             return;
         }
 
-        var nuevo = new Usuario
+        var respuesta = await cliente.From<Usuario>().Insert(new Usuario
         {
             Nombre = nombre.Trim(),
             Correo = correoNormalizado,
             AuthUserId = usuarioAutenticado?.Id
-        };
+        });
 
-        var respuesta = await cliente.From<Usuario>().Insert(nuevo);
         var usuarioCreado = respuesta.Models.FirstOrDefault();
-
         if (usuarioCreado is not null)
         {
+            await LocalDatabase.GuardarCredencialesAsync(
+                correoNormalizado,
+                PasswordHasher.Hash(contrasena),
+                usuarioCreado.Nombre,
+                usuarioCreado.Id,
+                usuarioCreado.AuthUserId);
+
             EstablecerSesion(usuarioCreado);
         }
     }
@@ -369,14 +447,9 @@ public static class SupabaseService
         var usuario = UsuarioActual;
         if (usuario is null) return 0;
 
-        var client = await GetClientAsync();
-        var resultado = await client
-            .From<MovimientoFinanciero>()
-            .Where(m => m.IdUsuario == usuario.Id)
-            .Get();
-
+        var movimientos = await ObtenerMovimientosAsync();
         decimal saldo = 0;
-        foreach (var m in resultado.Models)
+        foreach (var m in movimientos)
         {
             if (m.Tipo == "ingreso")
                 saldo += m.Monto;
@@ -391,34 +464,38 @@ public static class SupabaseService
         var usuario = UsuarioActual;
         if (usuario is null) return new List<MovimientoFinanciero>();
 
-        var client = await GetClientAsync();
-        var resultado = await client
-            .From<MovimientoFinanciero>()
-            .Where(m => m.IdUsuario == usuario.Id)
-            .Order(m => m.Fecha, Supabase.Postgrest.Constants.Ordering.Descending)
-            .Get();
-
-        return resultado.Models;
+        var locales = await LocalDatabase.ObtenerMovimientosAsync(usuario.Id);
+        return locales
+            .OrderByDescending(m => m.Fecha)
+            .Select(m => new MovimientoFinanciero
+            {
+                IdMovimiento = LocalDatabase.IdInterfaz(m.ServerId, m.IdLocal),
+                IdUsuario = usuario.Id,
+                Monto = m.Monto,
+                Tipo = m.Tipo,
+                Descripcion = m.Descripcion,
+                Fecha = m.Fecha
+            })
+            .ToList();
     }
 
     public static async Task RegistrarMovimientoAsync(decimal monto, string tipo, string descripcion)
     {
         var usuario = UsuarioActual;
-
         if (usuario is null || usuario.Id <= 0)
             throw new InvalidOperationException("No hay una sesión activa con ID de usuario válido.");
 
-        var client = await GetClientAsync();
-        var movimiento = new MovimientoFinanciero
+        await LocalDatabase.InsertarMovimientoPendienteAsync(new MovimientoOffline
         {
             IdUsuario = usuario.Id,
             Monto = monto,
             Tipo = tipo,
             Descripcion = descripcion.Trim(),
             Fecha = DateTime.UtcNow
-        };
+        });
 
-        await client.From<MovimientoFinanciero>().Insert(movimiento);
+        if (SyncService.Conectado)
+            await SyncService.SincronizarAsync();
     }
 
     // ── CONTRASEÑAS (CRUD) ──
@@ -428,13 +505,18 @@ public static class SupabaseService
         var usuario = UsuarioActual;
         if (usuario is null) return new List<Contrasena>();
 
-        var client = await GetClientAsync();
-        var resultado = await client
-            .From<Contrasena>()
-            .Where(c => c.IdUsuario == usuario.Id)
-            .Get();
-
-        return resultado.Models;
+        var locales = await LocalDatabase.ObtenerContrasenasAsync(usuario.Id);
+        return locales
+            .OrderByDescending(c => c.IdLocal)
+            .Select(c => new Contrasena
+            {
+                IdContrasena = LocalDatabase.IdInterfaz(c.ServerId, c.IdLocal),
+                IdUsuario = usuario.Id,
+                SitioWeb = c.SitioWeb,
+                UsuarioCuenta = c.UsuarioCuenta,
+                ClaveCifrada = c.ClaveCifrada
+            })
+            .ToList();
     }
 
     public static async Task CrearContrasenaAsync(string sitioWeb, string usuarioCuenta, string clave)
@@ -443,39 +525,53 @@ public static class SupabaseService
         if (usuario is null)
             throw new InvalidOperationException("No hay sesión activa.");
 
-        var client = await GetClientAsync();
-        var nueva = new Contrasena
+        await LocalDatabase.InsertarContrasenaPendienteAsync(new ContrasenaOffline
         {
             IdUsuario = usuario.Id,
             SitioWeb = sitioWeb.Trim(),
             UsuarioCuenta = usuarioCuenta.Trim(),
             ClaveCifrada = PasswordHasher.Hash(clave)
-        };
+        });
 
-        await client.From<Contrasena>().Insert(nueva);
+        if (SyncService.Conectado)
+            await SyncService.SincronizarAsync();
     }
 
     public static async Task ActualizarContrasenaAsync(int idContrasena, string sitioWeb, string usuarioCuenta, string clave)
     {
-        var client = await GetClientAsync();
+        var usuario = UsuarioActual;
+        if (usuario is null)
+            throw new InvalidOperationException("No hay sesión activa.");
 
-        var query = client.From<Contrasena>().Where(c => c.IdContrasena == idContrasena);
-        query = query.Set(c => c.SitioWeb, sitioWeb.Trim());
-        query = query.Set(c => c.UsuarioCuenta, usuarioCuenta.Trim());
+        var fila = await LocalDatabase.ObtenerContrasenaPorInterfazAsync(usuario.Id, idContrasena);
+        if (fila is null)
+            return;
 
+        fila.SitioWeb = sitioWeb.Trim();
+        fila.UsuarioCuenta = usuarioCuenta.Trim();
         if (!string.IsNullOrWhiteSpace(clave))
-            query = query.Set(c => c.ClaveCifrada, PasswordHasher.Hash(clave));
+            fila.ClaveCifrada = PasswordHasher.Hash(clave);
 
-        await query.Update();
+        await LocalDatabase.ActualizarContrasenaPendienteAsync(fila);
+
+        if (SyncService.Conectado)
+            await SyncService.SincronizarAsync();
     }
 
     public static async Task EliminarContrasenaAsync(int idContrasena)
     {
-        var client = await GetClientAsync();
-        await client
-            .From<Contrasena>()
-            .Where(c => c.IdContrasena == idContrasena)
-            .Delete();
+        var usuario = UsuarioActual;
+        if (usuario is null)
+            return;
+
+        var fila = await LocalDatabase.ObtenerContrasenaPorInterfazAsync(usuario.Id, idContrasena);
+        if (fila is null)
+            return;
+
+        await LocalDatabase.MarcarContrasenaEliminadaAsync(fila);
+
+        if (SyncService.Conectado)
+            await SyncService.SincronizarAsync();
     }
 
     // ── TAREAS (CRUD) ──
@@ -485,14 +581,19 @@ public static class SupabaseService
         var usuario = UsuarioActual;
         if (usuario is null) return new List<Tarea>();
 
-        var client = await GetClientAsync();
-        var resultado = await client
-            .From<Tarea>()
-            .Where(t => t.IdUsuario == usuario.Id)
-            .Order(t => t.IdTarea, Supabase.Postgrest.Constants.Ordering.Descending)
-            .Get();
-
-        return resultado.Models;
+        var locales = await LocalDatabase.ObtenerTareasAsync(usuario.Id);
+        return locales
+            .OrderByDescending(t => t.IdLocal)
+            .Select(t => new Tarea
+            {
+                IdTarea = LocalDatabase.IdInterfaz(t.ServerId, t.IdLocal),
+                IdUsuario = usuario.Id,
+                Titulo = t.Titulo,
+                Descripcion = t.Descripcion,
+                FechaVencimiento = t.FechaVencimiento,
+                Estado = t.Estado
+            })
+            .ToList();
     }
 
     public static async Task CrearTareaAsync(string titulo, string descripcion, DateTime? fechaVencimiento, string estado)
@@ -501,49 +602,71 @@ public static class SupabaseService
         if (usuario is null)
             throw new InvalidOperationException("No hay sesión activa.");
 
-        var client = await GetClientAsync();
-        var nueva = new Tarea
+        await LocalDatabase.InsertarTareaPendienteAsync(new TareaOffline
         {
             IdUsuario = usuario.Id,
             Titulo = titulo.Trim(),
             Descripcion = descripcion?.Trim() ?? "",
             FechaVencimiento = fechaVencimiento,
             Estado = string.IsNullOrWhiteSpace(estado) ? "pendiente" : estado.Trim()
-        };
+        });
 
-        await client.From<Tarea>().Insert(nueva);
+        if (SyncService.Conectado)
+            await SyncService.SincronizarAsync();
     }
 
     public static async Task ActualizarTareaAsync(int idTarea, string titulo, string descripcion, DateTime? fechaVencimiento, string estado)
     {
-        var client = await GetClientAsync();
+        var usuario = UsuarioActual;
+        if (usuario is null)
+            throw new InvalidOperationException("No hay sesión activa.");
 
-        var query = client.From<Tarea>().Where(t => t.IdTarea == idTarea);
-        query = query.Set(t => t.Titulo, titulo.Trim());
-        query = query.Set(t => t.Descripcion, descripcion?.Trim() ?? "");
-        query = query.Set(t => t.FechaVencimiento, fechaVencimiento);
-        query = query.Set(t => t.Estado, string.IsNullOrWhiteSpace(estado) ? "pendiente" : estado.Trim());
+        var fila = await LocalDatabase.ObtenerTareaPorInterfazAsync(usuario.Id, idTarea);
+        if (fila is null)
+            return;
 
-        await query.Update();
+        fila.Titulo = titulo.Trim();
+        fila.Descripcion = descripcion?.Trim() ?? "";
+        fila.FechaVencimiento = fechaVencimiento;
+        fila.Estado = string.IsNullOrWhiteSpace(estado) ? "pendiente" : estado.Trim();
+
+        await LocalDatabase.ActualizarTareaPendienteAsync(fila);
+
+        if (SyncService.Conectado)
+            await SyncService.SincronizarAsync();
     }
 
     public static async Task CambiarEstadoTareaAsync(int idTarea, string estado)
     {
-        var client = await GetClientAsync();
-        await client
-            .From<Tarea>()
-            .Where(t => t.IdTarea == idTarea)
-            .Set(t => t.Estado, estado.Trim())
-            .Update();
+        var usuario = UsuarioActual;
+        if (usuario is null)
+            return;
+
+        var fila = await LocalDatabase.ObtenerTareaPorInterfazAsync(usuario.Id, idTarea);
+        if (fila is null)
+            return;
+
+        fila.Estado = estado.Trim().ToLower();
+        await LocalDatabase.ActualizarTareaPendienteAsync(fila);
+
+        if (SyncService.Conectado)
+            await SyncService.SincronizarAsync();
     }
 
     public static async Task EliminarTareaAsync(int idTarea)
     {
-        var client = await GetClientAsync();
-        await client
-            .From<Tarea>()
-            .Where(t => t.IdTarea == idTarea)
-            .Delete();
+        var usuario = UsuarioActual;
+        if (usuario is null)
+            return;
+
+        var fila = await LocalDatabase.ObtenerTareaPorInterfazAsync(usuario.Id, idTarea);
+        if (fila is null)
+            return;
+
+        await LocalDatabase.MarcarTareaEliminadaAsync(fila);
+
+        if (SyncService.Conectado)
+            await SyncService.SincronizarAsync();
     }
 
     // ── SALUD (PREFERENCIAS DE RECORDATORIOS) ──
@@ -553,55 +676,71 @@ public static class SupabaseService
         var usuario = UsuarioActual;
         if (usuario is null) return new List<RecordatorioSalud>();
 
-        var client = await GetClientAsync();
-        var resultado = await client
-            .From<RecordatorioSalud>()
-            .Where(r => r.IdUsuario == usuario.Id)
-            .Get();
-
-        return resultado.Models;
+        var locales = await LocalDatabase.ObtenerRecordatoriosAsync(usuario.Id);
+        return locales
+            .Select(r => new RecordatorioSalud
+            {
+                Id = LocalDatabase.IdInterfaz(r.ServerId, r.IdLocal),
+                IdUsuario = usuario.Id,
+                Tipo = r.Tipo,
+                FrecuenciaMinutos = r.FrecuenciaMinutos,
+                FrecuenciaValor = r.FrecuenciaValor,
+                FrecuenciaUnidad = r.FrecuenciaUnidad,
+                Activo = r.Activo
+            })
+            .ToList();
     }
 
-    public static async Task GuardarRecordatorioAsync(string tipo, int frecuenciaMinutos, bool activo)
+    // Convierte (cantidad + unidad) a la duración en minutos que se guarda en la BD.
+    public static int ResolverMinutos(int valor, string unidad)
+    {
+        var u = (unidad ?? "min").Trim().ToLowerInvariant();
+        return u switch
+        {
+            "h" or "hora" or "horas" => valor * 60,
+            "d" or "dia" or "dias" or "día" or "días" => valor * 60 * 24,
+            _ => valor
+        };
+    }
+
+    public static async Task GuardarRecordatorioAsync(string tipo, int frecuenciaValor, string frecuenciaUnidad, bool activo)
     {
         var usuario = UsuarioActual;
         if (usuario is null)
             throw new InvalidOperationException("No hay sesión activa.");
 
-        var client = await GetClientAsync();
+        var existente = await LocalDatabase.ObtenerRecordatorioPorTipoAsync(usuario.Id, tipo);
+        int minutos = ResolverMinutos(frecuenciaValor, frecuenciaUnidad);
 
-        var existente = await client
-            .From<RecordatorioSalud>()
-            .Where(r => r.IdUsuario == usuario.Id && r.Tipo == tipo)
-            .Get();
+        await LocalDatabase.GuardarRecordatorioPendienteAsync(new RecordatorioSaludOffline
+        {
+            IdUsuario = usuario.Id,
+            ServerId = existente?.ServerId,
+            Tipo = tipo,
+            FrecuenciaValor = frecuenciaValor,
+            FrecuenciaUnidad = frecuenciaUnidad,
+            FrecuenciaMinutos = minutos,
+            Activo = activo
+        });
 
-        var registro = existente.Models.FirstOrDefault();
-        if (registro is not null)
-        {
-            await client.From<RecordatorioSalud>()
-                .Where(r => r.Id == registro.Id)
-                .Set(r => r.FrecuenciaMinutos, frecuenciaMinutos)
-                .Set(r => r.Activo, activo)
-                .Update();
-        }
-        else
-        {
-            await client.From<RecordatorioSalud>().Insert(new RecordatorioSalud
-            {
-                IdUsuario = usuario.Id,
-                Tipo = tipo,
-                FrecuenciaMinutos = frecuenciaMinutos,
-                Activo = activo
-            });
-        }
+        if (SyncService.Conectado)
+            await SyncService.SincronizarAsync();
     }
 
     public static async Task EliminarRecordatorioAsync(int idRecordatorio)
     {
-        var client = await GetClientAsync();
-        await client
-            .From<RecordatorioSalud>()
-            .Where(r => r.Id == idRecordatorio)
-            .Delete();
+        var usuario = UsuarioActual;
+        if (usuario is null)
+            return;
+
+        var locales = await LocalDatabase.ObtenerRecordatoriosAsync(usuario.Id);
+        var fila = locales.FirstOrDefault(r => LocalDatabase.IdInterfaz(r.ServerId, r.IdLocal) == idRecordatorio);
+        if (fila is null)
+            return;
+
+        await LocalDatabase.MarcarRecordatorioEliminadoAsync(fila);
+
+        if (SyncService.Conectado)
+            await SyncService.SincronizarAsync();
     }
 }
