@@ -7,6 +7,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+
 <style>
   :root{
     --ink:#14161c;
@@ -360,6 +362,7 @@
     *{transition:none !important;}
   }
 </style>
+
 </head>
 <body>
 
@@ -397,7 +400,15 @@
 
     <!-- Header / Institución -->
     <section id="institucion" style="padding-top:40px;">
-      <div class="section-head"><span class="mono">INSTITUTO NACIONAL CANTÓN LOURDES (INDEL)</span><h2>Manual de Sistema MyProfile</h2></div>
+      <div class="section-head"><span class="mono">INSTITUTO NACIONAL CANTÓN LOURDES (INDEL)</span>
+        
+        
+      
+         <br>
+        </div>
+
+        <h1>Manual de Sistema MyProfile</h1>
+
       <p class="narrow">Documentación técnica y funcional del sistema desarrollado por el equipo Nexo para la asignatura de Tecnología III.</p>
       
       <div class="inst-grid">
@@ -426,14 +437,16 @@
     <!-- Intro -->
     <section class="hero" id="intro">
       <div>
+        <br>
+
         <div class="kicker mono">PROPÓSITO DEL SISTEMA</div>
         <h1>Un solo lugar para administrar tu vida diaria.</h1>
-        <p class="lead">En la actualidad, las personas utilizan múltiples aplicaciones dispersas para gestionar su día a día. MyProfile resuelve la necesidad de centralizar la gestión personal operativa, financiera, de seguridad y de salud en una única plataforma móvil unificada.</p>
-        <p style="font-size:0.93rem; color:#b0b4c0;">Está dirigido a usuarios jóvenes y adultos que buscan optimizar su productividad y bienestar general, permitiéndoles administrar sus actividades diarias, llevar un control de flujo de caja, salvaguardar credenciales importantes y recibir asistencia automatizada para rutinas de salud básicas.</p>
+        <p class="lead">En la actualidad, las personas utilizan múltiples aplicaciones dispersas para gestionar su día a día. MyProfile resuelve la necesidad de centralizar la gestión personal, financiera, de seguridad y de salud en una única plataforma móvil unificada.</p>
+        <p class="lead">Está dirigido a usuarios jóvenes y adultos que buscan optimizar su productividad y bienestar general, permitiéndoles administrar sus actividades diarias, salvaguardar credenciales importantes y recibir asistencia automatizada para rutinas de salud básicas.</p>
         <div class="stack" style="margin-top:20px;">
           <div><b>Frontend:</b> .NET MAUI (C# / XAML) · AppShell · Dark Mode</div>
-          <div><b>Backend:</b> Supabase (BaaS) · PostgreSQL en tiempo real</div>
-          <div><b>Modelo:</b> Single-Tenant (Usuario Propietario / Owner)</div>
+          <div><b>Backend:</b> Supabase · PostgreSQL en tiempo real</div>
+          <div><b>Arquitectura:</b> Cliente - servidor.</div>
         </div>
       </div>
 
@@ -465,7 +478,7 @@
 
     <!-- Arquitectura -->
     <section id="arquitectura">
-      <div class="section-head"><span class="mono">ARQUITECTURA</span><h2>Arquitectura Tecnológica</h2></div>
+      <div class="section-head"><h2>Arquitectura Tecnológica</h2></div>
       <p class="narrow">El sistema MyProfile ha sido desarrollado bajo los siguientes estándares tecnológicos por el equipo de Nexo:</p>
       <div class="arch-grid">
         <div class="arch-card">
@@ -481,7 +494,7 @@
 
     <!-- Módulos -->
     <section id="modulos">
-      <div class="section-head"><span class="mono">MÓDULOS</span><h2>Módulos del Sistema y Funcionalidades</h2></div>
+      <div class="section-head"><h2>Módulos del Sistema y Funcionalidades</h2></div>
       <p class="narrow">El sistema está dividido en cinco módulos principales, accesibles de manera directa a través de la barra de navegación inferior:</p>
 
       <div class="module" id="dashboard">
@@ -596,8 +609,8 @@
 
     <!-- Roles -->
     <section id="roles">
-      <div class="section-head"><span class="mono">ROLES</span><h2>Roles de Usuario y Permisos</h2></div>
-      <p class="narrow">Debido a la naturaleza de gestión estrictamente personal de MyProfile, el sistema opera bajo una estructura de rol único (<b>Single-Tenant</b>):</p>
+      <div class="section-head"><h2>Roles de Usuario</h2></div>
+      <p class="narrow">Debido a la naturaleza de gestión estrictamente personal de MyProfile, el sistema opera bajo una estructura de rol único (<b>Single-Tenant o inquilino único</b>):</p>
       <div class="rule-list">
         <div class="rule">
           <div class="r-title">Usuario Propietario (Owner)</div>
@@ -608,7 +621,7 @@
 
     <!-- Reglas de negocio -->
     <section id="reglas">
-      <div class="section-head"><span class="mono">REGLAS</span><h2>Reglas de Negocio</h2></div>
+      <div class="section-head"><h2>Reglas de Negocio</h2></div>
       <p class="narrow">El sistema aplica internamente las siguientes reglas lógicas para garantizar la coherencia de la información y una experiencia de usuario óptima:</p>
       <div class="rule-list">
         <div class="rule">
@@ -632,7 +645,7 @@
 
     <!-- Requerimientos ERS -->
     <section id="requerimientos">
-      <div class="section-head"><span class="mono">ERS</span><h2>Requerimientos Funcionales Cubiertos</h2></div>
+      <div class="section-head"><h2>Requerimientos Funcionales Cubiertos</h2></div>
       <p class="narrow">Durante la fase de construcción del software, el equipo de Nexo cumplió los requerimientos estipulados en la Especificación de Requerimientos de Software (ERS):</p>
       
       <table class="req-table">
@@ -689,7 +702,7 @@
 
     <!-- Limitaciones y Mejoras -->
     <section id="limitaciones">
-      <div class="section-head"><span class="mono">ROADMAP</span><h2>Limitaciones Actuales y Mejoras Futuras</h2></div>
+      <div class="section-head"><h2>Limitaciones Actuales y Mejoras Futuras</h2></div>
       <div class="split">
         <div>
           <h4>Limitaciones Actuales</h4>
@@ -709,7 +722,7 @@
     </section>
 
     <footer>
-      <span>MyProfile — Manual de sistema · Instituto Nacional Cantón Lourdes (INDEL)</span>
+      <span>MyProfile — Manual de sistema</span>
       <span>Equipo Nexo · 2026</span>
     </footer>
 
