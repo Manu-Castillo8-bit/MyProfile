@@ -42,6 +42,8 @@ public class MovimientoOffline
     public string Tipo { get; set; } = "";
     public string Descripcion { get; set; } = "";
     public DateTime Fecha { get; set; }
+    // Oculta el movimiento del historial sin afectar el saldo calculado.
+    public bool Oculto { get; set; }
     public string SyncState { get; set; } = SyncStatus.Sincronizada;
     public DateTime Modificado { get; set; } = DateTime.UtcNow;
 }
@@ -136,6 +138,24 @@ public static class LocalDatabase
         catch
         {
             // Las columnas ya existen (base nueva o migración previa).
+        }
+
+        // Migración: columna para ocultar movimientos del historial sin tocar el saldo.
+        try
+        {
+            await conexion.ExecuteAsync("ALTER TABLE movimiento_offline ADD COLUMN oculto INTEGER NOT NULL DEFAULT 0");
+        }
+        catch
+        {
+            // La columna ya existe (base nueva con el modelo actualizado).
+        }
+        try
+        {
+            await conexion.ExecuteAsync("UPDATE movimiento_offline SET oculto = 0 WHERE oculto IS NULL");
+        }
+        catch
+        {
+            // Sin filas pendientes de corregir.
         }
 
         return conexion;
@@ -286,6 +306,22 @@ public static class LocalDatabase
             .ToListAsync();
     }
 
+    public static async Task<List<MovimientoOffline>> ObtenerHistorialAsync(int idUsuario)
+    {
+        var db = await GetConexionAsync();
+        return await db.Table<MovimientoOffline>()
+            .Where(m => m.IdUsuario == idUsuario && m.SyncState != SyncStatus.Eliminado && !m.Oculto)
+            .OrderByDescending(m => m.Fecha)
+            .ToListAsync();
+    }
+
+    public static async Task OcultarMovimientoAsync(MovimientoOffline movimiento)
+    {
+        var db = await GetConexionAsync();
+        movimiento.Oculto = true;
+        await db.UpdateAsync(movimiento);
+    }
+
     public static async Task InsertarMovimientoPendienteAsync(MovimientoOffline movimiento)
     {
         var db = await GetConexionAsync();
@@ -326,6 +362,14 @@ public static class LocalDatabase
         fila.SyncState = SyncStatus.Sincronizada;
         fila.Modificado = DateTime.UtcNow;
         await db.UpdateAsync(fila);
+    }
+
+    public static async Task<MovimientoOffline?> ObtenerMovimientoPorInterfazAsync(int idUsuario, int id)
+    {
+        var db = await GetConexionAsync();
+        if (EsIdLocal(id))
+            return await db.Table<MovimientoOffline>().Where(m => m.IdLocal == IdLocalDeInterfaz(id) && m.IdUsuario == idUsuario).FirstOrDefaultAsync();
+        return await db.Table<MovimientoOffline>().Where(m => m.ServerId == id && m.IdUsuario == idUsuario).FirstOrDefaultAsync();
     }
 
     public static async Task BorrarMovimientoLocalAsync(int idLocal)

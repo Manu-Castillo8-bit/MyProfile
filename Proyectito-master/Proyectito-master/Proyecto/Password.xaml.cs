@@ -6,6 +6,7 @@ public partial class Password : ContentPage
 {
     private List<Contrasena> _todasLasContrasenas = new();
     private int? _editandoId = null;
+    private bool _guardando = false;
 
     public Password()
     {
@@ -204,18 +205,22 @@ public partial class Password : ContentPage
 
     private async void OnGuardarClicked(object sender, EventArgs e)
     {
-        var sitioWeb = TxtSitioWeb.Text?.Trim() ?? "";
-        var usuarioCuenta = TxtUsuarioCuenta.Text?.Trim() ?? "";
-        var clave = TxtClave.Text ?? "";
-
-        if (string.IsNullOrWhiteSpace(sitioWeb) || string.IsNullOrWhiteSpace(usuarioCuenta))
-        {
-            await DisplayAlert("Error", "Sitio web y usuario son obligatorios.", "OK");
-            return;
-        }
+        if (_guardando) return;
+        _guardando = true;
+        BtnGuardar.IsEnabled = false;
 
         try
         {
+            var sitioWeb = TxtSitioWeb.Text?.Trim() ?? "";
+            var usuarioCuenta = TxtUsuarioCuenta.Text?.Trim() ?? "";
+            var clave = TxtClave.Text ?? "";
+
+            if (string.IsNullOrWhiteSpace(sitioWeb) || string.IsNullOrWhiteSpace(usuarioCuenta))
+            {
+                await DisplayAlert("Error", "Sitio web y usuario son obligatorios.", "OK");
+                return;
+            }
+
             if (_editandoId.HasValue)
             {
                 if (string.IsNullOrWhiteSpace(clave))
@@ -243,6 +248,11 @@ public partial class Password : ContentPage
         catch (Exception ex)
         {
             await DisplayAlert("Error", ex.Message, "OK");
+        }
+        finally
+        {
+            _guardando = false;
+            BtnGuardar.IsEnabled = true;
         }
     }
 

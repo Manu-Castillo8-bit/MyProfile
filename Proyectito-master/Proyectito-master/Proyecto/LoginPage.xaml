@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Proyecto.LoginPage"
              BackgroundColor="#0b1120"
-             Title="LoginPage">
+             Shell.NavBarIsVisible="False">
     <ScrollView>
         <VerticalStackLayout Padding="30,60,30,30" 
                              Spacing="25" 

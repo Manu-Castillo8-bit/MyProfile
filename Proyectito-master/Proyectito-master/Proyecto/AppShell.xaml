@@ -21,17 +21,16 @@
 
     <TabBar Route="Principal">
         <ShellContent
-            Title="Tareas"
-            Icon="icon_home.png"
-            ContentTemplate="{DataTemplate local:MainPage}"
-            Route="MainPage" />
-
-        <ShellContent
             Title="Dashboard"
             Icon="icon_dashboard.png"
             ContentTemplate="{DataTemplate local:DashboardPage}"
             Route="DashboardPage" />
 
+        <ShellContent
+            Title="Tareas"
+            Icon="icon_notebook.png"
+            ContentTemplate="{DataTemplate local:MainPage}"
+            Route="MainPage" />
         <ShellContent
             Title="Salud"
             Icon="icon_salud.png"

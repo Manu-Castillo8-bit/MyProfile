@@ -1,3 +1,4 @@
+using System.Globalization;
 using Proyecto.Services;
 
 namespace Proyecto;
@@ -38,7 +39,7 @@ public partial class DashboardPage : ContentPage
             LblProgresoTareas.Text = $"{(int)Math.Round(progreso * 100)}% completado";
 
             var saldo = await SupabaseService.ObtenerSaldoAsync();
-            LblSaldoDashboard.Text = $"${saldo:N2}";
+            LblSaldoDashboard.Text = "$" + saldo.ToString("N2", CultureInfo.InvariantCulture);
 
             int vasosHoy = ProgresoSalud.VasosHoy();
             int descansosHoy = ProgresoSalud.DescansosHoy();

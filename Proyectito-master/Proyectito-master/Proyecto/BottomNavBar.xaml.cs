@@ -23,8 +23,8 @@ public partial class BottomNavBar : ContentView
 
     private void UpdateSelectedTab()
     {
-        SetActive(LblTareas, SelectedTab == 0);
-        SetActive(LblDashboard, SelectedTab == 1);
+        SetActive(LblDashboard, SelectedTab == 0);
+        SetActive(LblTareas, SelectedTab == 1);
         SetActive(LblSalud, SelectedTab == 2);
         SetActive(LblAhorro, SelectedTab == 3);
         SetActive(LblPassword, SelectedTab == 4);

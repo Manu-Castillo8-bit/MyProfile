@@ -479,6 +479,26 @@ public static class SupabaseService
             .ToList();
     }
 
+    public static async Task<List<MovimientoFinanciero>> ObtenerHistorialAsync()
+    {
+        var usuario = UsuarioActual;
+        if (usuario is null) return new List<MovimientoFinanciero>();
+
+        var locales = await LocalDatabase.ObtenerHistorialAsync(usuario.Id);
+        return locales
+            .OrderByDescending(m => m.Fecha)
+            .Select(m => new MovimientoFinanciero
+            {
+                IdMovimiento = LocalDatabase.IdInterfaz(m.ServerId, m.IdLocal),
+                IdUsuario = usuario.Id,
+                Monto = m.Monto,
+                Tipo = m.Tipo,
+                Descripcion = m.Descripcion,
+                Fecha = m.Fecha
+            })
+            .ToList();
+    }
+
     public static async Task RegistrarMovimientoAsync(decimal monto, string tipo, string descripcion)
     {
         var usuario = UsuarioActual;
@@ -496,6 +516,20 @@ public static class SupabaseService
 
         if (SyncService.Conectado)
             await SyncService.SincronizarAsync();
+    }
+
+    public static async Task EliminarMovimientoAsync(int idMovimiento)
+    {
+        var usuario = UsuarioActual;
+        if (usuario is null)
+            return;
+
+        var fila = await LocalDatabase.ObtenerMovimientoPorInterfazAsync(usuario.Id, idMovimiento);
+        if (fila is null)
+            return;
+
+        // Solo se oculta del historial; el saldo total NO cambia.
+        await LocalDatabase.OcultarMovimientoAsync(fila);
     }
 
     // ── CONTRASEÑAS (CRUD) ──
