@@ -47,10 +47,9 @@ namespace Proyecto
 
         private void RefrescarVista()
         {
-            var estadoFiltro = _mostrandoCompletadas ? "completada" : "pendiente";
-            var tareasFiltradas = _todasLasTareas
-                .Where(t => string.Equals(t.Estado, estadoFiltro, StringComparison.OrdinalIgnoreCase))
-                .ToList();
+            var tareasFiltradas = _mostrandoCompletadas
+                ? _todasLasTareas.Where(t => EstadoTarea.EsCompletado(t.Estado)).ToList()
+                : _todasLasTareas.Where(t => !EstadoTarea.EsCompletado(t.Estado)).ToList();
 
             MostrarTareas(tareasFiltradas);
         }
@@ -184,7 +183,7 @@ namespace Proyecto
         {
             try
             {
-                var nuevoEstado = _mostrandoCompletadas ? "pendiente" : "completada";
+                var nuevoEstado = _mostrandoCompletadas ? "Pendiente" : "Completado";
                 await SupabaseService.CambiarEstadoTareaAsync(tarea.IdTarea, nuevoEstado);
                 await CargarTareasAsync();
             }
@@ -309,12 +308,12 @@ namespace Proyecto
             {
                 if (_editandoId.HasValue)
                 {
-                    await SupabaseService.ActualizarTareaAsync(_editandoId.Value, titulo, descripcion, fecha, _mostrandoCompletadas ? "completada" : "pendiente");
+                    await SupabaseService.ActualizarTareaAsync(_editandoId.Value, titulo, descripcion, fecha, _mostrandoCompletadas ? "Completado" : "Pendiente");
                     await DisplayAlert("Listo", "Tarea actualizada.", "OK");
                 }
                 else
                 {
-                    await SupabaseService.CrearTareaAsync(titulo, descripcion, fecha, _mostrandoCompletadas ? "completada" : "pendiente");
+                    await SupabaseService.CrearTareaAsync(titulo, descripcion, fecha, _mostrandoCompletadas ? "Completado" : "Pendiente");
                     await DisplayAlert("Listo", "Tarea creada.", "OK");
                 }
 

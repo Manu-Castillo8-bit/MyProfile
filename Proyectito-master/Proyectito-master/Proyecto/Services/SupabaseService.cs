@@ -93,7 +93,29 @@ public class Tarea : BaseModel
     public DateTime? FechaVencimiento { get; set; }
 
     [Column("estado")]
-    public string Estado { get; set; } = "pendiente";
+    public string Estado { get; set; } = "Pendiente";
+}
+
+public static class EstadoTarea
+{
+    public const string Pendiente = "Pendiente";
+    public const string Completado = "Completado";
+
+    public static string Normalizar(string estado)
+    {
+        if (string.IsNullOrWhiteSpace(estado))
+            return Pendiente;
+        if (estado.StartsWith("complet", StringComparison.OrdinalIgnoreCase))
+            return Completado;
+        if (estado.StartsWith("pend", StringComparison.OrdinalIgnoreCase))
+            return Pendiente;
+        return estado.Trim();
+    }
+
+    public static bool EsCompletado(string estado)
+    {
+        return string.Equals(Normalizar(estado), Completado, StringComparison.OrdinalIgnoreCase);
+    }
 }
 
 [Table("recordatorio_salud")]
@@ -642,7 +664,7 @@ public static class SupabaseService
             Titulo = titulo.Trim(),
             Descripcion = descripcion?.Trim() ?? "",
             FechaVencimiento = fechaVencimiento,
-            Estado = string.IsNullOrWhiteSpace(estado) ? "pendiente" : estado.Trim()
+            Estado = EstadoTarea.Normalizar(estado)
         });
 
         if (SyncService.Conectado)
@@ -662,7 +684,7 @@ public static class SupabaseService
         fila.Titulo = titulo.Trim();
         fila.Descripcion = descripcion?.Trim() ?? "";
         fila.FechaVencimiento = fechaVencimiento;
-        fila.Estado = string.IsNullOrWhiteSpace(estado) ? "pendiente" : estado.Trim();
+        fila.Estado = EstadoTarea.Normalizar(estado);
 
         await LocalDatabase.ActualizarTareaPendienteAsync(fila);
 
@@ -680,7 +702,7 @@ public static class SupabaseService
         if (fila is null)
             return;
 
-        fila.Estado = estado.Trim().ToLower();
+        fila.Estado = EstadoTarea.Normalizar(estado);
         await LocalDatabase.ActualizarTareaPendienteAsync(fila);
 
         if (SyncService.Conectado)

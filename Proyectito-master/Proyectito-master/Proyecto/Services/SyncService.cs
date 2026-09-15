@@ -112,7 +112,7 @@ public static class SyncService
                     Titulo = r.Titulo,
                     Descripcion = r.Descripcion,
                     FechaVencimiento = r.FechaVencimiento,
-                    Estado = r.Estado,
+                    Estado = EstadoTarea.Normalizar(r.Estado),
                     SyncState = SyncStatus.Sincronizada,
                     Modificado = DateTime.UtcNow
                 });
@@ -125,7 +125,7 @@ public static class SyncService
                     Titulo = r.Titulo,
                     Descripcion = r.Descripcion,
                     FechaVencimiento = r.FechaVencimiento,
-                    Estado = r.Estado
+                    Estado = EstadoTarea.Normalizar(r.Estado)
                 });
             }
         }

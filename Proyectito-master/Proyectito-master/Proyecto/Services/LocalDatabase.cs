@@ -26,7 +26,7 @@ public class TareaOffline
     public string Titulo { get; set; } = "";
     public string Descripcion { get; set; } = "";
     public DateTime? FechaVencimiento { get; set; }
-    public string Estado { get; set; } = "pendiente";
+    public string Estado { get; set; } = "Pendiente";
     public string SyncState { get; set; } = SyncStatus.Sincronizada;
     public DateTime Modificado { get; set; } = DateTime.UtcNow;
 }

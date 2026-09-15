@@ -218,7 +218,7 @@ public static class RecordatorioScheduler
         }
 
         int pendientes = (await SupabaseService.ObtenerTareasAsync())
-            .Count(t => !string.Equals(t.Estado, "completada", StringComparison.OrdinalIgnoreCase));
+            .Count(t => !EstadoTarea.EsCompletado(t.Estado));
 
         // Si no hay tareas pendientes, no tiene sentido recordarlas.
         if (pendientes == 0)

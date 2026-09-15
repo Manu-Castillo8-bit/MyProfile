@@ -30,7 +30,7 @@ public partial class DashboardPage : ContentPage
 
             var tareas = await SupabaseService.ObtenerTareasAsync();
             int total = tareas.Count;
-            int completadas = tareas.Count(t => string.Equals(t.Estado, "completada", StringComparison.OrdinalIgnoreCase));
+            int completadas = tareas.Count(t => EstadoTarea.EsCompletado(t.Estado));
             int pendientes = total - completadas;
 
             LblConteoTareas.Text = $"{pendientes} pendientes";
