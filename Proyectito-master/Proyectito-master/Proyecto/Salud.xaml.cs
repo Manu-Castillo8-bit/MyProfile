@@ -40,6 +40,7 @@ public partial class Salud : ContentPage
             var descanso = _recordatorios.FirstOrDefault(r => r.Tipo == TipoDescanso);
             SwDescanso.IsToggled = descanso?.Activo ?? false;
             ConfigurarFrecuenciaUx(TxtFrecDescanso, PckUnidadDescanso, descanso, "20");
+            SwSuspenderPantalla.IsToggled = RecordatorioScheduler.SuspenderPantalla;
 
             var tareas = _recordatorios.FirstOrDefault(r => r.Tipo == TipoTareas);
             SwTareas.IsToggled = tareas?.Activo ?? false;
@@ -141,7 +142,24 @@ public partial class Salud : ContentPage
 
     private async void OnGuardarDescansoClicked(object sender, EventArgs e)
     {
+        // Se captura el valor antes de GuardarPreferencia porque ese método
+        // recarga la página y resetea el switch al valor ya guardado.
+        bool suspender = SwSuspenderPantalla.IsToggled;
+        RecordatorioScheduler.SuspenderPantalla = suspender;
+
         await GuardarPreferencia(TipoDescanso, TxtFrecDescanso, PckUnidadDescanso, SwDescanso, (Button)sender, IndicadorDescanso);
+
+#if ANDROID
+        // En Android apagar la pantalla requiere activar la app como
+        // administrador del dispositivo: se pide la primera vez que se activa.
+        if (suspender && !RecordatorioScheduler.AdminDispositivoActivo)
+        {
+            RecordatorioScheduler.SolicitarActivarAdminDispositivo();
+            await DisplayAlert("Aviso",
+                "Para poder apagar la pantalla, activa la app como administrador del dispositivo en el panel de Android.",
+                "OK");
+        }
+#endif
     }
 
     private async void OnGuardarTareasClicked(object sender, EventArgs e)

@@ -178,6 +178,15 @@
                         </Grid>
                     </Grid>
 
+                    <!-- Suspender pantalla al llegar el aviso -->
+                    <Grid ColumnDefinitions="*, Auto" VerticalOptions="Center">
+                        <VerticalStackLayout Grid.Column="0" Spacing="2">
+                            <Label Text="Suspender pantalla al avisar" TextColor="White" FontSize="14" />
+                            <Label Text="Después del aviso apaga la pantalla en 1 minuto" TextColor="#8E8E93" FontSize="12" />
+                        </VerticalStackLayout>
+                        <Switch x:Name="SwSuspenderPantalla" Grid.Column="1" IsToggled="False" OnColor="Black" />
+                    </Grid>
+
                     <BoxView HeightRequest="1" BackgroundColor="#2C2C2C" />
 
                     <!-- Estado del día -->

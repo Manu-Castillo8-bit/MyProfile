@@ -26,6 +26,7 @@ public static class RecordatorioScheduler
     public const string UnidadDia = "d";
 
     private const string PrefUltimo = "rec_ultimo_";
+    private const string PrefSuspenderPantalla = "rec_suspender_pantalla";
     private const int AppIdBase = 1100;
     private static readonly Dictionary<string, int> IdsPorTipo = new()
     {
@@ -37,9 +38,22 @@ public static class RecordatorioScheduler
     // Para saber si la app está en primer plano y decidir el aviso en pantalla.
     public static bool EnPrimerPlano { get; set; } = true;
 
+    // Preferencia local de "descanso visual": si el aviso de descanso debe
+    // además apagar la pantalla (Windows → suspende la PC; Android → pantalla
+    // se apaga/bloquea). Se guarda solo en el dispositivo, como ProgresoSalud.
+    public static bool SuspenderPantalla
+    {
+        get => Preferences.Default.Get(PrefSuspenderPantalla, false);
+        set => Preferences.Default.Set(PrefSuspenderPantalla, value);
+    }
+
     private static IDispatcherTimer? _temporizador;
     private static bool _iniciado;
     private static bool _evaluando;
+
+    // Cuenta atrás de 1 minuto antes de apagar la pantalla (descanso visual).
+    private static IDispatcherTimer? _temporizadorSuspension;
+    private static bool _suspensionCancelada;
 
     public static async Task IniciarAsync()
     {
@@ -64,6 +78,7 @@ public static class RecordatorioScheduler
         _iniciado = false;
         _temporizador?.Stop();
         _temporizador = null;
+        CancelarSuspension();
 
         foreach (var id in IdsPorTipo.Values)
         {
@@ -186,7 +201,11 @@ public static class RecordatorioScheduler
         {
             GuardarUltimo(tipo, DateTime.Now);
             try { LocalNotificationCenter.Current.Cancel(id); } catch { }
-            await MostrarAsync(id, titulo, mensaje);
+
+            if (string.Equals(tipo, TipoDescanso, StringComparison.OrdinalIgnoreCase) && SuspenderPantalla)
+                await MostrarSuspensionAsync(id, titulo);
+            else
+                await MostrarAsync(id, titulo, mensaje);
         }
         else if (ObtenerUltimo(tipo) == DateTime.MinValue)
         {
@@ -333,6 +352,225 @@ public static class RecordatorioScheduler
             }
         });
     }
+
+    // Aviso de descanso visual que además apaga la pantalla: arma una cuenta
+    // atrás de 1 minuto y muestra el mensaje. El usuario puede apagar ya o
+    // cancelar; si no hace nada, la pantalla se apaga sola al cumplirse el minuto.
+    private static async Task MostrarSuspensionAsync(int id, string titulo)
+    {
+        ProgramarSuspension();
+
+        await MainThread.InvokeOnMainThreadAsync(async () =>
+        {
+            if (EnPrimerPlano && Shell.Current is not null)
+            {
+                try
+                {
+                    var apagarYa = await Shell.Current.DisplayAlert(
+                        titulo,
+                        "Tu pantalla se suspenderá en 1 minuto. Descansa la vista 👁️",
+                        "Apagar ahora",
+                        "Cancelar");
+
+                    // Cualquier respuesta cancela la cuenta atrás; si elige
+                    // "Apagar ahora" se apaga de inmediato.
+                    CancelarSuspension();
+                    if (apagarYa)
+                        SuspenderSistema();
+                }
+                catch
+                {
+                    CancelarSuspension();
+                }
+            }
+        });
+    }
+
+    // Inicia la cuenta atrás de 1 minuto antes de apagar la pantalla.
+    private static void ProgramarSuspension()
+    {
+        CancelarSuspension();
+        _suspensionCancelada = false;
+
+        var timer = Application.Current?.Dispatcher.CreateTimer();
+        if (timer is null)
+            return;
+
+        _temporizadorSuspension = timer;
+        timer.Interval = TimeSpan.FromMinutes(1);
+        timer.Tick += (_, _) =>
+        {
+            timer.Stop();
+            _temporizadorSuspension = null;
+            if (!_suspensionCancelada)
+                SuspenderSistema();
+        };
+        timer.Start();
+    }
+
+    // Cancela la cuenta atrás (lo usa "Cancelar" y el aviso de descanso normal).
+    public static void CancelarSuspension()
+    {
+        _suspensionCancelada = true;
+        var timer = _temporizadorSuspension;
+        _temporizadorSuspension = null;
+        if (timer is not null)
+        {
+            timer.Stop();
+        }
+    }
+
+    // Apaga/suspende la pantalla según la plataforma:
+    //  - Windows: suspende toda la PC (SetSuspendState).
+    //  - Android: apaga y bloquea solo la pantalla (requiere administrador).
+    private static void SuspenderSistema()
+    {
+#if WINDOWS
+        try
+        {
+            HabilitarPrivilegioSuspension();
+            SetSuspendState(false, false, false);
+        }
+        catch { }
+#elif ANDROID
+        try
+        {
+            var contexto = Microsoft.Maui.ApplicationModel.Platform.AppContext;
+            var admin = new Android.Content.ComponentName(contexto,
+                Java.Lang.Class.FromType(typeof(Proyecto.ScreenOffAdminReceiver)));
+            var dpm = (Android.App.Admin.DevicePolicyManager)contexto
+                .GetSystemService(Android.Content.Context.DevicePolicyService);
+            if (dpm.IsAdminActive(admin))
+                dpm.LockNow();
+        }
+        catch { }
+#endif
+    }
+
+    // ¿La app ya puede apagar la pantalla en Android (admin de dispositivo)?
+    public static bool AdminDispositivoActivo
+    {
+        get
+        {
+#if ANDROID
+            try
+            {
+                var contexto = Microsoft.Maui.ApplicationModel.Platform.AppContext;
+                var admin = new Android.Content.ComponentName(contexto,
+                    Java.Lang.Class.FromType(typeof(Proyecto.ScreenOffAdminReceiver)));
+                var dpm = (Android.App.Admin.DevicePolicyManager)contexto
+                    .GetSystemService(Android.Content.Context.DevicePolicyService);
+                return dpm.IsAdminActive(admin);
+            }
+            catch { return false; }
+#else
+            return true;
+#endif
+        }
+    }
+
+    // Abre el panel de Android para activar la app como administrador del dispositivo.
+    public static void SolicitarActivarAdminDispositivo()
+    {
+#if ANDROID
+        try
+        {
+            var contexto = Microsoft.Maui.ApplicationModel.Platform.AppContext;
+            var admin = new Android.Content.ComponentName(contexto,
+                Java.Lang.Class.FromType(typeof(Proyecto.ScreenOffAdminReceiver)));
+            var intent = new Android.Content.Intent(Android.App.Admin.DevicePolicyManager.ActionAddDeviceAdmin);
+            intent.PutExtra(Android.App.Admin.DevicePolicyManager.ExtraDeviceAdmin, admin);
+            intent.PutExtra(Android.App.Admin.DevicePolicyManager.ExtraAddExplanation,
+                "Permite apagar la pantalla durante tus descansos visuales.");
+            intent.AddFlags(Android.Content.ActivityFlags.NewTask);
+            contexto.StartActivity(intent);
+        }
+        catch { }
+#endif
+    }
+
+#if WINDOWS
+    [System.Runtime.InteropServices.DllImport("powrprof.dll", SetLastError = true)]
+    [return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
+    private static extern bool SetSuspendState(
+        [System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)] bool hibernate,
+        [System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)] bool forceCritical,
+        [System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)] bool disableWakeEvent);
+
+    // La suspensión necesita el privilegio SeShutdownPrivilege en el token del proceso.
+    private static void HabilitarPrivilegioSuspension()
+    {
+        const uint TokenQuery = 0x0008;
+        const uint TokenAdjustPrivileges = 0x0020;
+        const uint SePrivilegeEnabled = 0x00000002;
+        const string SeShutdown = "SeShutdownPrivilege";
+
+        if (!OpenProcessToken(System.Diagnostics.Process.GetCurrentProcess().Handle,
+                TokenQuery | TokenAdjustPrivileges, out var token))
+            return;
+
+        try
+        {
+            if (!LookupPrivilegeValue(null, SeShutdown, out var luid))
+                return;
+
+            var tp = new TOKEN_PRIVILEGES
+            {
+                PrivilegeCount = 1,
+                Luid = luid,
+                Attributes = SePrivilegeEnabled
+            };
+            AdjustTokenPrivileges(token, false, ref tp, 0, IntPtr.Zero, IntPtr.Zero);
+        }
+        finally
+        {
+            CloseHandle(token);
+        }
+    }
+
+    [System.Runtime.InteropServices.DllImport("advapi32.dll", SetLastError = true)]
+    [return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
+    private static extern bool OpenProcessToken(
+        IntPtr processHandle,
+        uint desiredAccess,
+        out IntPtr tokenHandle);
+
+    [System.Runtime.InteropServices.DllImport("advapi32.dll", SetLastError = true, CharSet = System.Runtime.InteropServices.CharSet.Unicode)]
+    [return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
+    private static extern bool LookupPrivilegeValue(
+        string? lpSystemName,
+        string lpName,
+        out LUID lpLuid);
+
+    [System.Runtime.InteropServices.DllImport("advapi32.dll", SetLastError = true)]
+    [return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
+    private static extern bool AdjustTokenPrivileges(
+        IntPtr tokenHandle,
+        [System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)] bool disableAllPrivileges,
+        ref TOKEN_PRIVILEGES newState,
+        uint bufferLength,
+        IntPtr previousState,
+        IntPtr returnLength);
+
+    [System.Runtime.InteropServices.DllImport("kernel32.dll", SetLastError = true)]
+    [return: System.Runtime.InteropServices.MarshalAs(System.Runtime.InteropServices.UnmanagedType.Bool)]
+    private static extern bool CloseHandle(IntPtr hObject);
+
+    [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
+    private struct LUID
+    {
+        public uint LowPart;
+        public int HighPart;
+    }
+
+    [System.Runtime.InteropServices.StructLayout(System.Runtime.InteropServices.LayoutKind.Sequential)]
+    private struct TOKEN_PRIVILEGES
+    {
+        public uint PrivilegeCount;
+        public LUID Luid;
+        public uint Attributes;
+    }
+#endif
 
 #if WINDOWS
     // Toast nativo de Windows. Requiere que el Windows App SDK esté
