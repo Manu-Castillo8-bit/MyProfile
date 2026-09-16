@@ -136,21 +136,23 @@ public partial class Salud : ContentPage
 
     private async void OnGuardarAguaClicked(object sender, EventArgs e)
     {
-        await GuardarPreferencia(TipoAgua, TxtFrecAgua, PckUnidadAgua, SwAgua);
+        await GuardarPreferencia(TipoAgua, TxtFrecAgua, PckUnidadAgua, SwAgua, (Button)sender, IndicadorAgua);
     }
 
     private async void OnGuardarDescansoClicked(object sender, EventArgs e)
     {
-        await GuardarPreferencia(TipoDescanso, TxtFrecDescanso, PckUnidadDescanso, SwDescanso);
+        await GuardarPreferencia(TipoDescanso, TxtFrecDescanso, PckUnidadDescanso, SwDescanso, (Button)sender, IndicadorDescanso);
     }
 
     private async void OnGuardarTareasClicked(object sender, EventArgs e)
     {
-        await GuardarPreferencia(TipoTareas, TxtFrecTareas, PckUnidadTareas, SwTareas);
+        await GuardarPreferencia(TipoTareas, TxtFrecTareas, PckUnidadTareas, SwTareas, (Button)sender, IndicadorTareas);
     }
 
-    private async Task GuardarPreferencia(string tipo, Entry txtFrecuencia, Picker picker, Switch sw)
+    private async Task GuardarPreferencia(string tipo, Entry txtFrecuencia, Picker picker, Switch sw, Button btn, ActivityIndicator indicador)
     {
+        if (btn.IsEnabled == false) return;
+
         if (SupabaseService.UsuarioActual is null)
         {
             await DisplayAlert("Aviso", "Debes iniciar sesión.", "OK");
@@ -164,6 +166,12 @@ public partial class Salud : ContentPage
         }
 
         var unidad = UnidadDeIndice(picker.SelectedIndex);
+
+        var textoOriginal = btn.Text;
+        btn.IsEnabled = false;
+        btn.Text = "";
+        indicador.IsVisible = true;
+        indicador.IsRunning = true;
 
         try
         {
@@ -182,6 +190,13 @@ public partial class Salud : ContentPage
         catch (Exception ex)
         {
             await DisplayAlert("Error", $"No se pudieron guardar: {ex.Message}", "OK");
+        }
+        finally
+        {
+            indicador.IsRunning = false;
+            indicador.IsVisible = false;
+            btn.Text = textoOriginal;
+            btn.IsEnabled = true;
         }
     }
 

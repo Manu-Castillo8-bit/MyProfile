@@ -11,6 +11,25 @@ public partial class LoginPage : ContentPage
 		InitializeComponent();
 	}
 
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+
+        if (SupabaseService.UsuarioActual is not null && !_procesando)
+        {
+            Dispatcher.Dispatch(async () =>
+            {
+                try
+                {
+                    await Shell.Current.GoToAsync("//Cargando");
+                }
+                catch
+                {
+                }
+            });
+        }
+    }
+
     private void OnTogglePasswordClicked(object sender, EventArgs e)
     {
         _isPasswordVisible = !_isPasswordVisible;
@@ -48,7 +67,7 @@ public partial class LoginPage : ContentPage
             }
 
             SupabaseService.EstablecerSesion(usuario);
-            await Shell.Current.GoToAsync("//Principal/DashboardPage");
+            await Shell.Current.GoToAsync("//Cargando");
         }
         catch (Exception ex)
         {

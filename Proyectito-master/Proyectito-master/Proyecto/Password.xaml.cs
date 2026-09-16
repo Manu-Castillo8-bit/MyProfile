@@ -209,6 +209,11 @@ public partial class Password : ContentPage
         _guardando = true;
         BtnGuardar.IsEnabled = false;
 
+        var textoOriginal = BtnGuardar.Text;
+        BtnGuardar.Text = "";
+        IndicadorGuardar.IsVisible = true;
+        IndicadorGuardar.IsRunning = true;
+
         try
         {
             var sitioWeb = TxtSitioWeb.Text?.Trim() ?? "";
@@ -253,6 +258,9 @@ public partial class Password : ContentPage
         {
             _guardando = false;
             BtnGuardar.IsEnabled = true;
+            IndicadorGuardar.IsRunning = false;
+            IndicadorGuardar.IsVisible = false;
+            BtnGuardar.Text = textoOriginal;
         }
     }
 

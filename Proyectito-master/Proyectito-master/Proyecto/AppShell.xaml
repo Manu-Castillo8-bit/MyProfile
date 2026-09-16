@@ -50,4 +50,9 @@
             Route="Password" />
     </TabBar>
 
+    <ShellContent
+        Title="Cargando"
+        ContentTemplate="{DataTemplate local:CargandoPage}"
+        Route="Cargando" />
+
 </Shell>

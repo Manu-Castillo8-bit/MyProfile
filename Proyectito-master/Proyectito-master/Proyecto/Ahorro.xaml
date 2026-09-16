@@ -47,8 +47,14 @@
 
             <!-- Botones de Acción (Ingreso / Gasto) -->
             <Grid ColumnDefinitions="*, *" ColumnSpacing="12">
-                <Button Grid.Column="0" x:Name="BtnIngreso" Text="+ Ingreso" BackgroundColor="White" TextColor="Black" FontAttributes="Bold" CornerRadius="12" HeightRequest="45" Clicked="OnIngresoClicked" />
-                <Button Grid.Column="1" x:Name="BtnGasto" Text="- Gasto" BackgroundColor="#1E1E1E" TextColor="White" FontAttributes="Bold" CornerRadius="12" HeightRequest="45" BorderColor="#2C2C2C" Clicked="OnGastoClicked" />
+                <Grid Grid.Column="0">
+                    <Button x:Name="BtnIngreso" Text="+ Ingreso" BackgroundColor="White" TextColor="Black" FontAttributes="Bold" CornerRadius="12" HeightRequest="45" Clicked="OnIngresoClicked" />
+                    <ActivityIndicator x:Name="IndicadorIngreso" IsVisible="False" IsRunning="False" Color="#121212" HorizontalOptions="Center" VerticalOptions="Center" />
+                </Grid>
+                <Grid Grid.Column="1">
+                    <Button x:Name="BtnGasto" Text="- Gasto" BackgroundColor="#1E1E1E" TextColor="White" FontAttributes="Bold" CornerRadius="12" HeightRequest="45" BorderColor="#2C2C2C" Clicked="OnGastoClicked" />
+                    <ActivityIndicator x:Name="IndicadorGasto" IsVisible="False" IsRunning="False" Color="White" HorizontalOptions="Center" VerticalOptions="Center" />
+                </Grid>
             </Grid>
 
             <!-- Historial de Últimas Transacciones -->

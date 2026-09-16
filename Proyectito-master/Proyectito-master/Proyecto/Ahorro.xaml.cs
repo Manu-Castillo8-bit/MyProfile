@@ -125,12 +125,12 @@ public partial class Ahorro : ContentPage
 
     private async void OnIngresoClicked(object sender, EventArgs e)
     {
-        await RegistrarAsync("ingreso");
+        await RegistrarAsync("ingreso", (Button)sender, IndicadorIngreso);
     }
 
     private async void OnGastoClicked(object sender, EventArgs e)
     {
-        await RegistrarAsync("gasto");
+        await RegistrarAsync("gasto", (Button)sender, IndicadorGasto);
     }
 
     private async Task OnEliminarMovimientoClicked(MovimientoFinanciero movimiento)
@@ -151,10 +151,16 @@ public partial class Ahorro : ContentPage
         }
     }
 
-    private async Task RegistrarAsync(string tipo)
+    private async Task RegistrarAsync(string tipo, Button btn, ActivityIndicator indicador)
     {
         if (_procesando) return;
         _procesando = true;
+
+        var textoOriginal = btn.Text;
+        btn.IsEnabled = false;
+        btn.Text = "";
+        indicador.IsVisible = true;
+        indicador.IsRunning = true;
 
         try
         {
@@ -208,6 +214,10 @@ public partial class Ahorro : ContentPage
         }
         finally
         {
+            indicador.IsRunning = false;
+            indicador.IsVisible = false;
+            btn.Text = textoOriginal;
+            btn.IsEnabled = true;
             _procesando = false;
         }
     }
