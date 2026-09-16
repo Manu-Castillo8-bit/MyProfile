@@ -149,6 +149,18 @@
                 </Label>
             </HorizontalStackLayout>
 
+            <!-- Enlace a Propósito -->
+            <Label Text="Conoce nuestro propósito"
+                   TextColor="#8E8E93"
+                   FontSize="13"
+                   TextDecorations="Underline"
+                   HorizontalOptions="Center"
+                   Margin="0,5,0,0">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnPropositoTapped" />
+                </Label.GestureRecognizers>
+            </Label>
+
         </VerticalStackLayout>
     </ScrollView>
 

@@ -84,6 +84,18 @@
                 </Grid>
             </VerticalStackLayout>
 
+            <!-- Enlace a Propósito -->
+            <Label Text="Conoce nuestro propósito"
+                   TextColor="White"
+                   FontAttributes="Bold"
+                   FontSize="13"
+                   TextDecorations="Underline"
+                   HorizontalOptions="Center">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnPropositoTapped" />
+                </Label.GestureRecognizers>
+            </Label>
+
         </VerticalStackLayout>
     </ScrollView>
 </ContentPage>

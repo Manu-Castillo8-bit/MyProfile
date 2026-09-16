@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Proyecto.Proposito"
+             BackgroundColor="#0B1120"
+             Shell.NavBarIsVisible="False"
+             Shell.TabBarIsVisible="False">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20,40,20,30" Spacing="18">
+
+            <!-- Cabecera con volver -->
+            <Grid ColumnDefinitions="Auto, *" ColumnSpacing="12">
+                <Label Grid.Column="0"
+                       Text="←"
+                       TextColor="White"
+                       FontSize="24"
+                       VerticalOptions="Center">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnVolverTapped" />
+                    </Label.GestureRecognizers>
+                </Label>
+                <Label Grid.Column="1"
+                       Text="Propósito"
+                       TextColor="White"
+                       FontSize="22"
+                       FontAttributes="Bold"
+                       VerticalOptions="Center" />
+            </Grid>
+
+            <Label Text="¿Qué es MyProfile?"
+                   TextColor="White"
+                   FontSize="18"
+                   FontAttributes="Bold" />
+
+            <Frame BackgroundColor="#172033" BorderColor="#245b78" CornerRadius="16" Padding="16" HasShadow="False">
+                <Label Text="MyProfile es una aplicación de organización personal que reúne en un solo lugar tus tareas, tus finanzas, tu salud y tus contraseñas. Funciona incluso sin conexión y sincroniza tus datos cuando vuelves a estar en línea."
+                       TextColor="#C7D2E0"
+                       FontSize="14"
+                       LineHeight="1.4" />
+            </Frame>
+
+            <Label Text="Nuestro propósito"
+                   TextColor="White"
+                   FontSize="18"
+                   FontAttributes="Bold" />
+
+            <Frame BackgroundColor="#172033" BorderColor="#245b78" CornerRadius="16" Padding="16" HasShadow="False">
+                <Label Text="Ayudarte a mantener el control de tu vida diaria de forma sencilla, segura y centralizada, para que dediques menos tiempo a organizarte y más tiempo a lo que realmente importa."
+                       TextColor="#C7D2E0"
+                       FontSize="14"
+                       LineHeight="1.4" />
+            </Frame>
+
+            <Label Text="¿Qué puedes hacer aquí?"
+                   TextColor="White"
+                   FontSize="18"
+                   FontAttributes="Bold" />
+
+            <Frame BackgroundColor="#172033" BorderColor="#245b78" CornerRadius="16" Padding="16" HasShadow="False">
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="📝  Tareas" TextColor="White" FontSize="15" FontAttributes="Bold" />
+                    <Label Text="Crea, organiza y completa tus pendientes, siguiendo tu progreso día con día."
+                           TextColor="#8E8E93" FontSize="13" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <Frame BackgroundColor="#172033" BorderColor="#245b78" CornerRadius="16" Padding="16" HasShadow="False">
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="💰  Ahorro" TextColor="White" FontSize="15" FontAttributes="Bold" />
+                    <Label Text="Registra tus ingresos y gastos, y controla tu saldo para alcanzar tus metas."
+                           TextColor="#8E8E93" FontSize="13" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <Frame BackgroundColor="#172033" BorderColor="#245b78" CornerRadius="16" Padding="16" HasShadow="False">
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="💧  Salud" TextColor="White" FontSize="15" FontAttributes="Bold" />
+                    <Label Text="Cuida tu hidratación y descanso visual con recordatorios que te acompañan durante el día."
+                           TextColor="#8E8E93" FontSize="13" />
+                </VerticalStackLayout>
+            </Frame>
+
+            <Frame BackgroundColor="#172033" BorderColor="#245b78" CornerRadius="16" Padding="16" HasShadow="False">
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="🔑  Contraseñas" TextColor="White" FontSize="15" FontAttributes="Bold" />
+                    <Label Text="Guarda tus credenciales de forma segura y encuéntralas al instante cuando las necesites."
+                           TextColor="#8E8E93" FontSize="13" />
+                </VerticalStackLayout>
+            </Frame>
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

@@ -102,16 +102,7 @@
                                VerticalOptions="Center" />-->
                     </HorizontalStackLayout>
                     
-        <!--       <Label Grid.Column="1" 
-                           Text="¿Olvidaste tu contraseña?" 
-                           TextColor="#8E8E93" 
-                           FontSize="13" 
-                           HorizontalTextAlignment="End" 
-                           VerticalOptions="Center">
-                        <Label.GestureRecognizers>
-                            <TapGestureRecognizer Tapped="OnForgotPasswordTapped" />
-                        </Label.GestureRecognizers>
-                    </Label> -->
+      
                 </Grid>
 
             </VerticalStackLayout>
@@ -148,7 +139,23 @@
                         <TapGestureRecognizer Tapped="OnRegisterTapped" />
                     </Label.GestureRecognizers>
                 </Label>
+                
+
+               
             </HorizontalStackLayout>
+
+            <!-- Enlace a Propósito -->
+            <Label Text="Conoce nuestro propósito"
+                   TextColor="#ffffff"
+                   FontAttributes="Bold"
+                   FontSize="13"
+                   TextDecorations="Underline"
+                   HorizontalOptions="Center"
+                   Margin="0,5,0,0">
+                <Label.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnPropositoTapped" />
+                </Label.GestureRecognizers>
+            </Label>
 
         </VerticalStackLayout>
     </ScrollView>

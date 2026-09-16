@@ -65,4 +65,6 @@ public partial class DashboardPage : ContentPage
     private async void OnAccesoAhorroClicked(object sender, EventArgs e) => await Shell.Current.GoToAsync("//Principal/Ahorro");
     private async void OnAccesoSaludClicked(object sender, EventArgs e) => await Shell.Current.GoToAsync("//Principal/Salud");
     private async void OnAccesoPasswordClicked(object sender, EventArgs e) => await Shell.Current.GoToAsync("//Principal/Password");
+
+    private async void OnPropositoTapped(object sender, TappedEventArgs e) => await Shell.Current.GoToAsync("Proposito");
 }

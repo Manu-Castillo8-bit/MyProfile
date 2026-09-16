@@ -94,6 +94,11 @@ public partial class LoginPage : ContentPage
     {
     }
 
+    private async void OnPropositoTapped(object sender, TappedEventArgs e)
+    {
+        await Shell.Current.GoToAsync("Proposito");
+    }
+
     private async void OnRegisterTapped(object sender, TappedEventArgs e)
     {
         var label = (Label)sender;

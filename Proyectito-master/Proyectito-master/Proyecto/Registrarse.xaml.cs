@@ -21,6 +21,11 @@ public partial class Registrarse : ContentPage
     {
     }
 
+    private async void OnPropositoTapped(object sender, TappedEventArgs e)
+    {
+        await Shell.Current.GoToAsync("Proposito");
+    }
+
     private async void OnLoginClicked(object sender, EventArgs e)
     {
         string nombre = TxtNombre.Text;
