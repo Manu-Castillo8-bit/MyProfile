@@ -17,7 +17,7 @@
                    BorderColor="Transparent"
                    HorizontalOptions="Center"
                    Padding="0">
-                <Image Source="logo.png" 
+                <Image Source="img_logo.png" 
                        WidthRequest="160" 
                        HeightRequest="160" 
                        HorizontalOptions="Start" 
