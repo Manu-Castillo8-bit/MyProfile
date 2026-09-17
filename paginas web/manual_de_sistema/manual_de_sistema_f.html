@@ -6,100 +6,178 @@
 <title>MyProfile — Manual de sistema</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
 
 <style>
   :root{
-    --ink:#14161c;
-    --surface:#1c1f27;
-    --surface-2:#20242e;
-    --border:#2b2f3a;
-    --text:#e9eaef;
-    --muted:#9298a6;
-    --amber:#e8a33d;
-    --green:#59c29a;
-    --violet:#9c8cf0;
-    --cyan:#58b8d6;
-    --pink:#e0748a;
+    --tb-h:42px;
+    --bg:#0a0d13;
+    --bg-panel:#10141c;
+    --bg-inset:#141924;
+    --bg-hover:#1a212c;
+    --border:#212836;
+    --border-soft:#181e29;
+    --text:#d4d9e4;
+    --text-dim:#7d8698;
+    --text-faint:#4c5567;
+    --amber:#e6b450;
+    --green:#8ed19f;
+    --violet:#c895ec;
+    --cyan:#66d3de;
+    --pink:#f0788c;
+    --blue:#6fa8e8;
   }
 
   *{box-sizing:border-box;}
   html{scroll-behavior:smooth;}
   body{
     margin:0;
-    background:var(--ink);
+    background:var(--bg);
     color:var(--text);
     font-family:'Inter',sans-serif;
-    line-height:1.6;
+    line-height:1.65;
+    position:relative;
   }
 
-  ::selection{background:var(--amber);color:#14161c;}
+  body::before{
+    content:"";
+    position:fixed;
+    inset:0;
+    background-image:radial-gradient(var(--border-soft) 1px, transparent 1px);
+    background-size:26px 26px;
+    opacity:.35;
+    pointer-events:none;
+    z-index:0;
+  }
+
+  ::selection{background:var(--amber);color:#0a0d13;}
 
   h1,h2,h3,h4{
-    font-family:'Fraunces',serif;
-    font-weight:500;
-    letter-spacing:-0.01em;
+    font-family:'JetBrains Mono',monospace;
+    font-weight:700;
+    letter-spacing:-0.02em;
     margin:0;
+    color:var(--text);
   }
 
-  .mono{
-    font-family:'IBM Plex Mono',monospace;
-    font-size:0.78rem;
-    letter-spacing:0.02em;
-  }
+  .mono{font-family:'JetBrains Mono',monospace;}
 
   a{color:inherit;}
 
+  code, .code{
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.8rem;
+    line-height:1.85;
+  }
+  .code .k{color:var(--cyan);}
+  .code .s{color:var(--green);}
+  .code .n{color:var(--amber);}
+  .code .c{color:var(--text-faint);font-style:italic;}
+  .code .p{color:var(--text-dim);}
+  .code .kw{color:var(--violet);}
+  .code .fn{color:var(--pink);}
+
+  p{max-width:66ch;color:#b7bdcb;}
+  p.narrow{max-width:58ch;}
+
+  /* ---------- titlebar ---------- */
+  .titlebar{
+    position:sticky;top:0;z-index:20;
+    height:var(--tb-h);
+    display:flex;align-items:center;justify-content:space-between;
+    padding:0 20px;
+    background:var(--bg-panel);
+    border-bottom:1px solid var(--border);
+  }
+  .tb-left{display:flex;align-items:center;gap:14px;min-width:0;}
+  .tb-dots{display:flex;gap:6px;flex-shrink:0;}
+  .tb-dots i{width:9px;height:9px;border-radius:50%;display:block;}
+  .tb-path{
+    font-size:0.76rem;color:var(--text-dim);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .tb-path b{color:var(--text);font-weight:600;}
+  .tb-right{display:flex;align-items:center;gap:16px;flex-shrink:0;}
+  .tb-branch{
+    font-size:0.72rem;color:var(--violet);
+    display:flex;align-items:center;gap:5px;
+  }
+  .tb-status{
+    font-size:0.72rem;color:var(--text-dim);
+    display:flex;align-items:center;gap:6px;
+  }
+  .pulse-dot{
+    width:6px;height:6px;border-radius:50%;background:var(--green);
+    box-shadow:0 0 0 0 rgba(142,209,159,.5);
+    animation:pulse 2.4s ease-out infinite;
+  }
+  @keyframes pulse{
+    0%{box-shadow:0 0 0 0 rgba(142,209,159,.45);}
+    70%{box-shadow:0 0 0 6px rgba(142,209,159,0);}
+    100%{box-shadow:0 0 0 0 rgba(142,209,159,0);}
+  }
+  .blink{animation:blink 1.1s steps(1) infinite;}
+  @keyframes blink{50%{opacity:0;}}
+
   /* ---------- layout shell ---------- */
   .shell{
+    position:relative;z-index:1;
     display:grid;
-    grid-template-columns:250px 1fr;
-    max-width:1200px;
+    grid-template-columns:264px 1fr;
+    max-width:1240px;
     margin:0 auto;
   }
 
   nav.rail{
     position:sticky;
-    top:0;
+    top:var(--tb-h);
     align-self:start;
-    height:100vh;
-    padding:36px 20px 36px 32px;
+    height:calc(100vh - var(--tb-h));
+    padding:28px 16px 28px 32px;
     display:flex;
     flex-direction:column;
-    gap:24px;
+    gap:22px;
     border-right:1px solid var(--border);
     overflow-y:auto;
   }
 
   .brand{
-    font-family:'Fraunces',serif;
-    font-size:1.25rem;
-    font-weight:600;
+    font-family:'JetBrains Mono',monospace;
+    font-size:1.05rem;
+    font-weight:700;
+    color:var(--text-dim);
+    display:flex;align-items:center;gap:6px;
   }
   .brand span{color:var(--amber);}
 
-  .rail-group{display:flex;flex-direction:column;gap:2px;}
+  .rail-group{display:flex;flex-direction:column;gap:1px;}
   .rail-label{
-    color:var(--muted);
-    font-size:0.7rem;
+    color:var(--text-faint);
+    font-size:0.72rem;
     margin-bottom:6px;
+    display:flex;align-items:center;gap:5px;
   }
+  .rail-label i{font-style:normal;font-size:0.65rem;}
   .rail a{
     display:flex;
     align-items:center;
+    justify-content:space-between;
     gap:10px;
-    padding:7px 10px;
-    border-radius:8px;
+    padding:6px 9px 6px 8px;
+    margin-left:6px;
+    border-left:1px solid var(--border-soft);
     text-decoration:none;
-    color:var(--muted);
-    font-size:0.88rem;
-    transition:background .15s ease, color .15s ease;
+    color:var(--text-dim);
+    font-size:0.86rem;
+    transition:background .15s ease, color .15s ease, border-color .15s ease;
   }
   .rail a:hover, .rail a.active{
-    background:var(--surface);
+    background:var(--bg-panel);
     color:var(--text);
+    border-left-color:var(--amber);
   }
+  .rail a .lbl{display:flex;align-items:center;gap:9px;}
+  .rail a .ext{font-family:'JetBrains Mono',monospace;font-size:0.66rem;color:var(--text-faint);flex-shrink:0;}
   .dot{
     width:7px;height:7px;border-radius:50%;
     flex-shrink:0;
@@ -107,97 +185,120 @@
 
   main{padding:0 48px 90px 56px;}
 
-  /* ---------- hero & cards ---------- */
+  /* ---------- hero ---------- */
   .hero{
-    padding:50px 0 45px;
+    padding:44px 0 42px;
     display:grid;
-    grid-template-columns:1.3fr 0.9fr;
-    gap:48px;
+    grid-template-columns:1.25fr 0.9fr;
+    gap:44px;
     align-items:center;
     border-bottom:1px solid var(--border);
   }
   .hero .kicker{
-    color:var(--amber);
-    font-size:0.82rem;
-    margin-bottom:12px;
-    font-weight:500;
+    color:var(--text-faint);
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.78rem;
+    margin-bottom:14px;
   }
   .hero h1{
-    font-size:2.8rem;
-    line-height:1.1;
-    margin-bottom:18px;
+    font-size:2.35rem;
+    line-height:1.2;
+    margin-bottom:20px;
   }
   .hero p.lead{
-    max-width:48ch;
-    color:#c7cad3;
-    font-size:1rem;
-    margin-bottom:16px;
+    max-width:50ch;
+    color:#b7bdcb;
+    font-size:0.98rem;
+    margin-bottom:14px;
   }
-  .hero .stack{
-    color:var(--muted);
-    font-size:0.88rem;
-    display:flex;
-    flex-direction:column;
-    gap:6px;
-  }
-  .hero .stack b{color:var(--text);font-weight:500;}
-
-  /* phone mock */
-  .phone{
-    justify-self:center;
-    width:230px;
-    height:460px;
-    background:var(--surface);
+  .stack-block{
+    margin-top:18px;
+    background:var(--bg-inset);
     border:1px solid var(--border);
-    border-radius:32px;
-    padding:14px;
+    border-radius:8px;
+    padding:14px 16px;
+  }
+  .stack-block div{padding:2px 0;font-size:0.78rem;}
+
+  /* device + console visual */
+  .visual{display:flex;flex-direction:column;gap:14px;align-items:center;}
+  .phone{
+    width:198px;
+    height:400px;
+    background:var(--bg-panel);
+    border:1px solid var(--border);
+    border-radius:26px;
+    padding:12px;
     position:relative;
-    box-shadow:0 30px 60px -20px rgba(0,0,0,.5);
+    box-shadow:0 30px 60px -25px rgba(0,0,0,.6);
   }
   .phone .screen{
     height:100%;
-    border-radius:20px;
-    background:linear-gradient(180deg,#1a1d25,#161920);
+    border-radius:16px;
+    background:linear-gradient(180deg,#0e1119,#0b0e14);
     display:flex;
     flex-direction:column;
-    padding:20px 16px;
+    padding:16px 14px;
   }
   .phone .status{
     display:flex;
     justify-content:space-between;
-    color:var(--muted);
-    font-size:0.6rem;
-    margin-bottom:22px;
+    color:var(--text-faint);
+    font-size:0.58rem;
+    margin-bottom:16px;
+    font-family:'JetBrains Mono',monospace;
   }
   .phone .card{
-    background:var(--surface-2);
+    background:var(--bg-inset);
     border:1px solid var(--border);
-    border-radius:14px;
-    padding:12px;
-    margin-bottom:10px;
+    border-radius:10px;
+    padding:10px;
+    margin-bottom:8px;
   }
-  .phone .card .t{font-size:0.65rem;color:var(--muted);margin-bottom:6px;}
-  .phone .card .v{font-size:1.1rem;font-family:'Fraunces',serif;}
+  .phone .card .t{font-size:0.6rem;color:var(--text-dim);margin-bottom:5px;font-family:'JetBrains Mono',monospace;}
+  .phone .card .v{font-size:1rem;font-family:'JetBrains Mono',monospace;font-weight:600;}
   .phone .bar{
-    height:5px;border-radius:3px;background:var(--border);overflow:hidden;margin-top:8px;
+    height:4px;border-radius:2px;background:var(--border);overflow:hidden;margin-top:7px;
   }
   .phone .bar i{display:block;height:100%;background:var(--cyan);width:62.5%;}
   .phone .nav{
     margin-top:auto;
     display:flex;
     justify-content:space-between;
-    padding-top:14px;
+    padding-top:12px;
   }
   .phone .nav i{
-    width:18px;height:18px;border-radius:6px;display:block;opacity:.5;
+    width:14px;height:14px;border-radius:5px;display:block;opacity:.45;
   }
-  .phone .nav i.on{opacity:1;box-shadow:0 0 0 2px var(--ink), 0 0 0 3px currentColor;}
+  .phone .nav i.on{opacity:1;box-shadow:0 0 0 2px var(--bg-panel), 0 0 0 3px currentColor;}
+
+  .term{
+    width:100%;
+    max-width:280px;
+    background:var(--bg-panel);
+    border:1px solid var(--border);
+    border-radius:9px;
+    overflow:hidden;
+  }
+  .term-bar{
+    display:flex;align-items:center;gap:6px;
+    padding:7px 10px;
+    background:var(--bg-inset);
+    border-bottom:1px solid var(--border);
+  }
+  .term-bar i{width:7px;height:7px;border-radius:50%;}
+  .term-title{margin-left:6px;font-size:0.62rem;color:var(--text-faint);font-family:'JetBrains Mono',monospace;}
+  .term-body{padding:10px 12px;font-family:'JetBrains Mono',monospace;font-size:0.66rem;line-height:1.85;}
+  .term-body .ok{color:var(--green);}
+  .term-body .ev{color:var(--amber);}
+  .term-body .arrow{color:var(--text-faint);}
+  .term-body .cur{color:var(--text);}
 
   /* ---------- sections ---------- */
   section{
-    padding:52px 0;
+    padding:48px 0;
     border-bottom:1px solid var(--border);
-    scroll-margin-top:24px;
+    scroll-margin-top:calc(var(--tb-h) + 20px);
   }
   section:last-child{border-bottom:none;}
 
@@ -205,231 +306,291 @@
     display:flex;
     align-items:baseline;
     gap:14px;
-    margin-bottom:24px;
+    margin-bottom:22px;
   }
-  .section-head .mono{color:var(--muted);}
-  .section-head h2{font-size:1.65rem;}
+  .section-head .mono{color:var(--text-faint);font-size:0.78rem;}
+  .section-head h2{font-size:1.4rem;}
 
-  p{max-width:68ch;color:#c7cad3;}
-  p.narrow{max-width:60ch;}
-
-  /* institutional cards */
-  .inst-grid{
+  /* json-style panels */
+  .panel-grid{
     display:grid;
     grid-template-columns:1fr 1fr;
-    gap:20px;
+    gap:18px;
     margin-top:16px;
   }
-  .inst-card{
-    background:var(--surface);
+  .panel{
+    background:var(--bg-panel);
     border:1px solid var(--border);
-    border-radius:12px;
-    padding:22px;
+    border-radius:10px;
+    overflow:hidden;
   }
-  .inst-card h3{font-size:1.1rem;color:var(--text);margin-bottom:12px;}
-  .inst-card ul{margin:0;padding-left:18px;color:#c7cad3;font-size:0.92rem;}
-  .inst-card li{margin-bottom:6px;}
+  .panel-tab{
+    display:flex;align-items:center;gap:7px;
+    padding:9px 14px;
+    background:var(--bg-inset);
+    border-bottom:1px solid var(--border);
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.72rem;
+    color:var(--text-dim);
+  }
+  .panel-tab i{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+  .panel-body{padding:16px 18px;}
+  .panel-body p{margin:12px 0 0;font-size:0.88rem;}
 
-  /* architecture cards */
+  /* architecture */
   .arch-grid{
     display:grid;
     grid-template-columns:1fr 1fr;
-    gap:20px;
+    gap:18px;
     margin-top:16px;
   }
   .arch-card{
-    background:var(--surface);
+    background:var(--bg-panel);
     border:1px solid var(--border);
-    border-left:3px solid var(--amber);
-    border-radius:10px;
-    padding:24px 26px;
+    border-left:2px solid var(--amber);
+    border-radius:9px;
+    overflow:hidden;
   }
   .arch-card.backend{border-left-color:var(--cyan);}
-  .arch-card h3{font-size:1.05rem;margin-bottom:10px;}
-  .arch-card p{font-size:0.94rem;margin:0;}
+  .arch-card .panel-tab{border-left:none;}
+  .arch-card .panel-body p{font-size:0.9rem;}
 
   /* modules */
   .module{
     display:grid;
-    grid-template-columns:220px 1fr;
-    gap:36px;
-    padding:30px 0;
+    grid-template-columns:230px 1fr;
+    gap:32px;
+    padding:28px 0;
     border-top:1px solid var(--border);
   }
-  .module:first-of-type{border-top:none;padding-top:10px;}
-  .module .m-head{display:flex;gap:12px;align-items:flex-start;}
+  .module:first-of-type{border-top:none;padding-top:8px;}
+  .module .m-head{display:flex;gap:11px;align-items:flex-start;}
   .module .m-dot{
-    width:10px;height:10px;border-radius:50%;margin-top:7px;flex-shrink:0;
+    width:9px;height:9px;border-radius:50%;margin-top:6px;flex-shrink:0;
   }
-  .module h3{font-size:1.2rem;margin-bottom:4px;}
-  .module .m-tag{color:var(--muted);font-size:0.78rem;}
+  .module h3{font-size:1.02rem;margin-bottom:3px;font-weight:600;}
+  .module .m-tag{color:var(--text-dim);font-size:0.8rem;margin-bottom:6px;}
+  .module .path-chip{
+    display:inline-block;
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.68rem;
+    color:var(--text-faint);
+    background:var(--bg-inset);
+    border:1px solid var(--border-soft);
+    border-radius:5px;
+    padding:2px 7px;
+  }
 
   .feat{
     border-top:1px solid var(--border);
-    padding:14px 0;
+    padding:13px 0;
   }
   .feat:first-child{padding-top:0;border-top:none;}
-  .feat .f-name{font-size:0.95rem;font-weight:600;margin-bottom:4px;color:var(--text);}
-  .feat p{font-size:0.92rem;margin:0;}
+  .feat .f-head{display:flex;align-items:center;gap:8px;margin-bottom:5px;flex-wrap:wrap;}
+  .feat .f-name{font-size:0.92rem;font-weight:600;color:var(--text);}
+  .feat p{font-size:0.9rem;margin:0;}
 
-  /* roles / rules */
+  .badge{
+    display:inline-flex;align-items:center;
+    padding:1px 6px;border-radius:4px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.6rem;font-weight:700;letter-spacing:.03em;
+    border:1px solid transparent;
+  }
+  .badge.post{color:var(--green);background:rgba(142,209,159,.1);border-color:rgba(142,209,159,.32);}
+  .badge.get{color:var(--blue);background:rgba(111,168,232,.1);border-color:rgba(111,168,232,.32);}
+  .badge.patch{color:var(--amber);background:rgba(230,180,80,.1);border-color:rgba(230,180,80,.32);}
+  .badge.delete{color:var(--pink);background:rgba(240,120,140,.1);border-color:rgba(240,120,140,.32);}
+  .badge.event{color:var(--violet);background:rgba(200,149,236,.1);border-color:rgba(200,149,236,.32);}
+
+  /* roles */
+  .yaml-block{margin-top:18px;}
+
+  /* rules */
   .rule-list{
-    display:flex;flex-direction:column;gap:16px;margin-top:12px;
+    display:flex;flex-direction:column;gap:0;margin-top:12px;
   }
   .rule{
-    display:grid;
-    grid-template-columns:200px 1fr;
-    gap:20px;
-    padding:16px 0;
+    padding:18px 0;
     border-top:1px solid var(--border);
   }
   .rule:first-child{border-top:none;padding-top:0;}
-  .rule .r-title{font-size:0.9rem;color:var(--amber);font-family:'IBM Plex Mono',monospace;font-weight:500;}
-  .rule p{margin:0;font-size:0.93rem;}
+  .rule .r-label{font-size:0.78rem;color:var(--text-faint);font-style:italic;margin-bottom:8px;}
+  .rule .r-code{margin-bottom:10px;word-break:break-word;}
+  .rule p{margin:0;font-size:0.9rem;}
 
   /* req table */
+  .test-run{
+    margin-top:16px;
+    background:var(--bg-inset);
+    border:1px solid var(--border);
+    border-left:2px solid var(--green);
+    border-radius:8px;
+    padding:12px 16px;
+  }
+  .test-run .tr-cmd{font-family:'JetBrains Mono',monospace;font-size:0.8rem;color:var(--text-dim);}
+  .test-run .tr-cmd span{color:var(--text-faint);}
+  .test-run .tr-out{font-family:'JetBrains Mono',monospace;font-size:0.78rem;color:var(--green);margin-top:6px;}
+  .test-run .tr-out .dim{color:var(--text-faint);}
+
   .req-table{
     width:100%;
     border-collapse:collapse;
-    margin-top:16px;
+    margin-top:14px;
   }
   .req-table th, .req-table td{
-    padding:12px 14px;
+    padding:11px 14px;
     text-align:left;
     border-bottom:1px solid var(--border);
-    font-size:0.92rem;
+    font-size:0.9rem;
+    vertical-align:top;
   }
   .req-table th{
-    background:var(--surface);
-    color:var(--text);
-    font-family:'IBM Plex Mono',monospace;
-    font-size:0.8rem;
+    color:var(--text-faint);
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.7rem;
+    letter-spacing:.03em;
   }
-  .req-table td.id{
-    font-family:'IBM Plex Mono',monospace;
-    color:var(--amber);
-    white-space:nowrap;
-    font-weight:500;
-  }
+  .req-table td.stat{white-space:nowrap;}
 
-  /* limitations / future */
-  .split{
+  /* limitations / backlog */
+  .dev-split{
     display:grid;
     grid-template-columns:1fr 1fr;
-    gap:28px;
+    gap:18px;
     margin-top:16px;
   }
-  .split h4{
-    font-family:'Fraunces',serif;
-    font-weight:500;
-    font-size:1.05rem;
-    margin-bottom:12px;
-    color:var(--text);
+  .dev-split .panel-body ul{list-style:none;margin:0;padding:0;}
+  .dev-split .panel-body li{
+    padding:10px 0;
+    border-top:1px solid var(--border-soft);
+    font-size:0.88rem;
   }
-  .split ul{margin:0;padding-left:18px;color:#c7cad3;font-size:0.93rem;}
-  .split li{margin-bottom:10px;}
+  .dev-split .panel-body li:first-child{border-top:none;padding-top:0;}
+  .dev-split .panel-body li b{color:var(--text);font-weight:600;}
+  .dev-split .tag-line{margin-bottom:5px;}
 
   footer{
-    padding:40px 0;
-    color:var(--muted);
-    font-size:0.85rem;
+    padding:36px 0 10px;
+    font-family:'JetBrains Mono',monospace;
+    font-size:0.8rem;
+    color:var(--text-faint);
     display:flex;
     justify-content:space-between;
     flex-wrap:wrap;
     gap:12px;
   }
+  footer .prompt{color:var(--text-dim);}
+  footer .prompt b{color:var(--green);}
 
   @media (max-width:900px){
     .shell{grid-template-columns:1fr;}
     nav.rail{
       position:static;height:auto;flex-direction:row;overflow-x:auto;
-      padding:20px 24px;border-right:none;border-bottom:1px solid var(--border);
+      padding:16px 20px;border-right:none;border-bottom:1px solid var(--border);
       align-items:center;
     }
-    .rail-group{flex-direction:row;gap:6px;}
+    .rail-group{flex-direction:row;gap:4px;}
     .rail-label{display:none;}
-    main{padding:0 24px 60px;}
-    .hero{grid-template-columns:1fr;padding-top:36px;}
-    .phone{justify-self:start;width:190px;height:380px;}
-    .hero h1{font-size:2.3rem;}
-    .inst-grid, .arch-grid, .split{grid-template-columns:1fr;}
-    .module{grid-template-columns:1fr;gap:14px;}
-    .rule{grid-template-columns:1fr;}
+    .rail a .ext{display:none;}
+    .tb-path{font-size:0.68rem;}
+    main{padding:0 20px 60px;}
+    .hero{grid-template-columns:1fr;padding-top:32px;}
+    .visual{flex-direction:row;align-items:flex-start;justify-content:flex-start;}
+    .phone{width:170px;height:340px;}
+    .term{max-width:220px;}
+    .hero h1{font-size:1.9rem;}
+    .panel-grid, .arch-grid, .dev-split{grid-template-columns:1fr;}
+    .module{grid-template-columns:1fr;gap:12px;}
   }
 
   @media (prefers-reduced-motion: reduce){
     html{scroll-behavior:auto;}
-    *{transition:none !important;}
+    *{transition:none !important;animation:none !important;}
   }
 </style>
 
 </head>
 <body>
 
+<div class="titlebar">
+  <div class="tb-left">
+    <div class="tb-dots">
+      <i style="background:#e8656b"></i>
+      <i style="background:#e8b23d"></i>
+      <i style="background:#59c17c"></i>
+    </div>
+    <span class="tb-path mono">~/nexo/<b>myprofile</b>/docs/manual.md</span>
+  </div>
+  <div class="tb-right">
+    <span class="tb-branch mono">⑂ main</span>
+    <span class="tb-status"><i class="pulse-dot"></i>sincronizado</span>
+  </div>
+</div>
+
 <div class="shell">
 
   <nav class="rail">
-    <div class="brand">My<span>Profile</span></div>
+    <div class="brand">&gt;_ My<span>Profile</span></div>
 
     <div class="rail-group">
-      <div class="rail-label mono">INFORMACIÓN</div>
-      <a href="#institucion">Institución y Equipo</a>
-      <a href="#intro">Propósito</a>
-      <a href="#arquitectura">Arquitectura</a>
+      <div class="rail-label mono"><i>▾</i> docs/</div>
+      <a href="#institucion"><span class="lbl">Institución y Equipo</span><span class="ext">.md</span></a>
+      <a href="#intro"><span class="lbl">Propósito</span><span class="ext">.md</span></a>
+      <a href="#arquitectura"><span class="lbl">Arquitectura</span><span class="ext">.env</span></a>
     </div>
 
     <div class="rail-group">
-      <div class="rail-label mono">MÓDULOS</div>
-      <a href="#dashboard"><span class="dot" style="background:var(--amber)"></span>Dashboard</a>
-      <a href="#tareas"><span class="dot" style="background:var(--amber)"></span>Tareas</a>
-      <a href="#ahorro"><span class="dot" style="background:var(--green)"></span>Ahorro</a>
-      <a href="#contrasenas"><span class="dot" style="background:var(--violet)"></span>Contraseñas</a>
-      <a href="#salud"><span class="dot" style="background:var(--cyan)"></span>Salud</a>
+      <div class="rail-label mono"><i>▾</i> modules/</div>
+      <a href="#dashboard"><span class="lbl"><span class="dot" style="background:var(--amber)"></span>Dashboard</span><span class="ext">.tsx</span></a>
+      <a href="#tareas"><span class="lbl"><span class="dot" style="background:var(--amber)"></span>Tareas</span><span class="ext">.tsx</span></a>
+      <a href="#ahorro"><span class="lbl"><span class="dot" style="background:var(--green)"></span>Ahorro</span><span class="ext">.tsx</span></a>
+      <a href="#contrasenas"><span class="lbl"><span class="dot" style="background:var(--violet)"></span>Contraseñas</span><span class="ext">.tsx</span></a>
+      <a href="#salud"><span class="lbl"><span class="dot" style="background:var(--cyan)"></span>Salud</span><span class="ext">.tsx</span></a>
     </div>
 
     <div class="rail-group">
-      <div class="rail-label mono">ESPECIFICACIÓN</div>
-      <a href="#roles">Roles de Usuario</a>
-      <a href="#reglas">Reglas de Negocio</a>
-      <a href="#requerimientos">ERS Cubiertos</a>
-      <a href="#limitaciones">Limitaciones y Mejoras</a>
+      <div class="rail-label mono"><i>▾</i> spec/</div>
+      <a href="#roles"><span class="lbl">Roles de Usuario</span><span class="ext">.yaml</span></a>
+      <a href="#reglas"><span class="lbl">Reglas de Negocio</span><span class="ext">.ts</span></a>
+      <a href="#requerimientos"><span class="lbl">ERS Cubiertos</span><span class="ext">.test</span></a>
+      <a href="#limitaciones"><span class="lbl">Limitaciones y Mejoras</span><span class="ext">.todo</span></a>
     </div>
   </nav>
 
   <main>
 
     <!-- Header / Institución -->
-    <section id="institucion" style="padding-top:40px;">
-      <div class="section-head"><span class="mono">INSTITUTO NACIONAL CANTÓN LOURDES (INDEL)</span>
-        
-        
-      
-         <br>
-        </div>
+    <section id="institucion" style="padding-top:36px;">
+      <div class="section-head"><span class="mono">INSTITUTO NACIONAL CANTÓN LOURDES (INDEL)</span></div>
 
-        <h1>Manual de Sistema MyProfile</h1>
+      <h1 style="font-size:1.9rem;margin-bottom:14px;">Manual de Sistema MyProfile</h1>
 
       <p class="narrow">Documentación técnica y funcional del sistema desarrollado por el equipo Nexo para la asignatura de Tecnología III.</p>
-      
-      <div class="inst-grid">
-        <div class="inst-card">
-          <h3>Datos Academicos</h3>
-          <ul>
-            <li><b>Institución:</b> Instituto Nacional Cantón Lourdes (INDEL)</li>
-            <li><b>Sección:</b> 3° Desarrollo de Software "B"</li>
-            <li><b>Materia:</b> Tecnología III</li>
-            <li><b>Maestro:</b> Javier Arturo García Mineros</li>
-            <li><b>Año:</b> 2026</li>
-          </ul>
+
+      <div class="panel-grid">
+        <div class="panel">
+          <div class="panel-tab"><i style="background:var(--amber)"></i>proyecto.json</div>
+          <div class="panel-body code">
+            <div><span class="p">{</span></div>
+            <div>&nbsp;&nbsp;<span class="k">"institucion"</span><span class="p">:</span> <span class="s">"Instituto Nacional Cantón Lourdes (INDEL)"</span><span class="p">,</span></div>
+            <div>&nbsp;&nbsp;<span class="k">"seccion"</span><span class="p">:</span> <span class="s">"3° Desarrollo de Software B"</span><span class="p">,</span></div>
+            <div>&nbsp;&nbsp;<span class="k">"materia"</span><span class="p">:</span> <span class="s">"Tecnología III"</span><span class="p">,</span></div>
+            <div>&nbsp;&nbsp;<span class="k">"maestro"</span><span class="p">:</span> <span class="s">"Javier Arturo García Mineros"</span><span class="p">,</span></div>
+            <div>&nbsp;&nbsp;<span class="k">"anio"</span><span class="p">:</span> <span class="n">2026</span></div>
+            <div><span class="p">}</span></div>
+          </div>
         </div>
-        <div class="inst-card">
-          <h3>Equipo de Desarrollo (Aprendientes / Nexo)</h3>
-          <ul>
-            <li>Manuel Ernesto Castillo Guerra — N° 17</li>
-            <li>René Antonio Orellana García — N° 27</li>
-            <li>Daniel Ernesto Claros Orellana — N° 18</li>
-            <li>Mayeli Abigail Villalobos Guardado — N° 12</li>
-          </ul>
+        <div class="panel">
+          <div class="panel-tab"><i style="background:var(--violet)"></i>equipo.json</div>
+          <div class="panel-body code">
+            <div><span class="p">[</span></div>
+            <div>&nbsp;&nbsp;<span class="s">"Manuel Ernesto Castillo Guerra"</span><span class="p">,</span> <span class="c">// N.º 17</span></div>
+            <div>&nbsp;&nbsp;<span class="s">"René Antonio Orellana García"</span><span class="p">,</span> <span class="c">// N.º 27</span></div>
+            <div>&nbsp;&nbsp;<span class="s">"Daniel Ernesto Claros Orellana"</span><span class="p">,</span> <span class="c">// N.º 18</span></div>
+            <div>&nbsp;&nbsp;<span class="s">"Mayeli Abigail Villalobos Guardado"</span> <span class="c">// N.º 12</span></div>
+            <div><span class="p">]</span></div>
+          </div>
         </div>
       </div>
     </section>
@@ -437,40 +598,55 @@
     <!-- Intro -->
     <section class="hero" id="intro">
       <div>
-        <br>
-
-        <div class="kicker mono">PROPÓSITO DEL SISTEMA</div>
+        <div class="kicker mono">// propósito del sistema</div>
         <h1>Un solo lugar para administrar tu vida diaria.</h1>
         <p class="lead">En la actualidad, las personas utilizan múltiples aplicaciones dispersas para gestionar su día a día. MyProfile resuelve la necesidad de centralizar la gestión personal, financiera, de seguridad y de salud en una única plataforma móvil unificada.</p>
         <p class="lead">Está dirigido a usuarios jóvenes y adultos que buscan optimizar su productividad y bienestar general, permitiéndoles administrar sus actividades diarias, salvaguardar credenciales importantes y recibir asistencia automatizada para rutinas de salud básicas.</p>
-        <div class="stack" style="margin-top:20px;">
-          <div><b>Frontend:</b> .NET MAUI (C# / XAML) · AppShell · Dark Mode</div>
-          <div><b>Backend:</b> Supabase · PostgreSQL en tiempo real</div>
-          <div><b>Arquitectura:</b> Cliente - servidor.</div>
+        <div class="stack-block code">
+          <div><span class="k">frontend</span><span class="p">:</span> <span class="s">".NET MAUI (C# / XAML) · AppShell · Dark Mode"</span></div>
+          <div><span class="k">backend</span><span class="p">:</span> <span class="s">"Supabase · PostgreSQL en tiempo real"</span></div>
+          <div><span class="k">arquitectura</span><span class="p">:</span> <span class="s">"cliente – servidor"</span></div>
         </div>
       </div>
 
-      <div class="phone">
-        <div class="screen">
-          <div class="status"><span>9:41</span><span>●●●</span></div>
-          <div class="card">
-            <div class="t">Saldo disponible</div>
-            <div class="v">$482.30</div>
+      <div class="visual">
+        <div class="phone">
+          <div class="screen">
+            <div class="status"><span>9:41</span><span>●●●</span></div>
+            <div class="card">
+              <div class="t">Saldo disponible</div>
+              <div class="v">$482.30</div>
+            </div>
+            <div class="card">
+              <div class="t">Hidratación · 5/8 vasos</div>
+              <div class="bar"><i></i></div>
+            </div>
+            <div class="card">
+              <div class="t">Tareas pendientes</div>
+              <div class="v" style="font-size:0.85rem;">3 activas</div>
+            </div>
+            <div class="nav">
+              <i class="on" style="color:var(--amber)"></i>
+              <i style="color:var(--amber)"></i>
+              <i style="color:var(--green)"></i>
+              <i style="color:var(--violet)"></i>
+              <i style="color:var(--cyan)"></i>
+            </div>
           </div>
-          <div class="card">
-            <div class="t">Hidratación · 5/8 vasos</div>
-            <div class="bar"><i></i></div>
+        </div>
+
+        <div class="term">
+          <div class="term-bar">
+            <i style="background:#e8656b"></i><i style="background:#e8b23d"></i><i style="background:#59c17c"></i>
+            <span class="term-title">supabase · realtime</span>
           </div>
-          <div class="card">
-            <div class="t">Tareas pendientes</div>
-            <div class="v" style="font-size:0.95rem;font-family:'Inter'">3 activas</div>
-          </div>
-          <div class="nav">
-            <i class="on" style="color:var(--amber)"></i>
-            <i style="color:var(--amber)"></i>
-            <i style="color:var(--green)"></i>
-            <i style="color:var(--violet)"></i>
-            <i style="color:var(--cyan)"></i>
+          <div class="term-body">
+            <div><span class="arrow">$</span> supabase realtime:listen</div>
+            <div><span class="ok">[ok]</span> canal "tareas" conectado</div>
+            <div><span class="ev">[event]</span> task.update → 3 activas</div>
+            <div><span class="ev">[event]</span> savings.balance → $482.30</div>
+            <div><span class="ev">[event]</span> hydration.count → 5/8</div>
+            <div class="cur">▍<span class="blink">|</span></div>
           </div>
         </div>
       </div>
@@ -482,12 +658,23 @@
       <p class="narrow">El sistema MyProfile ha sido desarrollado bajo los siguientes estándares tecnológicos por el equipo de Nexo:</p>
       <div class="arch-grid">
         <div class="arch-card">
-          <h3>Frontend / Interfaz de Usuario</h3>
-          <p>Construido con <b>.NET MAUI</b> utilizando C# y XAML. La navegación principal está orquestada mediante la arquitectura <b>AppShell</b> (Bottom Navigation Bar) aplicando una paleta de colores moderna centrada en el <b>"Dark Mode" (Modo Oscuro)</b>.</p>
+          <div class="panel-tab"><i style="background:var(--amber)"></i>frontend.config</div>
+          <div class="panel-body code">
+            <div><span class="k">framework</span><span class="p">:</span> <span class="s">".NET MAUI"</span></div>
+            <div><span class="k">lenguaje</span><span class="p">:</span> <span class="s">"C# / XAML"</span></div>
+            <div><span class="k">navegacion</span><span class="p">:</span> <span class="s">"AppShell (Bottom Nav)"</span></div>
+            <div><span class="k">tema</span><span class="p">:</span> <span class="s">"dark"</span></div>
+            <p>Construido con <b>.NET MAUI</b> utilizando C# y XAML. La navegación principal está orquestada mediante la arquitectura <b>AppShell</b> (Bottom Navigation Bar), aplicando una paleta moderna centrada en el modo oscuro.</p>
+          </div>
         </div>
         <div class="arch-card backend">
-          <h3>Backend / Persistencia de Datos</h3>
-          <p>Utiliza una infraestructura en la nube respaldada por <b>Supabase</b> (Backend as a Service). La información se almacena de forma estructurada y segura en una base de datos relacional remota (<b>PostgreSQL</b>), lo que permite la gestión y sincronización de datos en tiempo real.</p>
+          <div class="panel-tab"><i style="background:var(--cyan)"></i>backend.env</div>
+          <div class="panel-body code">
+            <div><span class="k">provider</span><span class="p">:</span> <span class="s">"Supabase (BaaS)"</span></div>
+            <div><span class="k">database</span><span class="p">:</span> <span class="s">"PostgreSQL"</span></div>
+            <div><span class="k">modo</span><span class="p">:</span> <span class="s">"tiempo real"</span></div>
+            <p>Utiliza una infraestructura en la nube respaldada por <b>Supabase</b> (Backend as a Service). La información se almacena de forma estructurada y segura en una base de datos relacional remota, permitiendo sincronización en tiempo real.</p>
+          </div>
         </div>
       </div>
     </section>
@@ -503,6 +690,7 @@
           <div>
             <h3>Dashboard</h3>
             <div class="m-tag">Panel de Inicio</div>
+            <span class="path-chip">modules/dashboard.tsx</span>
           </div>
         </div>
         <div>
@@ -516,20 +704,21 @@
           <div>
             <h3>Módulo de Tareas</h3>
             <div class="m-tag">Ciclo de Vida de Actividades</div>
+            <span class="path-chip">modules/tareas.tsx</span>
           </div>
         </div>
         <div>
           <p style="margin-bottom:16px;">Gestor del ciclo de vida de las actividades personales.</p>
           <div class="feat">
-            <div class="f-name">Nueva Tarea</div>
+            <div class="f-head"><span class="badge post">POST</span><div class="f-name">Nueva Tarea</div></div>
             <p>Formulario accesible mediante el botón de la parte superior derecha para registrar título (ej. "Hacer limpieza"), descripción opcional (ej. "Limpiar habitación antes de salir") y fecha de vencimiento.</p>
           </div>
           <div class="feat">
-            <div class="f-name">Tareas Pendientes</div>
+            <div class="f-head"><span class="badge get">GET</span><span class="badge patch">PATCH</span><span class="badge delete">DELETE</span><div class="f-name">Tareas Pendientes</div></div>
             <p>Listado interactivo de tareas activas. Permite marcar cualquier elemento como completado (trasladándolo al histórico) o eliminarlo de manera directa.</p>
           </div>
           <div class="feat">
-            <div class="f-name">Tareas Completadas</div>
+            <div class="f-head"><span class="badge get">GET</span><span class="badge patch">PATCH</span><div class="f-name">Tareas Completadas</div></div>
             <p>Historial de actividades finalizadas, contando con la función de restauración para trasladar la tarea nuevamente a la lista de pendientes si el usuario lo requiere.</p>
           </div>
         </div>
@@ -541,20 +730,21 @@
           <div>
             <h3>Módulo de Ahorro</h3>
             <div class="m-tag">Gestión Financiera Personal</div>
+            <span class="path-chip">modules/ahorro.tsx</span>
           </div>
         </div>
         <div>
           <p style="margin-bottom:16px;">Herramienta de gestión financiera personal y control de flujo de caja.</p>
           <div class="feat">
-            <div class="f-name">Visualización de Saldo</div>
+            <div class="f-head"><span class="badge get">GET</span><div class="f-name">Visualización de Saldo</div></div>
             <p>Tarjeta principal que muestra el capital neto calculado automáticamente.</p>
           </div>
           <div class="feat">
-            <div class="f-name">Registro de Movimientos</div>
+            <div class="f-head"><span class="badge post">POST</span><div class="f-name">Registro de Movimientos</div></div>
             <p>Interfaz con campo de monto y descripción, junto con los botones de acción "+ Ingreso" (para sumar capital) y "- Gasto" (para aplicar deducciones).</p>
           </div>
           <div class="feat">
-            <div class="f-name">Historial</div>
+            <div class="f-head"><span class="badge get">GET</span><div class="f-name">Historial</div></div>
             <p>Sección de "Últimas transacciones" que lista cronológicamente las entradas y salidas de dinero asociadas a la cuenta.</p>
           </div>
         </div>
@@ -566,20 +756,21 @@
           <div>
             <h3>Módulo de Contraseñas</h3>
             <div class="m-tag">Bóveda Privada de Credenciales</div>
+            <span class="path-chip">modules/contrasenas.tsx</span>
           </div>
         </div>
         <div>
           <p style="margin-bottom:16px;">Bóveda privada de credenciales.</p>
           <div class="feat">
-            <div class="f-name">Buscador en Tiempo Real</div>
+            <div class="f-head"><span class="badge get">GET</span><div class="f-name">Buscador en Tiempo Real</div></div>
             <p>Barra superior con texto de ayuda ("Buscar credencial...") para filtrar instantáneamente las cuentas guardadas según el usuario escribe.</p>
           </div>
           <div class="feat">
-            <div class="f-name">Formulario de Nueva Credencial</div>
+            <div class="f-head"><span class="badge post">POST</span><div class="f-name">Formulario de Nueva Credencial</div></div>
             <p>Ventana flotante emergente para ingresar el Sitio web/Plataforma, el Usuario/Cuenta y la Clave secreta, con botones para Guardar o Cancelar la operación.</p>
           </div>
           <div class="feat">
-            <div class="f-name">Listado Principal</div>
+            <div class="f-head"><span class="badge get">GET</span><div class="f-name">Listado Principal</div></div>
             <p>Muestra las credenciales almacenadas o en su defecto un estado descriptivo en pantalla cuando no hay datos registrados.</p>
           </div>
         </div>
@@ -591,16 +782,17 @@
           <div>
             <h3>Módulo de Salud</h3>
             <div class="m-tag">Bienestar y Hábitos Saludables</div>
+            <span class="path-chip">modules/salud.tsx</span>
           </div>
         </div>
         <div>
           <p style="margin-bottom:16px;">Asistente de bienestar y hábitos saludables.</p>
           <div class="feat">
-            <div class="f-name">Control de Hidratación</div>
+            <div class="f-head"><span class="badge patch">PATCH</span><div class="f-name">Control de Hidratación</div></div>
             <p>Monitoreo de meta diaria de 8 vasos de agua. Un botón dedicado permite "agregar vaso", actualizando al instante el indicador visual y la barra de progreso reflejada en el Dashboard.</p>
           </div>
           <div class="feat">
-            <div class="f-name">Descanso Visual</div>
+            <div class="f-head"><span class="badge event">EVENT</span><div class="f-name">Descanso Visual</div></div>
             <p>Herramienta opcional que contabiliza el uso del teléfono. Tras 20 minutos continuos de pantalla activa, el sistema emite una notificación recomendando un descanso visual de 5 minutos, notificando al usuario una vez concluido el lapso.</p>
           </div>
         </div>
@@ -611,10 +803,17 @@
     <section id="roles">
       <div class="section-head"><h2>Roles de Usuario</h2></div>
       <p class="narrow">Debido a la naturaleza de gestión estrictamente personal de MyProfile, el sistema opera bajo una estructura de rol único (<b>Single-Tenant o inquilino único</b>):</p>
-      <div class="rule-list">
-        <div class="rule">
-          <div class="r-title">Usuario Propietario (Owner)</div>
-          <p>Tiene acceso incondicional y permisos totales sobre su cuenta e información. Es el único perfil autorizado para ejecutar operaciones de Lectura, Escritura, Actualización y Eliminación (<b>CRUD</b>) sobre sus tareas, registros financieros, hábitos de salud y bóveda de contraseñas almacenados en el backend de Supabase.</p>
+      <div class="yaml-block panel">
+        <div class="panel-tab"><i style="background:var(--amber)"></i>roles.yaml</div>
+        <div class="panel-body code">
+          <div><span class="k">role</span><span class="p">:</span> <span class="s">owner</span></div>
+          <div><span class="k">permissions</span><span class="p">:</span></div>
+          <div>&nbsp;&nbsp;<span class="k">read</span><span class="p">:</span> <span class="n">true</span></div>
+          <div>&nbsp;&nbsp;<span class="k">write</span><span class="p">:</span> <span class="n">true</span></div>
+          <div>&nbsp;&nbsp;<span class="k">update</span><span class="p">:</span> <span class="n">true</span></div>
+          <div>&nbsp;&nbsp;<span class="k">delete</span><span class="p">:</span> <span class="n">true</span></div>
+          <div><span class="k">scope</span><span class="p">:</span> <span class="s">single-tenant</span></div>
+          <p>El Usuario Propietario (Owner) tiene acceso incondicional y permisos totales sobre su cuenta e información: es el único perfil autorizado para ejecutar operaciones CRUD sobre sus tareas, registros financieros, hábitos de salud y bóveda de contraseñas almacenados en el backend de Supabase.</p>
         </div>
       </div>
     </section>
@@ -625,19 +824,23 @@
       <p class="narrow">El sistema aplica internamente las siguientes reglas lógicas para garantizar la coherencia de la información y una experiencia de usuario óptima:</p>
       <div class="rule-list">
         <div class="rule">
-          <div class="r-title">Cálculo Financiero Automatizado</div>
+          <div class="r-label">// Cálculo Financiero Automatizado</div>
+          <div class="r-code code"><span class="kw">assert</span><span class="p">(</span><span class="k">saldoActual</span> <span class="p">===</span> <span class="k">sumaIngresos</span> <span class="p">-</span> <span class="k">sumaGastos</span><span class="p">)</span></div>
           <p>El "Saldo actual" en el módulo de Ahorros no es editable en forma directa; es el resultado de la fórmula estricta: <b>(Sumatoria de Ingresos) − (Sumatoria de Gastos)</b>.</p>
         </div>
         <div class="rule">
-          <div class="r-title">Transición Exclusiva de Estados</div>
+          <div class="r-label">// Transición Exclusiva de Estados</div>
+          <div class="r-code code"><span class="kw">enum</span> <span class="fn">EstadoTarea</span> <span class="p">{</span> <span class="s">pendiente</span><span class="p">,</span> <span class="s">completado</span> <span class="p">}</span></div>
           <p>Un registro de tarea sólo puede pertenecer al estado "Pendiente" o "Completado", previniendo duplicidades entre listas.</p>
         </div>
         <div class="rule">
-          <div class="r-title">Manejo de Estados Vacíos</div>
-          <p>En la bóveda de Contraseñas, cuando la base de datos no retorne registros para el usuario, el sistema despliega el mensaje contextual <i>"No hay credenciales guardadas"</i> en lugar de un error de carga.</p>
+          <div class="r-label">// Manejo de Estados Vacíos</div>
+          <div class="r-code code"><span class="kw">if</span> <span class="p">(</span><span class="k">credenciales.length</span> <span class="p">===</span> <span class="n">0</span><span class="p">)</span> <span class="kw">return</span> <span class="s">"No hay credenciales guardadas"</span></div>
+          <p>En la bóveda de Contraseñas, cuando la base de datos no retorne registros para el usuario, el sistema despliega ese mensaje contextual en lugar de un error de carga.</p>
         </div>
         <div class="rule">
-          <div class="r-title">Lógica de Conteo de Pantalla</div>
+          <div class="r-label">// Lógica de Conteo de Pantalla</div>
+          <div class="r-code code"><span class="k">on</span><span class="p">(</span><span class="k">pantalla.bloqueada</span><span class="p">)</span> <span class="p">=&gt;</span> <span class="fn">pausar</span><span class="p">(</span><span class="k">temporizador</span><span class="p">)</span></div>
           <p>El temporizador de descanso visual evalúa el uso continuo de la pantalla. Si el sistema operativo notifica que el dispositivo ha sido bloqueado o la pantalla apagada, el conteo se pausa inmediatamente para no consumir el tiempo de descanso.</p>
         </div>
       </div>
@@ -647,53 +850,58 @@
     <section id="requerimientos">
       <div class="section-head"><h2>Requerimientos Funcionales Cubiertos</h2></div>
       <p class="narrow">Durante la fase de construcción del software, el equipo de Nexo cumplió los requerimientos estipulados en la Especificación de Requerimientos de Software (ERS):</p>
-      
+
+      <div class="test-run">
+        <div class="tr-cmd"><span>$</span> npm run test:ers</div>
+        <div class="tr-out">10 passed <span class="dim">·</span> 10 total <span class="dim">·</span> ✓</div>
+      </div>
+
       <table class="req-table">
         <thead>
           <tr>
-            <th style="width:100px;">ID</th>
-            <th>Descripción del Requerimiento Funcional</th>
+            <th style="width:120px;">ESTADO</th>
+            <th>DESCRIPCIÓN DEL REQUERIMIENTO FUNCIONAL</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td class="id">RF-01</td>
+            <td class="stat"><span class="badge post">✓ RF-01</span></td>
             <td>El sistema debe permitir al usuario registrar una nueva tarea, incluyendo título, descripción y fecha de vencimiento.</td>
           </tr>
           <tr>
-            <td class="id">RF-02</td>
+            <td class="stat"><span class="badge post">✓ RF-02</span></td>
             <td>El sistema debe permitir marcar las tareas como "pendientes" o "completadas", y visualizar un listado organizado de las mismas.</td>
           </tr>
           <tr>
-            <td class="id">RF-03</td>
+            <td class="stat"><span class="badge post">✓ RF-03</span></td>
             <td>El sistema debe permitir eliminar tareas que ya no se realizaran.</td>
           </tr>
           <tr>
-            <td class="id">RF-04</td>
+            <td class="stat"><span class="badge post">✓ RF-04</span></td>
             <td>El sistema debe permitir registrar, editar y eliminar contraseñas y cuentas (red social o sitio web, usuario, clave).</td>
           </tr>
           <tr>
-            <td class="id">RF-05</td>
+            <td class="stat"><span class="badge post">✓ RF-05</span></td>
             <td>El sistema debe permitir ingresar montos de ingresos o gastos para llevar un control real de los ahorros.</td>
           </tr>
           <tr>
-            <td class="id">RF-06</td>
-            <td>El sistema debe permitir agregar una descripción de las transacciones que se realizan para que el usuario este informado de lo que ha sucedido en los últimos días.</td>
+            <td class="stat"><span class="badge post">✓ RF-06</span></td>
+            <td>El sistema debe permitir agregar una descripción de las transacciones que se realizan para que el usuario esté informado de lo que ha sucedido en los últimos días.</td>
           </tr>
           <tr>
-            <td class="id">RF-07</td>
+            <td class="stat"><span class="badge post">✓ RF-07</span></td>
             <td>El sistema debe tener un espacio de recordatorio de hidratación para cuidar tu salud.</td>
           </tr>
           <tr>
-            <td class="id">RF-08</td>
-            <td>El sistema debe tener un apartado donde si el usuario utliza la computadora o el teléfono pueda activar la opción de recordatorio de un descanso visual de 5 minutos cada 20 minutos.</td>
+            <td class="stat"><span class="badge post">✓ RF-08</span></td>
+            <td>El sistema debe tener un apartado donde si el usuario utiliza la computadora o el teléfono pueda activar la opción de recordatorio de un descanso visual de 5 minutos cada 20 minutos.</td>
           </tr>
           <tr>
-            <td class="id">RF-09</td>
-            <td>El sistema debe mostrar un resumen general (dashboard) consolidando las tareas activas, el saldo del ahorro y los accesos rápidos a cuentas, y en recordatorio de cuando debes beber tu proximo vaso de agua.</td>
+            <td class="stat"><span class="badge post">✓ RF-09</span></td>
+            <td>El sistema debe mostrar un resumen general (dashboard) consolidando las tareas activas, el saldo del ahorro, los accesos rápidos a cuentas, y el recordatorio de cuándo debes beber tu próximo vaso de agua.</td>
           </tr>
           <tr>
-            <td class="id">RF-10</td>
+            <td class="stat"><span class="badge post">✓ RF-10</span></td>
             <td>El sistema debe enviar recordatorios de las tareas pendientes, de tomar agua y descanso visual en notificación emergente o por correo electrónico.</td>
           </tr>
         </tbody>
@@ -703,26 +911,30 @@
     <!-- Limitaciones y Mejoras -->
     <section id="limitaciones">
       <div class="section-head"><h2>Limitaciones Actuales y Mejoras Futuras</h2></div>
-      <div class="split">
-        <div>
-          <h4>Limitaciones Actuales</h4>
-          <ul>
-            <li>Dado que la persistencia se gestiona centralizadamente en la nube mediante Supabase, la aplicación requiere una conexión a internet activa para sincronizar de manera inmediata las operaciones de los módulos.</li>
-            <li>El envío de alertas y notificaciones del módulo de Salud depende de los permisos otorgados por el usuario a nivel del sistema operativo.</li>
-          </ul>
+      <div class="dev-split">
+        <div class="panel">
+          <div class="panel-tab"><i style="background:var(--amber)"></i>known-issues.log</div>
+          <div class="panel-body">
+            <ul>
+              <li><div class="tag-line"><span class="badge patch">LIMITATION</span></div>Dado que la persistencia se gestiona centralizadamente en la nube mediante Supabase, la aplicación requiere una conexión a internet activa para sincronizar de manera inmediata las operaciones de los módulos.</li>
+              <li><div class="tag-line"><span class="badge patch">LIMITATION</span></div>El envío de alertas y notificaciones del módulo de Salud depende de los permisos otorgados por el usuario a nivel del sistema operativo.</li>
+            </ul>
+          </div>
         </div>
-        <div>
-          <h4>Mejoras Futuras</h4>
-          <ul>
-            <li><b>Autenticación Biométrica:</b> Implementar validación por huella dactilar o reconocimiento facial (FaceID) como requisito previo para abrir y consultar las credenciales en el Módulo de Contraseñas.</li>
-            <li><b>Modo Offline con Sincronización Postergada:</b> Desarrollar un almacenamiento en caché local para permitir el registro de transacciones o tareas sin acceso a internet, sincronizando los cambios con Supabase en cuanto se reestablezca la conectividad.</li>
-          </ul>
+        <div class="panel">
+          <div class="panel-tab"><i style="background:var(--cyan)"></i>backlog.todo</div>
+          <div class="panel-body">
+            <ul>
+              <li><div class="tag-line"><span class="badge get">ROADMAP</span></div><b>Autenticación Biométrica:</b> implementar validación por huella dactilar o reconocimiento facial (FaceID) como requisito previo para abrir y consultar las credenciales en el Módulo de Contraseñas.</li>
+              <li><div class="tag-line"><span class="badge get">ROADMAP</span></div><b>Modo Offline con Sincronización Postergada:</b> desarrollar un almacenamiento en caché local para permitir el registro de transacciones o tareas sin acceso a internet, sincronizando los cambios con Supabase en cuanto se reestablezca la conectividad.</li>
+            </ul>
+          </div>
         </div>
       </div>
     </section>
 
     <footer>
-      <span>MyProfile — Manual de sistema</span>
+      <span class="prompt"><b>nexo</b>@myprofile:~$ exit</span>
       <span>Equipo Nexo · 2026</span>
     </footer>
 

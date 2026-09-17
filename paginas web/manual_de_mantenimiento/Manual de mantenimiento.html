@@ -1,0 +1,4019 @@
+```html
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>MyProfile 1.1 | Evolución inteligente</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+
+    <style>
+
+        /* =====================================================
+           VARIABLES
+        ===================================================== */
+
+        :root {
+
+            --navy: #071A24;
+            --navy-2: #0C2632;
+
+            --teal: #08B6A4;
+            --teal-light: #31E1CF;
+
+            --gold: #D9B76C;
+            --gold-light: #F1D99A;
+
+            --cream: #F7F5EF;
+            --white: #FFFFFF;
+
+            --text: #142C35;
+            --muted: #6D8087;
+
+            --border: rgba(7, 26, 36, .09);
+
+            --shadow:
+                0 25px 70px rgba(7, 26, 36, .12);
+
+            --radius: 24px;
+        }
+
+
+        /* =====================================================
+           RESET
+        ===================================================== */
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+
+            font-family: "DM Sans", sans-serif;
+
+            background: var(--cream);
+
+            color: var(--text);
+
+            overflow-x: hidden;
+        }
+
+        h1,
+        h2,
+        h3,
+        h4 {
+
+            font-family: "Space Grotesk", sans-serif;
+        }
+
+        a {
+            text-decoration: none;
+        }
+
+        button {
+            font-family: inherit;
+        }
+
+
+        /* =====================================================
+           BACKGROUND
+        ===================================================== */
+
+        .orb {
+
+            position: fixed;
+
+            border-radius: 50%;
+
+            filter: blur(100px);
+
+            opacity: .22;
+
+            z-index: -1;
+
+            pointer-events: none;
+        }
+
+        .orb-1 {
+
+            width: 400px;
+            height: 400px;
+
+            background: var(--teal);
+
+            top: -200px;
+            right: -100px;
+        }
+
+        .orb-2 {
+
+            width: 350px;
+            height: 350px;
+
+            background: var(--gold);
+
+            bottom: -150px;
+            left: -150px;
+        }
+
+
+        /* =====================================================
+           HEADER
+        ===================================================== */
+
+        header {
+
+            position: fixed;
+
+            width: 100%;
+
+            top: 0;
+
+            z-index: 999;
+
+            background: rgba(247,245,239,.82);
+
+            backdrop-filter: blur(20px);
+
+            border-bottom: 1px solid rgba(7,26,36,.07);
+        }
+
+        .nav {
+
+            max-width: 1250px;
+
+            margin: auto;
+
+            padding: 16px 25px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+        }
+
+
+        /* LOGO */
+
+        .brand {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 12px;
+
+            color: var(--navy);
+
+            font-family: "Space Grotesk";
+
+            font-size: 20px;
+
+            font-weight: 700;
+        }
+
+        .brand-icon {
+
+            width: 44px;
+            height: 44px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            color: white;
+
+            border-radius: 14px;
+
+            background:
+
+                linear-gradient(
+                    135deg,
+                    var(--teal),
+                    var(--navy)
+                );
+
+            box-shadow:
+
+                0 10px 25px rgba(8,182,164,.25);
+        }
+
+        .brand span span {
+
+            color: var(--teal);
+        }
+
+
+        /* NAVIGATION */
+
+        .nav-links {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 30px;
+        }
+
+        .nav-links a {
+
+            color: var(--muted);
+
+            font-size: 14px;
+
+            font-weight: 500;
+
+            transition: .3s;
+        }
+
+        .nav-links a:hover {
+
+            color: var(--teal);
+        }
+
+
+        .nav-cta {
+
+            padding: 11px 19px;
+
+            border-radius: 12px;
+
+            color: white !important;
+
+            background: var(--navy);
+
+            box-shadow: 0 8px 20px rgba(7,26,36,.16);
+        }
+
+        .nav-cta:hover {
+
+            background: var(--teal);
+        }
+
+
+        /* MOBILE */
+
+        .menu {
+
+            display: none;
+
+            border: none;
+
+            background: transparent;
+
+            font-size: 22px;
+
+            color: var(--navy);
+
+            cursor: pointer;
+        }
+
+
+        /* =====================================================
+           HERO
+        ===================================================== */
+
+        .hero {
+
+            min-height: 100vh;
+
+            max-width: 1250px;
+
+            margin: auto;
+
+            padding: 150px 25px 100px;
+
+            display: grid;
+
+            grid-template-columns: 1.05fr .95fr;
+
+            gap: 80px;
+
+            align-items: center;
+        }
+
+
+        /* HERO LEFT */
+
+        .eyebrow {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 8px;
+
+            padding: 8px 13px;
+
+            border-radius: 50px;
+
+            background: white;
+
+            border: 1px solid var(--border);
+
+            color: var(--teal);
+
+            font-size: 12px;
+
+            font-weight: 700;
+
+            letter-spacing: .5px;
+
+            margin-bottom: 25px;
+
+            box-shadow: 0 8px 25px rgba(7,26,36,.05);
+        }
+
+        .eyebrow i {
+
+            color: var(--gold);
+        }
+
+        .hero h1 {
+
+            font-size: clamp(45px,6vw,78px);
+
+            line-height: 1.02;
+
+            letter-spacing: -4px;
+
+            max-width: 750px;
+
+            margin-bottom: 28px;
+        }
+
+        .hero h1 .highlight {
+
+            display: block;
+
+            color: var(--teal);
+        }
+
+        .hero-text {
+
+            max-width: 620px;
+
+            color: var(--muted);
+
+            font-size: 17px;
+
+            line-height: 1.8;
+
+            margin-bottom: 32px;
+        }
+
+
+        /* BUTTONS */
+
+        .buttons {
+
+            display: flex;
+
+            gap: 13px;
+
+            flex-wrap: wrap;
+        }
+
+        .btn {
+
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 9px;
+
+            padding: 15px 22px;
+
+            border-radius: 13px;
+
+            font-size: 14px;
+
+            font-weight: 700;
+
+            cursor: pointer;
+
+            transition: .3s;
+        }
+
+        .btn-dark {
+
+            color: white;
+
+            background: var(--navy);
+
+            box-shadow:
+
+                0 12px 30px rgba(7,26,36,.17);
+        }
+
+        .btn-dark:hover {
+
+            transform: translateY(-3px);
+
+            background: var(--teal);
+        }
+
+        .btn-light {
+
+            color: var(--navy);
+
+            background: white;
+
+            border: 1px solid var(--border);
+        }
+
+        .btn-light:hover {
+
+            transform: translateY(-3px);
+
+            box-shadow: var(--shadow);
+        }
+
+
+        /* =====================================================
+           HERO VISUAL
+        ===================================================== */
+
+        .visual {
+
+            position: relative;
+
+            min-height: 570px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+        }
+
+        .visual-ring {
+
+            position: absolute;
+
+            width: 470px;
+            height: 470px;
+
+            border-radius: 50%;
+
+            border: 1px solid rgba(8,182,164,.22);
+
+            box-shadow:
+
+                0 0 0 40px rgba(8,182,164,.025),
+
+                0 0 0 80px rgba(8,182,164,.018);
+        }
+
+
+        /* DASHBOARD */
+
+        .dashboard {
+
+            width: 360px;
+
+            position: relative;
+
+            z-index: 2;
+
+            padding: 15px;
+
+            border-radius: 30px;
+
+            background: rgba(255,255,255,.65);
+
+            border: 1px solid rgba(255,255,255,.8);
+
+            backdrop-filter: blur(25px);
+
+            box-shadow:
+
+                0 35px 80px rgba(7,26,36,.2);
+
+            transform: rotate(2deg);
+
+            transition: .5s;
+        }
+
+        .dashboard:hover {
+
+            transform: rotate(0) translateY(-10px);
+        }
+
+        .dashboard-inner {
+
+            background: var(--navy);
+
+            border-radius: 22px;
+
+            padding: 23px;
+
+            color: white;
+        }
+
+
+        /* DASHBOARD HEADER */
+
+        .dash-header {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            margin-bottom: 28px;
+        }
+
+        .dash-logo {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 9px;
+
+            font-family: "Space Grotesk";
+
+            font-weight: 700;
+        }
+
+        .dash-logo-icon {
+
+            width: 34px;
+            height: 34px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 10px;
+
+            background: var(--teal);
+        }
+
+        .status {
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 5px;
+
+            font-size: 9px;
+
+            color: #9CEDE3;
+        }
+
+        .status span {
+
+            width: 6px;
+            height: 6px;
+
+            border-radius: 50%;
+
+            background: var(--teal-light);
+        }
+
+
+        /* GREETING */
+
+        .dash-small {
+
+            font-size: 10px;
+
+            color: #8EA7AF;
+        }
+
+        .dash-title {
+
+            font-size: 21px;
+
+            margin: 4px 0 22px;
+        }
+
+
+        /* STAT CARDS */
+
+        .stats {
+
+            display: grid;
+
+            grid-template-columns: 1fr 1fr;
+
+            gap: 10px;
+
+            margin-bottom: 10px;
+        }
+
+        .stat {
+
+            padding: 15px;
+
+            border-radius: 15px;
+
+            background: rgba(255,255,255,.07);
+
+            border: 1px solid rgba(255,255,255,.08);
+        }
+
+        .stat-icon {
+
+            width: 30px;
+            height: 30px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 9px;
+
+            background: rgba(8,182,164,.18);
+
+            color: var(--teal-light);
+
+            margin-bottom: 11px;
+
+            font-size: 12px;
+        }
+
+        .stat small {
+
+            color: #8EA7AF;
+
+            font-size: 9px;
+        }
+
+        .stat strong {
+
+            display: block;
+
+            font-size: 16px;
+
+            margin-top: 4px;
+        }
+
+
+        /* BIG CARD */
+
+        .health-card {
+
+            padding: 17px;
+
+            border-radius: 15px;
+
+            background:
+
+                linear-gradient(
+                    135deg,
+                    rgba(8,182,164,.17),
+                    rgba(255,255,255,.05)
+                );
+
+            border: 1px solid rgba(8,182,164,.16);
+        }
+
+        .health-top {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            margin-bottom: 13px;
+        }
+
+        .health-top small {
+
+            color: #8EA7AF;
+        }
+
+        .health-top strong {
+
+            color: var(--teal-light);
+
+            font-size: 13px;
+        }
+
+        .bar {
+
+            height: 7px;
+
+            background: rgba(255,255,255,.1);
+
+            border-radius: 20px;
+
+            overflow: hidden;
+        }
+
+        .bar span {
+
+            display: block;
+
+            width: 72%;
+
+            height: 100%;
+
+            border-radius: inherit;
+
+            background:
+
+                linear-gradient(
+                    90deg,
+                    var(--teal),
+                    var(--teal-light)
+                );
+        }
+
+
+        /* FLOATING BADGES */
+
+        .floating {
+
+            position: absolute;
+
+            z-index: 4;
+
+            padding: 14px 17px;
+
+            border-radius: 15px;
+
+            background: #ffffff;
+
+            border: 1px solid rgba(8,182,164,.18);
+
+            box-shadow: 0 20px 55px rgba(7,26,36,.12), 0 0 30px rgba(8,182,164,.06);
+            backdrop-filter: blur(18px);
+            z-index: 1;
+
+            display: flex;
+
+            align-items: center;
+
+            gap: 11px;
+
+            font-size: 11px;
+
+            font-weight: 700;
+        }
+
+        .floating i {
+
+            color: var(--teal);
+        }
+
+        .float-one {
+
+            left: 0;
+
+            top: 130px;
+        }
+
+        .float-two {
+
+            right: -15px;
+
+            bottom: 130px;
+        }
+
+
+        /* =====================================================
+           SECTION GENERAL
+        ===================================================== */
+
+        section {
+
+            padding: 110px 25px;
+        }
+
+        .container {
+
+            max-width: 1250px;
+
+            margin: auto;
+        }
+
+        .section-heading {
+
+            max-width: 700px;
+
+            margin-bottom: 60px;
+        }
+
+        .section-heading.center {
+
+            margin-left: auto;
+
+            margin-right: auto;
+
+            text-align: center;
+        }
+
+        .label {
+
+            color: var(--teal);
+
+            text-transform: uppercase;
+
+            font-size: 11px;
+
+            font-weight: 800;
+
+            letter-spacing: 2px;
+        }
+
+        .section-heading h2 {
+
+            font-size: clamp(32px,4vw,50px);
+
+            line-height: 1.08;
+
+            letter-spacing: -2px;
+
+            margin: 12px 0 18px;
+        }
+
+        .section-heading p {
+
+            color: var(--muted);
+
+            line-height: 1.8;
+
+            font-size: 15px;
+        }
+
+
+        /* =====================================================
+           VERSION
+        ===================================================== */
+
+        .version {
+
+            background: var(--navy);
+
+            color: white;
+
+            position: relative;
+
+            overflow: hidden;
+        }
+
+        .version::before {
+
+            content: "";
+
+            position: absolute;
+
+            width: 500px;
+            height: 500px;
+
+            border-radius: 50%;
+
+            background: #a855f7;
+
+            opacity: .18;
+
+            filter: blur(90px);
+
+            right: -150px;
+
+            top: -200px;
+        }
+
+        .version-content {
+
+            display: grid;
+
+            grid-template-columns: .7fr 1.3fr;
+
+            gap: 70px;
+
+            align-items: center;
+        }
+
+        .version-number {
+
+            font-family: "Space Grotesk";
+
+            font-size: 125px;
+
+            font-weight: 700;
+
+            line-height: .9;
+
+            color: var(--teal-light);
+
+            letter-spacing: -8px;
+        }
+
+        .version-left p {
+
+            color: #94AEB6;
+
+            line-height: 1.8;
+
+            max-width: 330px;
+
+            margin-top: 25px;
+        }
+
+
+        .improvement-list {
+
+            display: grid;
+
+            grid-template-columns: 1fr 1fr;
+
+            gap: 14px;
+        }
+
+        .improvement {
+
+            padding: 23px;
+
+            border-radius: 17px;
+
+            background: rgba(255,255,255,.055);
+
+            border: 1px solid rgba(255,255,255,.08);
+
+            transition: .3s;
+        }
+
+        .improvement:hover {
+
+            transform: translateY(-5px);
+
+            background: rgba(255,255,255,.08);
+        }
+
+        .improvement i {
+
+            color: var(--teal-light);
+
+            font-size: 18px;
+
+            margin-bottom: 14px;
+        }
+
+        .improvement h3 {
+
+            font-size: 15px;
+
+            margin-bottom: 7px;
+        }
+
+        .improvement p {
+
+            color: #8DA7AF;
+
+            font-size: 12px;
+
+            line-height: 1.6;
+        }
+
+
+        /* =====================================================
+           FEATURES
+        ===================================================== */
+
+        .features {
+
+            display: grid;
+
+            grid-template-columns: repeat(3,1fr);
+
+            gap: 18px;
+        }
+
+        .feature {
+
+            position: relative;
+
+            padding: 30px;
+
+            min-height: 280px;
+
+            background: white;
+
+            border: 1px solid var(--border);
+
+            border-radius: var(--radius);
+
+            box-shadow: 0 10px 35px rgba(7,26,36,.055);
+
+            overflow: hidden;
+
+            transition: .4s;
+        }
+
+        .feature:hover {
+
+            transform: translateY(-8px);
+
+            box-shadow: var(--shadow);
+        }
+
+        .feature::after {
+
+            content: "";
+
+            position: absolute;
+
+            width: 140px;
+            height: 140px;
+
+            right: -60px;
+            top: -60px;
+
+            border-radius: 50%;
+
+            background: rgba(8,182,164,.08);
+        }
+
+        .feature-number {
+
+            font-size: 11px;
+
+            font-weight: 800;
+
+            color: var(--gold);
+
+            letter-spacing: 1px;
+        }
+
+        .feature-icon {
+
+            width: 55px;
+            height: 55px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 16px;
+
+            margin: 25px 0 20px;
+
+            color: var(--teal);
+
+            background: #E7F8F5;
+
+            font-size: 20px;
+        }
+
+        .feature h3 {
+
+            font-size: 18px;
+
+            margin-bottom: 10px;
+        }
+
+        .feature p {
+
+            color: var(--muted);
+
+            font-size: 13px;
+
+            line-height: 1.75;
+        }
+
+
+        /* =====================================================
+           VISUAL SHOWCASE
+        ===================================================== */
+
+        .showcase {
+
+            display: grid;
+
+            grid-template-columns: 1fr 1fr;
+
+            gap: 25px;
+        }
+
+        .showcase-card {
+
+            min-height: 380px;
+
+            padding: 35px;
+
+            border-radius: 25px;
+
+            position: relative;
+
+            overflow: hidden;
+        }
+
+        .showcase-card.dark {
+
+            background: var(--navy);
+
+            color: white;
+        }
+
+        .showcase-card.light {
+
+            background: white;
+
+            border: 1px solid var(--border);
+        }
+
+        .showcase-card h3 {
+
+            font-size: 28px;
+
+            margin-bottom: 13px;
+        }
+
+        .showcase-card p {
+
+            color: #8EA7AF;
+
+            max-width: 400px;
+
+            line-height: 1.7;
+
+            font-size: 13px;
+        }
+
+        .showcase-card.light p {
+
+            color: var(--muted);
+        }
+
+
+        /* MINI UI */
+
+        .mini-ui {
+
+            position: absolute;
+
+            bottom: -20px;
+
+            right: 30px;
+
+            width: 280px;
+
+            padding: 18px;
+
+            border-radius: 20px;
+
+            background: white;
+
+            color: var(--text);
+
+            box-shadow: 0 25px 50px rgba(0,0,0,.2);
+        }
+
+        .mini-row {
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            padding: 13px 0;
+
+            border-bottom: 1px solid var(--border);
+
+            font-size: 11px;
+        }
+
+        .mini-row:last-child {
+
+            border: none;
+        }
+
+        .mini-row i {
+
+            color: var(--teal);
+        }
+
+        .edit {
+
+            color: var(--gold);
+
+            font-weight: 700;
+        }
+
+
+        /* =====================================================
+           TIMELINE
+        ===================================================== */
+
+        .timeline {
+
+            max-width: 850px;
+
+            margin: auto;
+
+            position: relative;
+        }
+
+        .timeline::before {
+
+            content: "";
+
+            position: absolute;
+
+            left: 22px;
+
+            top: 0;
+
+            bottom: 0;
+
+            width: 2px;
+
+            background:
+
+                linear-gradient(
+                    var(--teal),
+                    var(--gold)
+                );
+        }
+
+        .timeline-item {
+
+            display: flex;
+
+            gap: 25px;
+
+            margin-bottom: 35px;
+
+            position: relative;
+        }
+
+        .timeline-dot {
+
+            min-width: 46px;
+            height: 46px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 50%;
+
+            color: white;
+
+            background: var(--navy);
+
+            border: 4px solid var(--cream);
+
+            z-index: 2;
+        }
+
+        .timeline-content {
+
+            flex: 1;
+
+            padding: 24px;
+
+            background: white;
+
+            border: 1px solid var(--border);
+
+            border-radius: 17px;
+
+            box-shadow: 0 8px 25px rgba(7,26,36,.05);
+        }
+
+        .timeline-content h3 {
+
+            font-size: 17px;
+
+            margin-bottom: 7px;
+        }
+
+        .timeline-content p {
+
+            color: var(--muted);
+
+            font-size: 13px;
+
+            line-height: 1.7;
+        }
+
+
+        /* =====================================================
+           PURPOSE
+        ===================================================== */
+
+        .purpose-section {
+            position: relative;
+            overflow: hidden;
+            background:
+                radial-gradient(circle at 15% 20%, rgba(168,85,247,.24), transparent 32%),
+                radial-gradient(circle at 85% 80%, rgba(124,58,237,.20), transparent 34%),
+                linear-gradient(135deg, #160b2b 0%, #241044 48%, #0c1728 100%);
+            color: #ffffff;
+        }
+
+        .purpose-section::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background-image:
+                linear-gradient(rgba(196,181,253,.035) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(196,181,253,.035) 1px, transparent 1px);
+            background-size: 45px 45px;
+            mask-image: linear-gradient(to bottom, transparent, black 20%, black 80%, transparent);
+        }
+
+        .purpose-box {
+
+            max-width: 1000px;
+
+            margin: auto;
+
+            text-align: center;
+
+            padding: 70px 40px;
+
+            border-radius: 30px;
+
+            background: white;
+
+            border: 1px solid var(--border);
+
+            box-shadow: var(--shadow);
+
+            position: relative;
+
+            overflow: hidden;
+        }
+
+        .purpose-box::before {
+
+            content: "";
+
+            position: absolute;
+
+            width: 250px;
+            height: 250px;
+
+            border-radius: 50%;
+
+            background: var(--teal);
+
+            opacity: .08;
+
+            filter: blur(50px);
+
+            left: -100px;
+
+            top: -100px;
+        }
+
+        .purpose-icon {
+
+            width: 70px;
+            height: 70px;
+
+            margin: auto auto 25px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            border-radius: 22px;
+
+            color: white;
+
+            background: linear-gradient(135deg, #08B6A4, #31E1CF);
+            box-shadow: 0 0 30px rgba(8,182,164,.25);
+
+            font-size: 25px;
+        }
+
+        .purpose-box h2 {
+            color: #ffffff;
+            font-size: 35px;
+            margin-bottom: 15px;
+            text-shadow: none;
+        }
+
+        .purpose-box p {
+
+            max-width: 720px;
+
+            margin: auto;
+
+            color: #6D8087;
+
+            line-height: 1.8;
+        }
+
+
+        /* =====================================================
+           TEAM
+        ===================================================== */
+
+        .team {
+
+            display: grid;
+
+            grid-template-columns: repeat(4,1fr);
+
+            gap: 16px;
+        }
+
+        .member {
+
+            padding: 25px;
+
+            background: white;
+
+            border: 1px solid var(--border);
+
+            border-radius: 20px;
+
+            text-align: center;
+
+            transition: .3s;
+        }
+
+        .member:hover {
+
+            transform: translateY(-6px);
+
+            box-shadow: var(--shadow);
+        }
+
+        .avatar {
+
+            width: 60px;
+            height: 60px;
+
+            display: flex;
+
+            align-items: center;
+            justify-content: center;
+
+            margin: auto auto 16px;
+
+            border-radius: 18px;
+
+            color: white;
+
+            background:
+
+                linear-gradient(
+                    135deg,
+                    var(--navy),
+                    var(--teal)
+                );
+
+            font-family: "Space Grotesk";
+
+            font-weight: 700;
+        }
+
+        .member h4 {
+
+            font-size: 13px;
+
+            margin-bottom: 5px;
+        }
+
+        .member p {
+
+            color: var(--muted);
+
+            font-size: 11px;
+        }
+
+
+        /* =====================================================
+           FOOTER
+        ===================================================== */
+
+        footer {
+
+            padding: 65px 25px 25px;
+
+            background: var(--navy);
+
+            color: white;
+        }
+
+        .footer {
+
+            max-width: 1250px;
+
+            margin: auto;
+
+            display: flex;
+
+            justify-content: space-between;
+
+            gap: 50px;
+
+            padding-bottom: 40px;
+        }
+
+        .footer-brand {
+
+            max-width: 420px;
+        }
+
+        .footer-brand .brand {
+
+            color: white;
+
+            margin-bottom: 17px;
+        }
+
+        .footer-brand p {
+
+            color: #8EA7AF;
+
+            font-size: 13px;
+
+            line-height: 1.7;
+        }
+
+        .footer-column h4 {
+
+            margin-bottom: 15px;
+
+            font-size: 14px;
+        }
+
+        .footer-column a {
+
+            display: block;
+
+            color: #8EA7AF;
+
+            font-size: 12px;
+
+            margin-bottom: 9px;
+
+            transition: .3s;
+        }
+
+        .footer-column a:hover {
+
+            color: var(--teal-light);
+        }
+
+        .copyright {
+
+            max-width: 1250px;
+
+            margin: auto;
+
+            padding-top: 22px;
+
+            border-top: 1px solid rgba(255,255,255,.08);
+
+            text-align: center;
+
+            color: #66808A;
+
+            font-size: 11px;
+        }
+
+
+        /* =====================================================
+           ANIMATIONS
+        ===================================================== */
+
+        .reveal {
+
+            opacity: 0;
+
+            transform: translateY(30px);
+
+            transition: .8s ease;
+        }
+
+        .reveal.active {
+
+            opacity: 1;
+
+            transform: translateY(0);
+        }
+
+
+        /* =====================================================
+           RESPONSIVE
+        ===================================================== */
+
+        @media(max-width:1000px) {
+
+            .hero {
+
+                grid-template-columns: 1fr;
+
+                text-align: center;
+
+            }
+
+            .hero-text {
+
+                margin-left: auto;
+
+                margin-right: auto;
+            }
+
+            .buttons {
+
+                justify-content: center;
+            }
+
+            .visual {
+
+                min-height: 520px;
+            }
+
+            .version-content {
+
+                grid-template-columns: 1fr;
+            }
+
+            .version-left {
+
+                text-align: center;
+            }
+
+            .version-left p {
+
+                margin-left: auto;
+
+                margin-right: auto;
+            }
+
+            .features {
+
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .team {
+
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+
+        @media(max-width:720px) {
+
+            .nav-links {
+
+                display: none;
+
+                position: absolute;
+
+                top: 76px;
+
+                left: 0;
+
+                width: 100%;
+
+                padding: 25px;
+
+                background: var(--cream);
+
+                flex-direction: column;
+
+                border-bottom: 1px solid var(--border);
+            }
+
+            .nav-links.active {
+
+                display: flex;
+            }
+
+            .menu {
+
+                display: block;
+            }
+
+            .hero {
+
+                padding-top: 125px;
+            }
+
+            .hero h1 {
+
+                letter-spacing: -2px;
+            }
+
+            .visual-ring {
+
+                width: 330px;
+                height: 330px;
+            }
+
+            .dashboard {
+
+                width: 300px;
+            }
+
+            .floating {
+
+                display: none;
+            }
+
+            .features {
+
+                grid-template-columns: 1fr;
+            }
+
+            .improvement-list {
+
+                grid-template-columns: 1fr;
+            }
+
+            .showcase {
+
+                grid-template-columns: 1fr;
+            }
+
+            .team {
+
+                grid-template-columns: 1fr;
+            }
+
+            .footer {
+
+                flex-direction: column;
+            }
+
+            .version-number {
+
+                font-size: 90px;
+            }
+
+            section {
+
+                padding: 80px 20px;
+            }
+        }
+
+    
+/* ===== DASHBOARD FLOTANTE ===== */
+.dashboard {
+    width: 360px;
+    position: relative;
+    z-index: 2;
+    padding: 15px;
+    border-radius: 30px;
+    background: rgba(255,255,255,.68);
+    border: 1px solid rgba(255,255,255,.85);
+    backdrop-filter: blur(25px);
+    -webkit-backdrop-filter: blur(25px);
+    box-shadow:
+        0 35px 80px rgba(7,26,36,.20),
+        0 10px 30px rgba(8,182,164,.10);
+    animation: dashboardFloat 5s ease-in-out infinite;
+    transition: transform .4s ease, box-shadow .4s ease;
+    will-change: transform;
+}
+
+@keyframes dashboardFloat {
+    0%, 100% { transform: translateY(0) rotate(2deg); }
+    25% { transform: translateY(-12px) rotate(1deg); }
+    50% { transform: translateY(-20px) rotate(0deg); }
+    75% { transform: translateY(-12px) rotate(1deg); }
+}
+
+.dashboard:hover {
+    animation-play-state: paused;
+    transform: translateY(-18px) rotate(0deg) scale(1.025);
+    box-shadow:
+        0 45px 100px rgba(7,26,36,.25),
+        0 15px 40px rgba(8,182,164,.18);
+}
+
+.dashboard::before {
+    content: '';
+    position: absolute;
+    inset: -25px;
+    border-radius: 40px;
+    background: radial-gradient(circle, rgba(8,182,164,.18), transparent 65%);
+    filter: blur(25px);
+    -webkit-filter: blur(25px);
+    z-index: -1;
+    pointer-events: none;
+    animation: dashboardGlow 5s ease-in-out infinite;
+}
+
+@keyframes dashboardGlow {
+    0%, 100% { opacity: .45; transform: scale(.95); }
+    50% { opacity: .85; transform: scale(1.08); }
+}
+
+@media (max-width: 768px) {
+    .dashboard {
+        width: 300px;
+        animation-duration: 4.5s;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .dashboard, .dashboard::before {
+        animation: none;
+    }
+}
+
+
+/* =========================================================
+   EFECTO FLOTANTE — FOTO/DASHBOARD PRINCIPAL DEL INICIO
+   ========================================================= */
+.visual .dashboard,
+.hero .dashboard,
+.dashboard {
+    animation: fotoPrincipalFlota 5s ease-in-out infinite;
+    will-change: transform;
+}
+
+@keyframes fotoPrincipalFlota {
+    0%, 100% {
+        transform: translateY(0) rotate(2deg);
+    }
+    50% {
+        transform: translateY(-18px) rotate(0deg);
+    }
+}
+
+.visual .dashboard:hover,
+.hero .dashboard:hover,
+.dashboard:hover {
+    animation-play-state: paused;
+    transform: translateY(-22px) rotate(0deg) scale(1.02);
+}
+
+/* Evita animaciones para usuarios que las desactivan */
+@media (prefers-reduced-motion: reduce) {
+    .visual .dashboard,
+    .hero .dashboard,
+    .dashboard {
+        animation: none;
+    }
+}
+
+
+/* =========================================================
+   MYPROFILE — FONDO OSCURO + HERO CREATIVO
+   ========================================================= */
+
+:root {
+    --dark-bg: #06131c;
+    --dark-bg-2: #081f2b;
+    --neon-teal: #08d8c4;
+    --neon-blue: #168cff;
+}
+
+/* Fondo general oscuro */
+body {
+    background:
+        radial-gradient(circle at 8% 12%, rgba(8, 182, 164, .16), transparent 28%),
+        radial-gradient(circle at 88% 18%, rgba(22, 140, 255, .13), transparent 30%),
+        radial-gradient(circle at 50% 100%, rgba(8, 216, 196, .08), transparent 35%),
+        linear-gradient(135deg, var(--dark-bg) 0%, var(--dark-bg-2) 48%, #041018 100%);
+    color: #f5fbff;
+    overflow-x: hidden;
+}
+
+/* Malla tecnológica de fondo */
+body::before {
+    content: "";
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: -2;
+    opacity: .22;
+    background-image:
+        linear-gradient(rgba(49, 225, 207, .08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(49, 225, 207, .08) 1px, transparent 1px);
+    background-size: 55px 55px;
+    mask-image: linear-gradient(to bottom, black, transparent 85%);
+}
+
+/* Partículas/luceros decorativos */
+body::after {
+    content: "";
+    position: fixed;
+    width: 7px;
+    height: 7px;
+    top: 22%;
+    left: 12%;
+    border-radius: 50%;
+    background: var(--neon-teal);
+    box-shadow:
+        170px 110px 0 rgba(49,225,207,.65),
+        420px -40px 0 rgba(22,140,255,.7),
+        680px 180px 0 rgba(49,225,207,.5),
+        900px 60px 0 rgba(22,140,255,.55),
+        1050px 330px 0 rgba(49,225,207,.5),
+        350px 430px 0 rgba(22,140,255,.5);
+    filter: blur(1px);
+    opacity: .75;
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* Secciones transparentes sobre el fondo */
+section {
+    background: transparent;
+}
+
+/* Hero más impactante */
+.hero {
+    position: relative;
+    isolation: isolate;
+}
+
+.hero::before {
+    content: "";
+    position: absolute;
+    width: 520px;
+    height: 520px;
+    right: -180px;
+    top: 5%;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(8,216,196,.20), transparent 68%);
+    filter: blur(10px);
+    z-index: -1;
+    animation: heroGlow 7s ease-in-out infinite alternate;
+}
+
+.hero::after {
+    content: "";
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    left: -180px;
+    bottom: -100px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(22,140,255,.16), transparent 68%);
+    filter: blur(15px);
+    z-index: -1;
+}
+
+@keyframes heroGlow {
+    from { transform: scale(.9) translate(0, 10px); opacity: .55; }
+    to { transform: scale(1.12) translate(-20px, -10px); opacity: 1; }
+}
+
+/* Dashboard principal: vidrio + neón + flotación */
+.dashboard {
+    position: relative;
+    overflow: visible;
+    background:
+        linear-gradient(145deg, rgba(16, 42, 55, .88), rgba(5, 22, 32, .82)) !important;
+    border: 1px solid rgba(49, 225, 207, .38) !important;
+    box-shadow:
+        0 35px 90px rgba(0,0,0,.45),
+        0 0 0 1px rgba(255,255,255,.04) inset,
+        0 0 45px rgba(8,216,196,.12) !important;
+    animation: dashboardCreativeFloat 5s ease-in-out infinite;
+}
+
+/* Aura alrededor del dashboard */
+.dashboard::before {
+    content: "";
+    position: absolute;
+    inset: -28px;
+    border-radius: 45px;
+    background: radial-gradient(
+        circle,
+        rgba(8,216,196,.24) 0%,
+        rgba(22,140,255,.10) 38%,
+        transparent 72%
+    );
+    filter: blur(24px);
+    z-index: -1;
+    animation: dashboardAura 5s ease-in-out infinite;
+}
+
+/* Borde luminoso */
+.dashboard::after {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(
+        135deg,
+        rgba(49,225,207,.75),
+        transparent 35%,
+        rgba(22,140,255,.65),
+        transparent 75%
+    );
+    -webkit-mask:
+        linear-gradient(#000 0 0) content-box,
+        linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    animation: borderPulse 4s ease-in-out infinite;
+}
+
+@keyframes dashboardCreativeFloat {
+    0%, 100% {
+        transform: translateY(0) rotate(2deg);
+    }
+    25% {
+        transform: translateY(-10px) rotate(1deg);
+    }
+    50% {
+        transform: translateY(-21px) rotate(-.5deg);
+    }
+    75% {
+        transform: translateY(-10px) rotate(1deg);
+    }
+}
+
+@keyframes dashboardAura {
+    0%, 100% {
+        opacity: .45;
+        transform: scale(.94);
+    }
+    50% {
+        opacity: .95;
+        transform: scale(1.08);
+    }
+}
+
+@keyframes borderPulse {
+    0%, 100% { opacity: .55; }
+    50% { opacity: 1; }
+}
+
+/* Elementos internos del dashboard */
+.dashboard .dashboard-inner {
+    background: rgba(255,255,255,.045);
+    border: 1px solid rgba(255,255,255,.07);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.06);
+}
+
+/* Hover premium */
+.dashboard:hover {
+    animation-play-state: paused;
+    transform: translateY(-25px) rotate(0deg) scale(1.035) !important;
+    box-shadow:
+        0 45px 110px rgba(0,0,0,.55),
+        0 0 55px rgba(8,216,196,.22) !important;
+}
+
+/* Badges flotantes más llamativos */
+.float-one,
+.float-two {
+    backdrop-filter: blur(14px);
+    background: rgba(7, 30, 42, .78) !important;
+    border: 1px solid rgba(49,225,207,.30) !important;
+    box-shadow:
+        0 15px 35px rgba(0,0,0,.30),
+        0 0 25px rgba(8,216,196,.10);
+}
+
+.float-one {
+    animation: miniFloat 4s ease-in-out infinite;
+}
+
+.float-two {
+    animation: miniFloat 4.7s ease-in-out infinite reverse;
+}
+
+@keyframes miniFloat {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-12px); }
+}
+
+/* Tarjetas de contenido */
+.feature,
+.improvement,
+.member {
+    background: linear-gradient(
+        145deg,
+        rgba(15, 39, 51, .78),
+        rgba(5, 23, 33, .70)
+    ) !important;
+    border-color: rgba(255,255,255,.09) !important;
+    box-shadow: 0 18px 45px rgba(0,0,0,.22);
+    backdrop-filter: blur(16px);
+}
+
+.feature:hover,
+.improvement:hover,
+.member:hover {
+    border-color: rgba(49,225,207,.35) !important;
+    box-shadow:
+        0 25px 55px rgba(0,0,0,.35),
+        0 0 30px rgba(8,216,196,.08);
+}
+
+/* Textos para el fondo oscuro */
+.section-heading h2,
+.feature h3,
+.improvement h3,
+.member h4 {
+    color: #f5fbff !important;
+}
+
+.section-heading p,
+.feature p,
+.improvement p,
+.member p {
+    color: #9fb4bd !important;
+}
+
+/* Etiquetas */
+.label,
+.feature-number {
+    color: var(--neon-teal) !important;
+}
+
+/* Navegación */
+header,
+.navbar {
+    background: rgba(4, 18, 27, .72) !important;
+    border-bottom-color: rgba(255,255,255,.08) !important;
+    backdrop-filter: blur(20px);
+}
+
+/* Footer */
+footer {
+    background: #030d14 !important;
+    border-top: 1px solid rgba(49,225,207,.12);
+}
+
+/* Respeto a reducción de movimiento */
+@media (prefers-reduced-motion: reduce) {
+    .dashboard,
+    .dashboard::before,
+    .dashboard::after,
+    .float-one,
+    .float-two,
+    .hero::before {
+        animation: none !important;
+    }
+}
+
+</style>
+
+<style>
+/* =========================================================
+   NUEVO EFECTO HERO — DASHBOARD HOLOGRÁFICO / PREMIUM
+   Flota permanentemente, sin depender del mouse
+   ========================================================= */
+.visual {
+    perspective: 1200px;
+}
+
+.visual::before {
+    content: "";
+    position: absolute;
+    width: 430px;
+    height: 430px;
+    border-radius: 50%;
+    background: conic-gradient(
+        from 0deg,
+        transparent 0deg,
+        rgba(49,225,207,.08) 65deg,
+        rgba(49,225,207,.55) 90deg,
+        transparent 125deg,
+        transparent 230deg,
+        rgba(22,140,255,.42) 275deg,
+        transparent 315deg
+    );
+    filter: blur(.4px);
+    opacity: .9;
+    animation: holoOrbit 12s linear infinite;
+    z-index: 0;
+}
+
+.visual::after {
+    content: "";
+    position: absolute;
+    width: 270px;
+    height: 55px;
+    bottom: 65px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    background: rgba(8,216,196,.20);
+    filter: blur(28px);
+    animation: holoShadow 4.8s ease-in-out infinite;
+    z-index: 0;
+}
+
+.dashboard {
+    transform-style: preserve-3d;
+    transform-origin: center center;
+    animation: dashboardHologram 5.8s cubic-bezier(.45,.05,.55,.95) infinite !important;
+    will-change: transform, filter;
+    overflow: visible !important;
+    isolation: isolate;
+}
+
+/* Halo exterior */
+.dashboard::before {
+    inset: -34px !important;
+    border-radius: 48px !important;
+    background:
+        radial-gradient(circle at 50% 50%, rgba(49,225,207,.20), transparent 58%),
+        radial-gradient(circle at 25% 80%, rgba(22,140,255,.13), transparent 45%) !important;
+    filter: blur(24px) !important;
+    animation: dashboardHalo 5.8s ease-in-out infinite !important;
+    z-index: -2 !important;
+}
+
+/* Borde luminoso en movimiento */
+.dashboard::after {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    border-radius: 32px;
+    padding: 1px;
+    background: linear-gradient(
+        120deg,
+        rgba(49,225,207,.05) 0%,
+        rgba(49,225,207,.9) 22%,
+        rgba(255,255,255,.55) 42%,
+        rgba(22,140,255,.8) 64%,
+        rgba(49,225,207,.08) 88%
+    );
+    background-size: 250% 250%;
+    animation: borderFlow 5s linear infinite;
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+    z-index: 5;
+}
+
+.dashboard-inner {
+    position: relative;
+    overflow: hidden;
+    box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.08),
+        inset 0 -20px 40px rgba(0,0,0,.10);
+}
+
+/* Reflejo diagonal que cruza el dashboard */
+.dashboard-inner::before {
+    content: "";
+    position: absolute;
+    top: -40%;
+    left: -65%;
+    width: 38%;
+    height: 180%;
+    transform: rotate(22deg);
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255,255,255,.18),
+        rgba(49,225,207,.13),
+        transparent
+    );
+    filter: blur(7px);
+    animation: lightSweep 6.5s ease-in-out infinite;
+    pointer-events: none;
+}
+
+/* Pequeños puntos tecnológicos alrededor */
+.visual .floating {
+    animation: badgePremium 4.5s ease-in-out infinite;
+    box-shadow:
+        0 18px 45px rgba(0,0,0,.28),
+        0 0 24px rgba(49,225,207,.10);
+    border-color: rgba(49,225,207,.22);
+}
+
+.visual .float-two {
+    animation-delay: -2.2s;
+}
+
+@keyframes dashboardHologram {
+    0%, 100% {
+        transform: translate3d(0, 0, 0) rotateX(1deg) rotateY(-2deg) rotateZ(1.4deg) scale(1);
+        filter: drop-shadow(0 25px 28px rgba(0,0,0,.28));
+    }
+    25% {
+        transform: translate3d(0, -9px, 0) rotateX(2deg) rotateY(1deg) rotateZ(.7deg) scale(1.008);
+        filter: drop-shadow(0 32px 35px rgba(0,0,0,.30));
+    }
+    50% {
+        transform: translate3d(0, -17px, 0) rotateX(0deg) rotateY(2deg) rotateZ(-.4deg) scale(1.015);
+        filter: drop-shadow(0 42px 42px rgba(0,0,0,.32));
+    }
+    75% {
+        transform: translate3d(0, -9px, 0) rotateX(-1deg) rotateY(-1deg) rotateZ(.7deg) scale(1.008);
+        filter: drop-shadow(0 32px 35px rgba(0,0,0,.30));
+    }
+}
+
+@keyframes dashboardHalo {
+    0%,100% { opacity: .42; transform: scale(.94); }
+    50% { opacity: .95; transform: scale(1.08); }
+}
+
+@keyframes borderFlow {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@keyframes lightSweep {
+    0%, 18% { left: -65%; opacity: 0; }
+    35% { opacity: .85; }
+    62% { left: 125%; opacity: .55; }
+    75%, 100% { left: 125%; opacity: 0; }
+}
+
+@keyframes holoOrbit {
+    to { transform: rotate(360deg); }
+}
+
+@keyframes holoShadow {
+    0%,100% { transform: translateX(-50%) scaleX(.72); opacity: .35; }
+    50% { transform: translateX(-50%) scaleX(1.08); opacity: .75; }
+}
+
+@keyframes badgePremium {
+    0%,100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-8px) rotate(1deg); }
+}
+
+/* Importante: el efecto continúa aunque el cursor pase encima */
+.dashboard:hover {
+    animation-play-state: running !important;
+}
+
+@media (max-width: 768px) {
+    .visual::before { width: 340px; height: 340px; }
+    .visual::after { width: 210px; bottom: 50px; }
+    .dashboard { animation-duration: 6.2s !important; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .dashboard,
+    .dashboard::before,
+    .dashboard::after,
+    .dashboard-inner::before,
+    .visual::before,
+    .visual::after,
+    .visual .floating {
+        animation: none !important;
+    }
+}
+</style>
+
+
+<style id="equipo-oscuro-profesional">
+/* =====================================================
+   SECCIÓN EQUIPO — FONDO OSCURO PROFESIONAL
+   ===================================================== */
+#equipo {
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+    background:
+        radial-gradient(circle at 12% 18%, rgba(49,225,207,.13), transparent 28%),
+        radial-gradient(circle at 88% 78%, rgba(35,126,255,.13), transparent 30%),
+        linear-gradient(135deg, #06131c 0%, #092532 48%, #041018 100%) !important;
+    color: #f5fbff;
+}
+
+#equipo::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(rgba(49,225,207,.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(49,225,207,.035) 1px, transparent 1px);
+    background-size: 46px 46px;
+    mask-image: linear-gradient(to bottom, transparent 0%, black 18%, black 82%, transparent 100%);
+    pointer-events: none;
+    z-index: -2;
+}
+
+#equipo::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 8%;
+    right: 8%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(49,225,207,.8), rgba(35,126,255,.7), transparent);
+    box-shadow: 0 0 22px rgba(49,225,207,.35);
+    pointer-events: none;
+}
+
+#equipo .section-heading h2 {
+    color: #ffffff !important;
+    text-shadow: 0 0 22px rgba(49,225,207,.12);
+}
+
+#equipo .section-heading h2 span {
+    color: #31E1CF !important;
+}
+
+#equipo .section-heading p {
+    color: #a9bdc5 !important;
+}
+
+#equipo .label {
+    color: #31E1CF !important;
+    text-shadow: 0 0 12px rgba(49,225,207,.3);
+}
+
+#equipo .team {
+    position: relative;
+    z-index: 2;
+}
+
+#equipo .member {
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(145deg, rgba(20,48,61,.82), rgba(5,22,32,.9)) !important;
+    border: 1px solid rgba(49,225,207,.18) !important;
+    box-shadow:
+        0 20px 45px rgba(0,0,0,.28),
+        inset 0 1px 0 rgba(255,255,255,.055);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    transition: transform .35s ease, border-color .35s ease, box-shadow .35s ease;
+}
+
+#equipo .member::before {
+    content: "";
+    position: absolute;
+    width: 170px;
+    height: 170px;
+    top: -95px;
+    right: -75px;
+    border-radius: 50%;
+    background: radial-gradient(circle, rgba(49,225,207,.2), transparent 70%);
+    pointer-events: none;
+}
+
+#equipo .member::after {
+    content: "";
+    position: absolute;
+    left: 15%;
+    right: 15%;
+    bottom: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(49,225,207,.5), transparent);
+    opacity: .55;
+    pointer-events: none;
+}
+
+#equipo .member:hover {
+    transform: translateY(-10px);
+    border-color: rgba(49,225,207,.52) !important;
+    box-shadow:
+        0 28px 60px rgba(0,0,0,.42),
+        0 0 30px rgba(49,225,207,.11),
+        inset 0 1px 0 rgba(255,255,255,.07);
+}
+
+#equipo .member h4 {
+    color: #f5fbff !important;
+}
+
+#equipo .member p {
+    color: #8faeb8 !important;
+}
+
+#equipo .avatar {
+    background: linear-gradient(135deg, #071A24, #08B6A4) !important;
+    border: 1px solid rgba(49,225,207,.35);
+    box-shadow:
+        0 0 25px rgba(8,182,164,.18),
+        inset 0 0 15px rgba(255,255,255,.06);
+}
+
+@media (max-width: 768px) {
+    #equipo {
+        background:
+            radial-gradient(circle at 50% 10%, rgba(49,225,207,.1), transparent 35%),
+            linear-gradient(145deg, #06131c, #092532, #041018) !important;
+    }
+}
+</style>
+
+</head>
+
+
+<body>
+
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+
+    <!-- =====================================================
+         HEADER
+    ====================================================== -->
+
+    <header>
+
+        <div class="nav">
+
+            <a href="#inicio" class="brand">
+
+                <div class="brand-icon">
+                    <i class="fa-solid fa-user-check"></i>
+                </div>
+
+                <span>
+                    My<span>Profile</span>
+                </span>
+
+            </a>
+
+
+            <nav class="nav-links" id="navLinks">
+
+                <a href="#inicio">Inicio</a>
+
+                <a href="#version">Versión 1.1</a>
+
+                <a href="#mejoras">Mejoras</a>
+
+                <a href="#evolucion">Evolución</a>
+
+                <a href="#equipo">Equipo</a>
+
+                <a href="#mejoras" class="nav-cta">
+                    Explorar
+                </a>
+
+            </nav>
+
+
+            <button class="menu" id="menu">
+
+                <i class="fa-solid fa-bars"></i>
+
+            </button>
+
+        </div>
+
+    </header>
+
+
+    <!-- =====================================================
+         HERO
+    ====================================================== -->
+
+    <section class="hero" id="inicio">
+
+        <div class="hero-content reveal">
+
+            <div class="eyebrow">
+
+                <i class="fa-solid fa-sparkles"></i>
+
+                NUEVA ACTUALIZACIÓN · MYPROFILE 1.1
+
+            </div>
+
+
+            <h1>
+
+                Una experiencia
+
+                <span class="highlight">
+                    más inteligente.
+                </span>
+
+                Más completa.
+
+            </h1>
+
+
+            <p class="hero-text">
+
+                Descubre la evolución de MyProfile. Una actualización
+                creada para mejorar la experiencia del usuario,
+                optimizar sus funciones y hacer que cada interacción
+                sea más sencilla.
+
+            </p>
+
+
+            <div class="buttons">
+
+                <a href="#mejoras" class="btn btn-dark">
+
+                    Explorar mejoras
+
+                    <i class="fa-solid fa-arrow-right"></i>
+
+                </a>
+
+
+                <a href="#version" class="btn btn-light">
+
+                    <i class="fa-solid fa-circle-info"></i>
+
+                    Ver versión
+
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <!-- VISUAL -->
+
+        <div class="visual reveal">
+
+            <div class="visual-ring"></div>
+
+
+            <div class="floating float-one">
+
+                <i class="fa-solid fa-shield-check"></i>
+
+                Sesión protegida
+
+            </div>
+
+
+            <div class="floating float-two">
+
+                <i class="fa-solid fa-rotate"></i>
+
+                Datos actualizados
+
+            </div>
+
+
+            <div class="dashboard">
+
+                <div class="dashboard-inner">
+
+                    <div class="dash-header">
+
+                        <div class="dash-logo">
+
+                            <div class="dash-logo-icon">
+
+                                <i class="fa-solid fa-user-check"></i>
+
+                            </div>
+
+                            MyProfile
+
+                        </div>
+
+
+                        <div class="status">
+
+                            <span></span>
+
+                            EN LÍNEA
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="dash-small">
+                        Bienvenido de vuelta
+                    </div>
+
+                    <div class="dash-title">
+                        Tu día, organizado.
+                    </div>
+
+
+                    <div class="stats">
+
+                        <div class="stat">
+
+                            <div class="stat-icon">
+                                <i class="fa-solid fa-list-check"></i>
+                            </div>
+
+                            <small>
+                                Tareas
+                            </small>
+
+                            <strong>
+                                10 activas
+                            </strong>
+
+                        </div>
+
+
+                        <div class="stat">
+
+                            <div class="stat-icon">
+                                <i class="fa-solid fa-piggy-bank"></i>
+                            </div>
+
+                            <small>
+                                Ahorros
+                            </small>
+
+                            <strong>
+                                $4.00
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="stats">
+
+                        <div class="stat">
+
+                            <div class="stat-icon">
+                                <i class="fa-solid fa-glass-water"></i>
+                            </div>
+
+                            <small>
+                                Hidratación
+                            </small>
+
+                            <strong>
+                                0 / 8
+                            </strong>
+
+                        </div>
+
+
+                        <div class="stat">
+
+                            <div class="stat-icon">
+                                <i class="fa-solid fa-eye"></i>
+                            </div>
+
+                            <small>
+                                Descanso
+                            </small>
+
+                            <strong>
+                                20 min
+                            </strong>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="health-card">
+
+                        <div class="health-top">
+
+                            <small>
+                                Progreso diario
+                            </small>
+
+                            <strong>
+                                72%
+                            </strong>
+
+                        </div>
+
+                        <div class="bar">
+                            <span></span>
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         VERSION
+    ====================================================== -->
+
+    <section class="version" id="version">
+
+        <div class="container">
+
+            <div class="version-content">
+
+                <div class="version-left reveal">
+
+                    <span class="label">
+                        Actualización
+                    </span>
+
+                    <div class="version-number">
+                        1.1
+                    </div>
+
+                    <p>
+
+                        MyProfile incorpora nuevas funciones
+                        y mejoras orientadas a proporcionar
+                        una experiencia más clara, estable
+                        y funcional.
+
+                    </p>
+
+                </div>
+
+
+                <div class="improvement-list">
+
+                    <div class="improvement reveal">
+
+                        <i class="fa-solid fa-fingerprint"></i>
+
+                        <h3>
+                            Nueva identidad
+                        </h3>
+
+                        <p>
+                            Logo y nombre para identificar
+                            fácilmente la aplicación.
+                        </p>
+
+                    </div>
+
+
+                    <div class="improvement reveal">
+
+                        <i class="fa-solid fa-spinner"></i>
+
+                        <h3>
+                            Pantalla de carga
+                        </h3>
+
+                        <p>
+                            Información breve sobre las
+                            funciones de la aplicación.
+                        </p>
+
+                    </div>
+
+
+                    <div class="improvement reveal">
+
+                        <i class="fa-solid fa-lock"></i>
+
+                        <h3>
+                            Acceso persistente
+                        </h3>
+
+                        <p>
+                            La sesión puede mantenerse activa
+                            en el dispositivo.
+                        </p>
+
+                    </div>
+
+
+                    <div class="improvement reveal">
+
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+
+                        <h3>
+                            Más interacción
+                        </h3>
+
+                        <p>
+                            Nuevas animaciones para los
+                            botones principales.
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         MEJORAS
+    ====================================================== -->
+
+    <section id="mejoras">
+
+        <div class="container">
+
+            <div class="section-heading center reveal">
+
+                <span class="label">
+                    Lo que cambió
+                </span>
+
+                <h2>
+                    Diseñada para
+                    <span style="color:#08B6A4">
+                        funcionar mejor.
+                    </span>
+                </h2>
+
+                <p>
+
+                    Cada actualización responde a una necesidad
+                    específica dentro de la experiencia de uso
+                    de MyProfile.
+
+                </p>
+
+            </div>
+
+
+            <div class="features">
+
+
+                <article class="feature reveal">
+
+                    <span class="feature-number">
+                        01 · IDENTIDAD
+                    </span>
+
+                    <div class="feature-icon">
+
+                        <i class="fa-solid fa-mobile-screen"></i>
+
+                    </div>
+
+                    <h3>
+                        Logo de inicio
+                    </h3>
+
+                    <p>
+
+                        Se implementó un logo y el nombre
+                        MyProfile para facilitar la identificación
+                        de la aplicación dentro del dispositivo.
+
+                    </p>
+
+                </article>
+
+
+                <article class="feature reveal">
+
+                    <span class="feature-number">
+                        02 · INICIO
+                    </span>
+
+                    <div class="feature-icon">
+
+                        <i class="fa-solid fa-display"></i>
+
+                    </div>
+
+                    <h3>
+                        Pantalla informativa
+                    </h3>
+
+                    <p>
+
+                        Al iniciar la aplicación se muestra
+                        información breve sobre el programa
+                        y las funciones disponibles.
+
+                    </p>
+
+                </article>
+
+
+                <article class="feature reveal">
+
+                    <span class="feature-number">
+                        03 · SEGURIDAD
+                    </span>
+
+                    <div class="feature-icon">
+
+                        <i class="fa-solid fa-eye"></i>
+
+                    </div>
+
+                    <h3>
+                        Contraseña simplificada
+                    </h3>
+
+                    <p>
+
+                        Se eliminó una de las opciones para
+                        visualizar la contraseña y se mantiene
+                        el botón visual del ojo.
+
+                    </p>
+
+                </article>
+
+
+                <article class="feature reveal">
+
+                    <span class="feature-number">
+                        04 · SESIÓN
+                    </span>
+
+                    <div class="feature-icon">
+
+                        <i class="fa-solid fa-right-to-bracket"></i>
+
+                    </div>
+
+                    <h3>
+                        Sesión persistente
+                    </h3>
+
+                    <p>
+
+                        La aplicación detecta que el usuario
+                        ya inició sesión anteriormente en
+                        el dispositivo.
+
+                    </p>
+
+                </article>
+
+
+                <article class="feature reveal">
+
+                    <span class="feature-number">
+                        05 · INTERFAZ
+                    </span>
+
+                    <div class="feature-icon">
+
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+
+                    </div>
+
+                    <h3>
+                        Botones animados
+                    </h3>
+
+                    <p>
+
+                        Se agregaron animaciones a los botones
+                        de preferencias, ingresos, gastos
+                        y credenciales.
+
+                    </p>
+
+                </article>
+
+
+                <article class="feature reveal">
+
+                    <span class="feature-number">
+                        06 · PROPÓSITO
+                    </span>
+
+                    <div class="feature-icon">
+
+                        <i class="fa-solid fa-lightbulb"></i>
+
+                    </div>
+
+                    <h3>
+                        ¿Qué hace MyProfile?
+                    </h3>
+
+                    <p>
+
+                        Se agregó una pantalla donde se explica
+                        el propósito y funcionamiento de
+                        la aplicación.
+
+                    </p>
+
+                </article>
+
+
+                <article class="feature reveal">
+
+                    <span class="feature-number">
+                        07 · SALUD
+                    </span>
+
+                    <div class="feature-icon">
+
+                        <i class="fa-solid fa-eye-low-vision"></i>
+
+                    </div>
+
+                    <h3>
+                        Descanso visual
+                    </h3>
+
+                    <p>
+
+                        Ahora se puede avisar que la pantalla
+                        será suspendida en un minuto y permitir
+                        cancelar o ejecutar la acción.
+
+                    </p>
+
+                </article>
+
+
+                <article class="feature reveal">
+
+                    <span class="feature-number">
+                        08 · FINANZAS
+                    </span>
+
+                    <div class="feature-icon">
+
+                        <i class="fa-solid fa-money-bill-transfer"></i>
+
+                    </div>
+
+                    <h3>
+                        Editar movimientos
+                    </h3>
+
+                    <p>
+
+                        El historial financiero permite editar
+                        el monto y la descripción de una
+                        transacción registrada.
+
+                    </p>
+
+                </article>
+
+
+                <article class="feature reveal">
+
+                    <span class="feature-number">
+                        09 · ESTABILIDAD
+                    </span>
+
+                    <div class="feature-icon">
+
+                        <i class="fa-solid fa-shield"></i>
+
+                    </div>
+
+                    <h3>
+                        Interfaz estable
+                    </h3>
+
+                    <p>
+
+                        Se mejoró el funcionamiento para mantener
+                        la aplicación dentro de su interfaz
+                        principal.
+
+                    </p>
+
+                </article>
+
+
+                <article class="feature reveal">
+
+                    <span class="feature-number">
+                        10 · DATOS
+                    </span>
+
+                    <div class="feature-icon">
+
+                        <i class="fa-solid fa-arrows-rotate"></i>
+
+                    </div>
+
+                    <h3>
+                        Sincronización
+                    </h3>
+
+                    <p>
+
+                        Se incorporó la actualización de datos
+                        para facilitar la sincronización entre
+                        dispositivos conectados.
+
+                    </p>
+
+                </article>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         SHOWCASE
+    ====================================================== -->
+
+    <section>
+
+        <div class="container">
+
+            <div class="section-heading reveal">
+
+                <span class="label">
+                    Experiencia
+                </span>
+
+                <h2>
+                    Más control.
+                    <span style="color:#08B6A4">
+                        Menos complicaciones.
+                    </span>
+                </h2>
+
+                <p>
+
+                    La actualización también mejora la manera
+                    en que el usuario interactúa con diferentes
+                    módulos de la aplicación.
+
+                </p>
+
+            </div>
+
+
+            <div class="showcase">
+
+
+                <div class="showcase-card dark reveal">
+
+                    <h3>
+                        Finanzas más flexibles
+                    </h3>
+
+                    <p>
+
+                        Los movimientos registrados pueden
+                        modificarse cuando sea necesario,
+                        evitando tener que crear operaciones
+                        adicionales por errores de registro.
+
+                    </p>
+
+
+                    <div class="mini-ui">
+
+                        <div class="mini-row">
+
+                            <span>
+                                Ingreso
+                            </span>
+
+                            <strong>
+                                + $20.00
+                            </strong>
+
+                        </div>
+
+
+                        <div class="mini-row">
+
+                            <span>
+                                Descripción
+                            </span>
+
+                            <span class="edit">
+                                Editar
+                            </span>
+
+                        </div>
+
+
+                        <div class="mini-row">
+
+                            <span>
+                                Movimiento
+                            </span>
+
+                            <i class="fa-solid fa-check"></i>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <div class="showcase-card light reveal">
+
+                    <h3>
+                        Salud visual
+                    </h3>
+
+                    <p>
+
+                        El sistema de descanso visual puede
+                        advertir al usuario antes de suspender
+                        la pantalla, ofreciendo opciones
+                        para cancelar o ejecutar la acción.
+
+                    </p>
+
+
+                    <div class="mini-ui">
+
+                        <div class="mini-row">
+
+                            <span>
+                                Descanso visual
+                            </span>
+
+                            <i class="fa-solid fa-eye"></i>
+
+                        </div>
+
+
+                        <div class="mini-row">
+
+                            <span>
+                                Suspensión
+                            </span>
+
+                            <strong>
+                                01:00
+                            </strong>
+
+                        </div>
+
+
+                        <div class="mini-row">
+
+                            <span>
+                                Cancelar
+                            </span>
+
+                            <span class="edit">
+                                Ahora
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         EVOLUCIÓN
+    ====================================================== -->
+
+    <section id="evolucion">
+
+        <div class="container">
+
+            <div class="section-heading center reveal">
+
+                <span class="label">
+                    Evolución
+                </span>
+
+                <h2>
+                    De una versión
+                    <span style="color:#08B6A4">
+                        a una experiencia mejor.
+                    </span>
+                </h2>
+
+                <p>
+
+                    Las mejoras de MyProfile 1.1 transforman
+                    diferentes aspectos de la aplicación.
+
+                </p>
+
+            </div>
+
+
+            <div class="timeline">
+
+
+                <div class="timeline-item reveal">
+
+                    <div class="timeline-dot">
+                        <i class="fa-solid fa-fingerprint"></i>
+                    </div>
+
+                    <div class="timeline-content">
+
+                        <h3>
+                            Identidad visual
+                        </h3>
+
+                        <p>
+
+                            La aplicación ahora cuenta con
+                            una identificación visual propia.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="timeline-item reveal">
+
+                    <div class="timeline-dot">
+                        <i class="fa-solid fa-spinner"></i>
+                    </div>
+
+                    <div class="timeline-content">
+
+                        <h3>
+                            Inicio más informativo
+                        </h3>
+
+                        <p>
+
+                            Se añadió una pantalla de carga
+                            con información sobre el programa.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="timeline-item reveal">
+
+                    <div class="timeline-dot">
+                        <i class="fa-solid fa-lock"></i>
+                    </div>
+
+                    <div class="timeline-content">
+
+                        <h3>
+                            Acceso mejorado
+                        </h3>
+
+                        <p>
+
+                            La sesión puede mantenerse activa
+                            en el dispositivo donde fue iniciada.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="timeline-item reveal">
+
+                    <div class="timeline-dot">
+                        <i class="fa-solid fa-heart-pulse"></i>
+                    </div>
+
+                    <div class="timeline-content">
+
+                        <h3>
+                            Bienestar
+                        </h3>
+
+                        <p>
+
+                            El descanso visual ahora cuenta
+                            con una acción de suspensión
+                            de pantalla.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="timeline-item reveal">
+
+                    <div class="timeline-dot">
+                        <i class="fa-solid fa-chart-line"></i>
+                    </div>
+
+                    <div class="timeline-content">
+
+                        <h3>
+                            Control financiero
+                        </h3>
+
+                        <p>
+
+                            Los movimientos financieros pueden
+                            editarse además de eliminarse.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="timeline-item reveal">
+
+                    <div class="timeline-dot">
+                        <i class="fa-solid fa-arrows-rotate"></i>
+                    </div>
+
+                    <div class="timeline-content">
+
+                        <h3>
+                            Datos actualizados
+                        </h3>
+
+                        <p>
+
+                            La actualización de datos facilita
+                            la sincronización de información
+                            entre dispositivos.
+
+                        </p>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         PURPOSE
+    ====================================================== -->
+
+    <section class="purpose-section">
+
+        <div class="purpose-box reveal">
+
+            <div class="purpose-icon">
+
+                <i class="fa-solid fa-lightbulb"></i>
+
+            </div>
+
+            <h2>
+                ¿Cuál es el propósito de MyProfile?
+            </h2>
+
+            <p>
+
+                Esta sección permite conocer cómo funciona
+                la aplicación y qué puede hacer el usuario
+                dentro de MyProfile. La actualización busca
+                presentar una experiencia más clara y facilitar
+                el uso de sus diferentes funciones.
+
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         TEAM
+    ====================================================== -->
+
+    <section id="equipo">
+
+        <div class="container">
+
+            <div class="section-heading center reveal">
+
+                <span class="label">
+                    Desarrollo
+                </span>
+
+                <h2>
+                    Equipo
+                    <span style="color:#08B6A4">
+                        MyProfile
+                    </span>
+                </h2>
+
+                <p>
+                    Proyecto desarrollado para Tecnología III.
+                </p>
+
+            </div>
+
+
+            <div class="team">
+
+
+                <div class="member reveal">
+
+                    <div class="avatar">
+                        MC
+                    </div>
+
+                    <h4>
+                        Manuel Ernesto Castillo Guerra
+                    </h4>
+
+                    <p>
+                        Aprendiente · 17
+                    </p>
+
+                </div>
+
+
+                <div class="member reveal">
+
+                    <div class="avatar">
+                        RO
+                    </div>
+
+                    <h4>
+                        René Antonio Orellana Garcia
+                    </h4>
+
+                    <p>
+                        Aprendiente · 27
+                    </p>
+
+                </div>
+
+
+                <div class="member reveal">
+
+                    <div class="avatar">
+                        DC
+                    </div>
+
+                    <h4>
+                        Daniel Ernesto Claros Orellana
+                    </h4>
+
+                    <p>
+                        Aprendiente · 18
+                    </p>
+
+                </div>
+
+
+                <div class="member reveal">
+
+                    <div class="avatar">
+                        MV
+                    </div>
+
+                    <h4>
+                        Mayeli Abigail Villalobos Guardado
+                    </h4>
+
+                    <p>
+                        Aprendiente · 12
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- =====================================================
+         FOOTER
+    ====================================================== -->
+
+    <footer>
+
+        <div class="footer">
+
+            <div class="footer-brand">
+
+                <a href="#inicio" class="brand">
+
+                    <div class="brand-icon">
+                        <i class="fa-solid fa-user-check"></i>
+                    </div>
+
+                    <span>
+                        My<span>Profile</span>
+                    </span>
+
+                </a>
+
+                <p>
+
+                    Manual de mantenimiento y evolución
+                    de MyProfile versión 1.1.
+
+                </p>
+
+            </div>
+
+
+            <div class="footer-column">
+
+                <h4>
+                    Navegación
+                </h4>
+
+                <a href="#inicio">
+                    Inicio
+                </a>
+
+                <a href="#version">
+                    Versión 1.1
+                </a>
+
+                <a href="#mejoras">
+                    Mejoras
+                </a>
+
+                <a href="#evolucion">
+                    Evolución
+                </a>
+
+            </div>
+
+
+            <div class="footer-column">
+
+                <h4>
+                    Proyecto
+                </h4>
+
+                <a href="#equipo">
+                    Equipo
+                </a>
+
+                <a href="#mejoras">
+                    Mantenimiento
+                </a>
+
+                <a href="#version">
+                    Actualización
+                </a>
+
+            </div>
+
+        </div>
+
+
+        <div class="copyright">
+
+            © 2026 MyProfile · Tecnología III ·
+            3° Desarrollo de Software "B"
+
+        </div>
+
+    </footer>
+
+
+    <!-- =====================================================
+         JAVASCRIPT
+    ====================================================== -->
+
+    <script>
+
+        /* ===============================
+           MENÚ MÓVIL
+        =============================== */
+
+        const menu =
+            document.getElementById("menu");
+
+        const navLinks =
+            document.getElementById("navLinks");
+
+        menu.addEventListener("click", () => {
+
+            navLinks.classList.toggle("active");
+
+            const icon =
+                menu.querySelector("i");
+
+            if (navLinks.classList.contains("active")) {
+
+                icon.classList.remove("fa-bars");
+
+                icon.classList.add("fa-xmark");
+
+            } else {
+
+                icon.classList.remove("fa-xmark");
+
+                icon.classList.add("fa-bars");
+
+            }
+
+        });
+
+
+        /* ===============================
+           CERRAR MENÚ
+        =============================== */
+
+        document.querySelectorAll(".nav-links a")
+            .forEach(link => {
+
+                link.addEventListener("click", () => {
+
+                    navLinks.classList.remove("active");
+
+                    const icon =
+                        menu.querySelector("i");
+
+                    icon.classList.remove("fa-xmark");
+
+                    icon.classList.add("fa-bars");
+
+                });
+
+            });
+
+
+        /* ===============================
+           ANIMACIONES
+        =============================== */
+
+        const reveal =
+            document.querySelectorAll(".reveal");
+
+        function revealElements() {
+
+            reveal.forEach(element => {
+
+                const top =
+                    element.getBoundingClientRect().top;
+
+                const visible =
+                    window.innerHeight - 80;
+
+                if (top < visible) {
+
+                    element.classList.add("active");
+
+                }
+
+            });
+
+        }
+
+        window.addEventListener(
+            "scroll",
+            revealElements
+        );
+
+        revealElements();
+
+
+        /* ===============================
+           EFECTO HEADER
+        =============================== */
+
+        window.addEventListener("scroll", () => {
+
+            const header =
+                document.querySelector("header");
+
+            if (window.scrollY > 30) {
+
+                header.style.boxShadow =
+                    "0 10px 35px rgba(7,26,36,.08)";
+
+            } else {
+
+                header.style.boxShadow =
+                    "none";
+
+            }
+
+        });
+
+    </script>
+
+</body>
+
+</html>
+```
+
+<style>
+
+/* === PROPÓSITO: SIN COLOR BLANCO === */
+.purpose-section {
+    position: relative;
+    overflow: hidden;
+    background:
+        radial-gradient(circle at 12% 25%, rgba(49,225,207,.18), transparent 30%),
+        radial-gradient(circle at 88% 75%, rgba(8,182,164,.16), transparent 32%),
+        linear-gradient(135deg, #06151d 0%, #0a2731 52%, #071a24 100%) !important;
+    color: #e8fffb !important;
+}
+
+.purpose-section::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background-image:
+        linear-gradient(rgba(49,225,207,.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(49,225,207,.035) 1px, transparent 1px);
+    background-size: 45px 45px;
+}
+
+.purpose-box {
+    max-width: 1000px;
+    margin: auto;
+    text-align: center;
+    padding: 70px 40px;
+    border-radius: 30px;
+    background: linear-gradient(145deg, rgba(12,45,55,.94), rgba(5,24,32,.97)) !important;
+    border: 1px solid rgba(49,225,207,.22) !important;
+    box-shadow:
+        0 25px 70px rgba(0,0,0,.38),
+        0 0 35px rgba(8,182,164,.10) !important;
+    position: relative;
+    overflow: hidden;
+    z-index: 1;
+}
+
+.purpose-box::before {
+    content: "";
+    position: absolute;
+    width: 250px;
+    height: 250px;
+    border-radius: 50%;
+    background: #08b6a4;
+    opacity: .13;
+    filter: blur(50px);
+    left: -100px;
+    top: -100px;
+}
+
+.purpose-icon {
+    width: 70px;
+    height: 70px;
+    margin: auto auto 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 22px;
+    color: #06151d !important;
+    background: linear-gradient(135deg, #31e1cf, #08b6a4) !important;
+    font-size: 25px;
+    box-shadow: 0 0 30px rgba(49,225,207,.28);
+}
+
+.purpose-box h2 {
+    font-size: 35px;
+    margin-bottom: 15px;
+    color: #eafffb !important;
+    text-shadow: 0 0 20px rgba(49,225,207,.14);
+}
+
+.purpose-box p {
+    max-width: 720px;
+    margin: auto;
+    color: #a9c9c8 !important;
+    line-height: 1.8;
+}
+
+</style>

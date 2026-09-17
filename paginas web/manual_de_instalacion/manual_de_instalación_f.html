@@ -1,0 +1,778 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MyProfile — Manual de instalación</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0b0e14;
+    --panel: #10141c;
+    --panel-2: #161b25;
+    --panel-3: #1a2029;
+    --border: #232a38;
+    --text: #dbe1ec;
+    --text-dim: #8b94a7;
+    --text-dimmer: #565f72;
+    --purple: #c8a6fa;
+    --green: #8fd19e;
+    --blue: #7ab8ff;
+    --orange: #f2a65a;
+    --red-dot: #ef6b6b;
+    --yellow-dot: #f0c95e;
+    --green-dot: #6fd192;
+    --radius: 7px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    *{animation-duration:0.01ms !important; animation-iteration-count:1 !important; transition-duration:0.01ms !important;}
+  }
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Inter', sans-serif;
+    font-size:16px;
+    line-height:1.65;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--blue);}
+  code, .mono{font-family:'JetBrains Mono', monospace;}
+  ::selection{background:rgba(122,184,255,.25); color:#fff;}
+
+  /* ---- Scroll progress ---- */
+  .scroll-progress{
+    position:fixed; top:0; left:0; height:2px; width:0%;
+    background:linear-gradient(90deg, var(--blue), var(--purple));
+    z-index:10000;
+    transition:width .08s linear;
+  }
+
+  /* ---- IDE shell ---- */
+  .ide{max-width:1180px; margin:0 auto;}
+
+  .titlebar{
+    display:flex; align-items:center; gap:16px;
+    padding:0 16px;
+    height:44px;
+    background:var(--panel-2);
+    border-bottom:1px solid var(--border);
+  }
+  .traffic-lights{display:flex; gap:7px; flex:none;}
+  .traffic-lights span{width:11px; height:11px; border-radius:50%; display:block;}
+  .traffic-lights span:nth-child(1){background:var(--red-dot);}
+  .traffic-lights span:nth-child(2){background:var(--yellow-dot);}
+  .traffic-lights span:nth-child(3){background:var(--green-dot);}
+  .tabs{display:flex; height:100%; flex:1; min-width:0;}
+  .tab{
+    display:flex; align-items:center; gap:8px;
+    padding:0 14px;
+    height:100%;
+    font-family:'JetBrains Mono', monospace;
+    font-size:12.5px;
+    color:var(--text-dim);
+    border-right:1px solid var(--border);
+    white-space:nowrap;
+  }
+  .tab.active{color:var(--text); background:var(--panel); border-bottom:2px solid var(--blue);}
+  .tab-dot{width:6px; height:6px; border-radius:50%; background:var(--orange); flex:none;}
+  .titlebar-meta{
+    margin-left:auto; flex:none;
+    font-family:'JetBrains Mono', monospace;
+    font-size:11.5px;
+    color:var(--text-dimmer);
+    white-space:nowrap;
+  }
+  @media (max-width:640px){.titlebar-meta{display:none;}}
+
+  .ide-body{
+    display:grid;
+    grid-template-columns: 220px minmax(0,1fr);
+  }
+  @media (max-width: 900px){
+    .ide-body{grid-template-columns: 1fr;}
+  }
+
+  /* ---- Explorer (sidebar) ---- */
+  .explorer{
+    position:sticky;
+    top:44px;
+    align-self:start;
+    height:calc(100vh - 44px);
+    overflow-y:auto;
+    padding:22px 14px;
+    background:var(--panel);
+    border-right:1px solid var(--border);
+  }
+  @media (max-width: 900px){
+    .explorer{
+      position:static; height:auto;
+      border-right:none; border-bottom:1px solid var(--border);
+      padding:12px 16px; display:flex; align-items:center; gap:10px;
+      overflow-x:auto;
+    }
+    .explorer-title{display:none;}
+    .file-list{display:flex; gap:4px; flex:none;}
+  }
+  .explorer-title{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11.5px;
+    letter-spacing:.02em;
+    color:var(--text-dimmer);
+    margin:0 0 10px 6px;
+  }
+  .file-list{list-style:none; margin:0; padding:0;}
+  .file-link{
+    display:flex; align-items:center; gap:9px;
+    padding:7px 8px;
+    border-radius:5px;
+    color:var(--text-dim);
+    text-decoration:none;
+    font-family:'JetBrains Mono', monospace;
+    font-size:13px;
+    white-space:nowrap;
+    border-left:2px solid transparent;
+  }
+  .file-link:hover{background:var(--panel-3); color:var(--text);}
+  .file-link.active{background:var(--panel-3); color:var(--text); border-left-color:var(--blue);}
+  .file-icon{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:18px; height:18px; border-radius:4px;
+    font-size:10.5px; font-weight:700;
+    flex:none;
+  }
+  .file-icon.json{background:rgba(242,166,90,.15); color:var(--orange);}
+  .file-icon.sh{background:rgba(143,209,158,.15); color:var(--green);}
+  .file-icon.md{background:rgba(122,184,255,.15); color:var(--blue);}
+
+  /* ---- Main column ---- */
+  main{padding:0 32px 90px; min-width:0;}
+  .content{max-width:700px; margin:0 auto;}
+
+  /* ---- Hero ---- */
+  .hero{padding:56px 0 44px; border-bottom:1px solid var(--border);}
+  .hero-badges{display:flex; gap:8px; margin-bottom:22px;}
+  .badge{
+    font-family:'JetBrains Mono', monospace;
+    font-size:11.5px;
+    padding:4px 10px;
+    border-radius:5px;
+    border:1px solid var(--border);
+    background:var(--panel);
+    color:var(--text-dim);
+  }
+  .hero h1{
+    font-family:'JetBrains Mono', monospace;
+    font-size:44px;
+    line-height:1.05;
+    margin:0 0 8px;
+    font-weight:700;
+    letter-spacing:-0.01em;
+  }
+  .hero .sub{
+    font-size:17px;
+    color:var(--text-dim);
+    margin:0 0 30px;
+    max-width:480px;
+  }
+
+  /* ---- Terminal (hero) ---- */
+  .terminal{
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    background:var(--panel);
+    overflow:hidden;
+    max-width:560px;
+  }
+  .terminal-bar{
+    display:flex; align-items:center; gap:8px;
+    padding:9px 12px;
+    background:var(--panel-2);
+    border-bottom:1px solid var(--border);
+  }
+  .tl{width:10px; height:10px; border-radius:50%; display:block;}
+  .tl.red{background:var(--red-dot);}
+  .tl.yellow{background:var(--yellow-dot);}
+  .tl.green{background:var(--green-dot);}
+  .terminal-title{
+    margin-left:6px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:11.5px;
+    color:var(--text-dimmer);
+  }
+  .terminal-body{padding:16px 16px 18px; font-family:'JetBrains Mono', monospace; font-size:13.5px;}
+  .terminal-body .line{color:var(--text-dim); min-height:1.4em;}
+  .terminal-body .prompt{color:var(--green);}
+  .cursor{display:inline-block; width:7px; height:14px; background:var(--text); margin-left:2px; vertical-align:-2px; animation:blink 1s step-end infinite;}
+  @keyframes blink{50%{opacity:0;}}
+  .progress-row{display:flex; align-items:center; gap:10px; margin-top:10px;}
+  .progress-track{flex:1; height:6px; border-radius:3px; background:var(--panel-3); overflow:hidden;}
+  .progress-fill{height:100%; width:0%; background:linear-gradient(90deg, var(--blue), var(--purple)); transition:width 1.1s ease;}
+  .progress-label{color:var(--text-dimmer); font-size:12px; width:34px; text-align:right;}
+  .terminal-body .result{color:var(--green); margin-top:10px;}
+
+  /* ---- Sections ---- */
+  section{padding:52px 0; border-bottom:1px solid var(--border);}
+  section:last-of-type{border-bottom:none;}
+  .comment{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12.5px;
+    color:var(--text-dimmer);
+    margin:0 0 10px;
+  }
+  h2{
+    font-family:'JetBrains Mono', monospace;
+    font-size:24px;
+    margin:0 0 8px;
+    font-weight:700;
+    letter-spacing:-0.01em;
+  }
+  .section-intro{color:var(--text-dim); margin:0 0 28px; max-width:580px;}
+  p{margin:0 0 14px;}
+
+  /* ---- Manifest / JSON-style cards ---- */
+  .manifest{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:14px;
+  }
+  @media (max-width:640px){.manifest{grid-template-columns:1fr;}}
+  .manifest-file{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    overflow:hidden;
+  }
+  .manifest-head{
+    display:flex; align-items:center; gap:9px;
+    padding:10px 14px;
+    background:var(--panel-2);
+    border-bottom:1px solid var(--border);
+    font-family:'JetBrains Mono', monospace;
+    font-size:12.5px;
+    color:var(--text-dim);
+  }
+  .file-icon.sm{width:16px; height:16px; font-size:9px;}
+  .kv-list{margin:0; padding:14px; list-style:none;}
+  .kv-list li{
+    padding:8px 0;
+    border-top:1px solid var(--border);
+    font-family:'JetBrains Mono', monospace;
+    font-size:13px;
+    line-height:1.5;
+  }
+  .kv-list li:first-child{border-top:none; padding-top:0;}
+  .key{color:var(--purple);}
+  .colon{color:var(--text-dimmer); margin:0 4px;}
+  .val{color:var(--green);}
+
+  .manifest.single{grid-template-columns:1fr; max-width:520px;}
+
+  /* ---- Team list (créditos) ---- */
+  .team-list{list-style:none; margin:14px 0 0; padding:0; font-family:'JetBrains Mono', monospace; font-size:13.5px;}
+  .team-list li{
+    display:flex; align-items:center; gap:12px;
+    padding:9px 0;
+    border-top:1px solid var(--border);
+    color:var(--text-dim);
+  }
+  .team-list li:first-child{border-top:none;}
+  .team-num{
+    display:inline-flex; align-items:center; justify-content:center;
+    min-width:26px; height:22px; padding:0 4px;
+    border-radius:4px;
+    background:var(--panel-2);
+    border:1px solid var(--border);
+    color:var(--orange);
+    font-size:11.5px;
+  }
+
+  /* ---- Pipeline / steps ---- */
+  .pipeline{position:relative; margin-top:6px;}
+  .step{
+    display:grid;
+    grid-template-columns: 40px 1fr;
+    gap:18px;
+    padding:28px 0;
+    position:relative;
+  }
+  .step:first-child{padding-top:0;}
+  .step-node{
+    position:relative;
+    width:40px; height:40px;
+    border-radius:50%;
+    border:1px solid var(--border);
+    background:var(--panel);
+    display:flex; align-items:center; justify-content:center;
+    z-index:1;
+  }
+  .step-node::after{
+    content:"";
+    position:absolute;
+    top:100%; left:50%; transform:translateX(-50%);
+    width:1px; height:44px;
+    background:var(--border);
+  }
+  .step:last-child .step-node::after{display:none;}
+  .step-index{
+    font-family:'JetBrains Mono', monospace;
+    font-size:12.5px;
+    color:var(--text-dimmer);
+  }
+  .step.seen .step-node{border-color:var(--green);}
+  .step.seen .step-index{color:var(--green);}
+  .step-body h4{
+    margin:2px 0 8px;
+    font-size:17px;
+    font-weight:600;
+  }
+  .step-body p{color:var(--text-dim);}
+
+  .shot{
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    overflow:hidden;
+    margin-top:14px;
+    background:var(--panel);
+  }
+  .shot-bar{
+    display:flex; align-items:center; gap:7px;
+    padding:8px 12px;
+    background:var(--panel-2);
+    border-bottom:1px solid var(--border);
+  }
+  .shot-name{
+    margin-left:6px;
+    font-family:'JetBrains Mono', monospace;
+    font-size:11px;
+    color:var(--text-dimmer);
+  }
+  .zoomable-img{
+    display:block;
+    width:100%;
+    height:auto;
+    cursor:zoom-in;
+    transition:opacity .2s ease;
+  }
+  .zoomable-img:hover{opacity:.92;}
+
+  /* ---- Lightbox Modal ---- */
+  .modal{
+    display:none;
+    position:fixed;
+    z-index:9999;
+    left:0; top:0;
+    width:100%; height:100%;
+    background-color:rgba(6, 8, 12, 0.92);
+    backdrop-filter:blur(5px);
+    padding:20px;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+  }
+  .modal-frame{
+    max-width:90%; max-height:85vh;
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    overflow:hidden;
+    box-shadow:0 12px 40px rgba(0,0,0,0.8);
+    animation:zoomAnim 0.2s ease-out;
+    background:var(--panel);
+    display:flex; flex-direction:column;
+  }
+  .modal-bar{display:flex; align-items:center; gap:7px; padding:8px 12px; background:var(--panel-2); border-bottom:1px solid var(--border);}
+  .modal-content{max-width:100%; max-height:78vh; display:block;}
+  .modal-caption{
+    padding:10px 14px;
+    color:var(--text-dimmer);
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+  }
+  .modal-close{
+    position:absolute;
+    top:20px;
+    right:30px;
+    color:var(--text);
+    font-size:30px;
+    font-weight:bold;
+    cursor:pointer;
+  }
+  @keyframes zoomAnim{
+    from {transform:scale(0.94); opacity:0;}
+    to {transform:scale(1); opacity:1;}
+  }
+
+  /* ---- Status bar (footer) ---- */
+  .statusbar{
+    max-width:1180px; margin:0 auto;
+    display:flex; justify-content:space-between; align-items:center;
+    flex-wrap:wrap; gap:12px;
+    padding:12px 20px;
+    background:var(--panel-2);
+    border-top:1px solid var(--border);
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    color:var(--text-dimmer);
+  }
+  .statusbar-left{display:flex; gap:16px; flex-wrap:wrap;}
+  .statusbar-left .branch{color:var(--green);}
+  .statusbar-right{display:flex; align-items:center; gap:14px;}
+  .btn-download{
+    display:inline-flex;
+    align-items:center;
+    gap:7px;
+    padding:6px 14px;
+    background:var(--panel-3);
+    color:var(--text);
+    border:1px solid var(--border);
+    border-radius:5px;
+    text-decoration:none;
+    font-family:'JetBrains Mono', monospace;
+    font-size:12px;
+    transition:all 0.15s ease;
+  }
+  .btn-download:hover{
+    background:var(--blue);
+    color:#0b0e14;
+    border-color:var(--blue);
+  }
+  .btn-download svg{width:13px; height:13px;}
+</style>
+</head>
+<body>
+
+<div class="scroll-progress" id="scrollProgress"></div>
+
+<div class="ide">
+  <div class="titlebar">
+    <div class="traffic-lights"><span></span><span></span><span></span></div>
+    <div class="tabs">
+      <div class="tab active"><span class="tab-dot"></span>manual-instalacion.md</div>
+    </div>
+    <div class="titlebar-meta">MyProfile · docs</div>
+  </div>
+
+  <div class="ide-body">
+    <aside class="explorer">
+      <p class="explorer-title">▸ myprofile</p>
+      <ul class="file-list">
+        <li><a href="#requisitos" class="file-link"><span class="file-icon json">{ }</span>requisitos.json</a></li>
+        <li><a href="#instalacion" class="file-link"><span class="file-icon sh">$</span>instalacion.sh</a></li>
+        <li><a href="#creditos" class="file-link"><span class="file-icon md">#</span>creditos.md</a></li>
+      </ul>
+    </aside>
+
+    <main>
+      <div class="content">
+
+        <div class="hero">
+          <div class="hero-badges">
+            <span class="badge">windows</span>
+            <span class="badge">android</span>
+          </div>
+          <h1>MyProfile</h1>
+          <p class="sub">Manual de instalación para usuarios finales e información del proyecto.</p>
+
+          <div class="terminal">
+            <div class="terminal-bar">
+              <span class="tl red"></span><span class="tl yellow"></span><span class="tl green"></span>
+              <span class="terminal-title">zsh — instalación</span>
+            </div>
+            <div class="terminal-body">
+              <div class="line"><span class="prompt">$</span> <span id="typedCmd"></span><span class="cursor" id="cmdCursor"></span></div>
+              <div class="progress-row" id="progressRow" style="display:none;">
+                <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+                <span class="progress-label" id="progressLabel">0%</span>
+              </div>
+              <div class="line result" id="terminalResult" style="display:none;">✓ listo — sigue la guía para instalar</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- REQUISITOS -->
+        <section id="requisitos">
+          <p class="comment">// antes de empezar</p>
+          <h2>Requisitos del sistema</h2>
+          <p class="section-intro">Para la correcta instalación de la app MyProfile, el dispositivo o equipo debe cumplir con las siguientes especificaciones mínimas.</p>
+
+          <div class="manifest">
+            <div class="manifest-file">
+              <div class="manifest-head"><span class="file-icon json sm">{ }</span>android.json</div>
+              <ul class="kv-list">
+                <li><span class="key">sistemaOperativo</span><span class="colon">:</span><span class="val">"Android 5.0 (Lollipop / API nivel 21) o superior"</span></li>
+                <li><span class="key">arquitectura</span><span class="colon">:</span><span class="val">"ARM 32/64 bits (ARM64) y x86/x86_64"</span></li>
+                <li><span class="key">memoriaRAM</span><span class="colon">:</span><span class="val">"2 GB mínimo recomendado"</span></li>
+              </ul>
+            </div>
+            <div class="manifest-file">
+              <div class="manifest-head"><span class="file-icon json sm">{ }</span>windows.json</div>
+              <ul class="kv-list">
+                <li><span class="key">sistemaOperativo</span><span class="colon">:</span><span class="val">"Windows 10 (v1809 / build 17763+) o Windows 11"</span></li>
+                <li><span class="key">arquitectura</span><span class="colon">:</span><span class="val">"x86, x64 o ARM64"</span></li>
+                <li><span class="key">memoriaRAM</span><span class="colon">:</span><span class="val">"4 GB mínimo, 8 GB recomendado"</span></li>
+                <li><span class="key">dependencias</span><span class="colon">:</span><span class="val">"Windows App SDK / WinUI 3, .NET runtime"</span></li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <!-- INSTALACIÓN -->
+        <section id="instalacion">
+          <p class="comment">// instalación paso a paso</p>
+          <h2>Cómo instalar el programa</h2>
+
+          <div class="pipeline">
+
+            <div class="step">
+              <div class="step-node"><span class="step-index">01</span></div>
+              <div class="step-body">
+                <h4>Ejecutar el instalador</h4>
+                <p>Abrir la carpeta llamada Installer y damos doble clic al archivo que aparecerá dentro de la carpeta.</p>
+                <div class="shot">
+                  <div class="shot-bar"><span class="tl red"></span><span class="tl yellow"></span><span class="tl green"></span><span class="shot-name">1.png</span></div>
+                  <img src="./imagenes/1.png" alt="Paso 1: Abrir carpeta Installer y ejecutar instalador" class="zoomable-img" onclick="openModal(this)">
+                </div>
+                <div class="shot">
+                  <div class="shot-bar"><span class="tl red"></span><span class="tl yellow"></span><span class="tl green"></span><span class="shot-name">2.png</span></div>
+                  <img src="./imagenes/2.png" alt="Paso 1: Abrir carpeta Installer y ejecutar instalador" class="zoomable-img" onclick="openModal(this)">
+                </div>
+              </div>
+            </div>
+
+            <div class="step">
+              <div class="step-node"><span class="step-index">02</span></div>
+              <div class="step-body">
+                <h4>Conceder permisos</h4>
+                <p>Damos los permisos de instalación requeridos por el sistema.</p>
+                <div class="shot">
+                  <div class="shot-bar"><span class="tl red"></span><span class="tl yellow"></span><span class="tl green"></span><span class="shot-name">3.png</span></div>
+                  <img src="./imagenes/3.png" alt="Paso 2: Permisos de instalación" class="zoomable-img" onclick="openModal(this)">
+                </div>
+              </div>
+            </div>
+
+            <div class="step">
+              <div class="step-node"><span class="step-index">03</span></div>
+              <div class="step-body">
+                <h4>Elegir idioma</h4>
+                <p>Seleccionamos el idioma que deseamos utilizar en el asistente.</p>
+                <div class="shot">
+                  <div class="shot-bar"><span class="tl red"></span><span class="tl yellow"></span><span class="tl green"></span><span class="shot-name">4.png</span></div>
+                  <img src="./imagenes/4.png" alt="Paso 3: Selección de idioma" class="zoomable-img" onclick="openModal(this)">
+                </div>
+              </div>
+            </div>
+
+            <div class="step">
+              <div class="step-node"><span class="step-index">04</span></div>
+              <div class="step-body">
+                <h4>Confirmar ubicación</h4>
+                <p>Aceptamos todo lo que nos pida el asistente (esto es para ubicar los archivos en carpetas específicas del sistema).</p>
+                <div class="shot">
+                  <div class="shot-bar"><span class="tl red"></span><span class="tl yellow"></span><span class="tl green"></span><span class="shot-name">5.png</span></div>
+                  <img src="./imagenes/5.png" alt="Paso 4: Aceptar ubicación y configuración" class="zoomable-img" onclick="openModal(this)">
+                </div>
+              </div>
+            </div>
+
+            <div class="step">
+              <div class="step-node"><span class="step-index">05</span></div>
+              <div class="step-body">
+                <h4>Iniciar instalación</h4>
+                <p>Hacemos clic en instalar.</p>
+                <div class="shot">
+                  <div class="shot-bar"><span class="tl red"></span><span class="tl yellow"></span><span class="tl green"></span><span class="shot-name">6.png</span></div>
+                  <img src="./imagenes/6.png" alt="Paso 5: Clic en instalar" class="zoomable-img" onclick="openModal(this)">
+                </div>
+              </div>
+            </div>
+
+            <div class="step">
+              <div class="step-node"><span class="step-index">06</span></div>
+              <div class="step-body">
+                <h4>Finalizar</h4>
+                <p>Damos click en finalizar y el programa se abrirá automáticamente mostrando la interfaz final.</p>
+                <div class="shot">
+                  <div class="shot-bar"><span class="tl red"></span><span class="tl yellow"></span><span class="tl green"></span><span class="shot-name">7.png</span></div>
+                  <img src="./imagenes/7.png" alt="Paso 6: Finalizar e interfaz principal" class="zoomable-img" onclick="openModal(this)">
+                </div>
+                <div class="shot">
+                  <div class="shot-bar"><span class="tl red"></span><span class="tl yellow"></span><span class="tl green"></span><span class="shot-name">8.png</span></div>
+                  <img src="./imagenes/8.png" alt="Paso 1: Abrir carpeta Installer y ejecutar instalador" class="zoomable-img" onclick="openModal(this)">
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- CRÉDITOS -->
+        <section id="creditos">
+          <p class="comment">// información institucional</p>
+          <h2>Créditos del proyecto</h2>
+
+          <div class="manifest single">
+            <div class="manifest-file">
+              <div class="manifest-head"><span class="file-icon md sm">#</span>proyecto.md</div>
+              <ul class="kv-list">
+                <li><span class="key">instituto</span><span class="colon">:</span><span class="val">"INDEL (Instituto Nacional Cantón Lourdes)"</span></li>
+                <li><span class="key">sección</span><span class="colon">:</span><span class="val">"3° desarrollo de software B"</span></li>
+                <li><span class="key">materia</span><span class="colon">:</span><span class="val">"Tecnología III"</span></li>
+                <li><span class="key">año</span><span class="colon">:</span><span class="val">"2026"</span></li>
+                <li><span class="key">maestro</span><span class="colon">:</span><span class="val">"Javier Arturo García Mineros"</span></li>
+              </ul>
+            </div>
+          </div>
+
+          <p class="comment" style="margin-top:26px;">// aprendientes</p>
+          <ul class="team-list">
+            <li><span class="team-num">17</span>Manuel Ernesto Castillo Guerra</li>
+            <li><span class="team-num">27</span>René Antonio Orellana Garcia</li>
+            <li><span class="team-num">18</span>Daniel Ernesto Claros Orellana</li>
+            <li><span class="team-num">12</span>Mayeli Abigail Villalobos Guardado</li>
+          </ul>
+        </section>
+
+      </div>
+    </main>
+  </div>
+</div>
+
+<!-- STATUS BAR -->
+<footer class="statusbar">
+  <div class="statusbar-left">
+    <span class="branch">⎇ main</span>
+    <span>manual-instalacion.md</span>
+    <span>UTF-8</span>
+  </div>
+  <div class="statusbar-right">
+    <span>MyProfile · NEXO</span>
+    <a href="archivos/manual.pdf" download="Manual_Instalacion_MyProfile.pdf" class="btn-download">
+      <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+      Descargar PDF
+    </a>
+  </div>
+</footer>
+
+<!-- MODAL PARA AGRANDAR IMÁGENES -->
+<div id="imgModal" class="modal" onclick="closeModal()">
+  <span class="modal-close" onclick="closeModal()">&times;</span>
+  <div class="modal-frame" onclick="event.stopPropagation()">
+    <div class="modal-bar"><span class="tl red"></span><span class="tl yellow"></span><span class="tl green"></span></div>
+    <img class="modal-content" id="modalImg" alt="Imagen ampliada">
+    <div id="modalCaption" class="modal-caption"></div>
+  </div>
+</div>
+
+<script>
+  // Control de Modal de imágenes
+  function openModal(imgElement) {
+    const modal = document.getElementById("imgModal");
+    const modalImg = document.getElementById("modalImg");
+    const captionText = document.getElementById("modalCaption");
+    modal.style.display = "flex";
+    modalImg.src = imgElement.src;
+    captionText.innerHTML = imgElement.alt;
+  }
+
+  function closeModal() {
+    document.getElementById("imgModal").style.display = "none";
+  }
+
+  document.addEventListener('keydown', function(e) {
+    if (e.key === "Escape") {
+      closeModal();
+    }
+  });
+
+  // Resaltado de archivo activo en el explorador según el desplazamiento
+  const links = document.querySelectorAll('.file-link');
+  const sections = document.querySelectorAll('main section');
+  const navObserver = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      const id = entry.target.getAttribute('id');
+      const link = document.querySelector('.file-link[href="#'+id+'"]');
+      if(!link) return;
+      if(entry.isIntersecting){
+        links.forEach(l=>l.classList.remove('active'));
+        link.classList.add('active');
+      }
+    });
+  }, {rootMargin:'-20% 0px -70% 0px'});
+  sections.forEach(s=>navObserver.observe(s));
+
+  // Nodo "completado" en el pipeline de instalación al hacer scroll
+  const stepObserver = new IntersectionObserver((entries)=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        entry.target.classList.add('seen');
+      }
+    });
+  }, {rootMargin:'0px 0px -30% 0px'});
+  document.querySelectorAll('.step').forEach(s=>stepObserver.observe(s));
+
+  // Barra de progreso de scroll
+  const scrollBar = document.getElementById('scrollProgress');
+  function updateScrollProgress(){
+    const h = document.documentElement;
+    const scrolled = (h.scrollTop) / (h.scrollHeight - h.clientHeight) * 100;
+    scrollBar.style.width = (isFinite(scrolled) ? scrolled : 0) + '%';
+  }
+  document.addEventListener('scroll', updateScrollProgress);
+  updateScrollProgress();
+
+  // Animación de terminal en el hero (se ejecuta una sola vez)
+  (function(){
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const cmdEl = document.getElementById('typedCmd');
+    const cursorEl = document.getElementById('cmdCursor');
+    const progressRow = document.getElementById('progressRow');
+    const progressFill = document.getElementById('progressFill');
+    const progressLabel = document.getElementById('progressLabel');
+    const resultEl = document.getElementById('terminalResult');
+    const command = './MyProfile-Setup.exe --guia';
+
+    if (reduced) {
+      cmdEl.textContent = command;
+      cursorEl.style.display = 'none';
+      progressRow.style.display = 'flex';
+      progressFill.style.width = '100%';
+      progressLabel.textContent = '100%';
+      resultEl.style.display = 'block';
+      return;
+    }
+
+    let i = 0;
+    function typeChar(){
+      if(i < command.length){
+        cmdEl.textContent += command.charAt(i);
+        i++;
+        setTimeout(typeChar, 38);
+      } else {
+        setTimeout(startProgress, 450);
+      }
+    }
+    function startProgress(){
+      cursorEl.style.display = 'none';
+      progressRow.style.display = 'flex';
+      requestAnimationFrame(()=>{ progressFill.style.width = '100%'; });
+      let pct = 0;
+      const interval = setInterval(()=>{
+        pct = Math.min(100, pct + Math.round(8 + Math.random()*14));
+        progressLabel.textContent = pct + '%';
+        if(pct >= 100){
+          clearInterval(interval);
+          progressLabel.textContent = '100%';
+          setTimeout(()=>{ resultEl.style.display = 'block'; }, 150);
+        }
+      }, 120);
+    }
+    setTimeout(typeChar, 500);
+  })();
+</script>
+</body>
+</html>
