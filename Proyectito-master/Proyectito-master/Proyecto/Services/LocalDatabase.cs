@@ -331,6 +331,14 @@ public static class LocalDatabase
         await db.InsertAsync(movimiento);
     }
 
+    public static async Task ActualizarMovimientoPendienteAsync(MovimientoOffline movimiento)
+    {
+        var db = await GetConexionAsync();
+        movimiento.SyncState = SyncStatus.Pendiente;
+        movimiento.Modificado = DateTime.UtcNow;
+        await db.UpdateAsync(movimiento);
+    }
+
     public static async Task<List<MovimientoOffline>> MovimientosPorSyncStateAsync(int idUsuario, string estado)
     {
         var db = await GetConexionAsync();

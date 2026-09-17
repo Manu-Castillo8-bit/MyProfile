@@ -55,6 +55,7 @@ public partial class Ahorro : ContentPage
                     {
                         new ColumnDefinition(new GridLength(1, GridUnitType.Star)),
                         new ColumnDefinition(new GridLength(0, GridUnitType.Auto)),
+                        new ColumnDefinition(new GridLength(0, GridUnitType.Auto)),
                         new ColumnDefinition(new GridLength(0, GridUnitType.Auto))
                     },
                     ColumnSpacing = 10
@@ -91,6 +92,18 @@ public partial class Ahorro : ContentPage
                     VerticalOptions = LayoutOptions.Center
                 };
 
+                var btnEditar = new Button
+                {
+                    Text = "Editar",
+                    BackgroundColor = Color.FromArgb("#1C3A2E"),
+                    TextColor = Color.FromArgb("#34C759"),
+                    FontSize = 11,
+                    CornerRadius = 8,
+                    HeightRequest = 32,
+                    WidthRequest = 70,
+                    Padding = new Thickness(0),
+                    VerticalOptions = LayoutOptions.Center
+                };
                 var btnEliminar = new Button
                 {
                     Text = "Eliminar",
@@ -104,13 +117,16 @@ public partial class Ahorro : ContentPage
                     VerticalOptions = LayoutOptions.Center
                 };
                 var movimientoCapturado = m;
+                btnEditar.Clicked += async (s, e) => await OnEditarMovimientoClicked(movimientoCapturado);
                 btnEliminar.Clicked += async (s, e) => await OnEliminarMovimientoClicked(movimientoCapturado);
 
                 Grid.SetColumn(descLabel, 0);
                 Grid.SetColumn(rightStack, 1);
-                Grid.SetColumn(btnEliminar, 2);
+                Grid.SetColumn(btnEditar, 2);
+                Grid.SetColumn(btnEliminar, 3);
                 grid.Children.Add(descLabel);
                 grid.Children.Add(rightStack);
+                grid.Children.Add(btnEditar);
                 grid.Children.Add(btnEliminar);
 
                 frame.Content = grid;
@@ -143,6 +159,64 @@ public partial class Ahorro : ContentPage
         {
             await SupabaseService.EliminarMovimientoAsync(movimiento.IdMovimiento);
             await DisplayAlert("Listo", "Movimiento eliminado del historial.", "OK");
+            await CargarDatosAsync();
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Error", ex.Message, "OK");
+        }
+    }
+
+    private async Task OnEditarMovimientoClicked(MovimientoFinanciero movimiento)
+    {
+        try
+        {
+            // 1) Monto
+            var montoStr = await DisplayPromptAsync("Editar movimiento",
+                "Nuevo monto:",
+                "Aceptar", "Cancelar",
+                placeholder: movimiento.Monto.ToString("0.00", CultureInfo.InvariantCulture),
+                keyboard: Keyboard.Numeric);
+            if (montoStr is null) return;
+
+            var montoNormalizado = montoStr.Trim().Replace(",", "");
+            if (!decimal.TryParse(montoNormalizado, NumberStyles.Number, CultureInfo.InvariantCulture, out decimal montoNuevo) || montoNuevo <= 0)
+            {
+                await DisplayAlert("Error", "El monto debe ser un número mayor a 0.", "OK");
+                return;
+            }
+
+            // 2) Tipo (ingreso / gasto)
+            var tipoNuevo = await DisplayActionSheet("¿Es ingreso o gasto?", "Cancelar", null,
+                "Ingreso", "Gasto");
+            if (tipoNuevo is null || tipoNuevo == "Cancelar") return;
+            tipoNuevo = tipoNuevo.Equals("Ingreso", StringComparison.OrdinalIgnoreCase) ? "ingreso" : "gasto";
+
+            // 3) Descripción
+            var descripcionNueva = await DisplayPromptAsync("Editar movimiento",
+                "Descripción (opcional):",
+                "Aceptar", "Cancelar",
+                placeholder: movimiento.Descripcion,
+                initialValue: movimiento.Descripcion,
+                maxLength: 100);
+            if (descripcionNueva is null) return;
+
+            // Verificar que un gasto no deje el saldo en negativo tras el ajuste.
+            var saldoActual = await SupabaseService.ObtenerSaldoAsync();
+            var ajusteAntiguo = movimiento.Tipo == "ingreso" ? movimiento.Monto : -movimiento.Monto;
+            var ajusteNuevo = tipoNuevo == "ingreso" ? montoNuevo : -montoNuevo;
+            var saldoAjustado = saldoActual - ajusteAntiguo + ajusteNuevo;
+
+            if (tipoNuevo == "gasto" && saldoAjustado < 0)
+            {
+                await DisplayAlert("Saldo insuficiente",
+                    $"Tras el cambio, el gasto dejaría el saldo en ${saldoAjustado.ToString("N2", CultureInfo.InvariantCulture)}.",
+                    "OK");
+                return;
+            }
+
+            await SupabaseService.ActualizarMovimientoAsync(movimiento.IdMovimiento, montoNuevo, tipoNuevo, descripcionNueva);
+            await DisplayAlert("Listo", "Movimiento actualizado.", "OK");
             await CargarDatosAsync();
         }
         catch (Exception ex)

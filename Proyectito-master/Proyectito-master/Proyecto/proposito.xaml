@@ -46,7 +46,7 @@
                    FontAttributes="Bold" />
 
             <Frame BackgroundColor="#172033" BorderColor="#245b78" CornerRadius="16" Padding="16" HasShadow="False">
-                <Label Text="Ayudarte a mantener el control de tu vida diaria de forma sencilla, segura y centralizada, para que dediques menos tiempo a organizarte y más tiempo a lo que realmente importa."
+                <Label Text="Ayudarte a mantener el control de tu vida diaria, en ámbitos como salud, ahorro, y gestión de perfiles digitales. Esta orientado a recordarte tus tareas pendientes, a cuidar tu salud por medio de recordatorios y a gestionar de una forma más fácil tus credenciades de redes sociales."
                        TextColor="#C7D2E0"
                        FontSize="14"
                        LineHeight="1.4" />
@@ -60,7 +60,7 @@
             <Frame BackgroundColor="#172033" BorderColor="#245b78" CornerRadius="16" Padding="16" HasShadow="False">
                 <VerticalStackLayout Spacing="6">
                     <Label Text="📝  Tareas" TextColor="White" FontSize="15" FontAttributes="Bold" />
-                    <Label Text="Crea, organiza y completa tus pendientes, siguiendo tu progreso día con día."
+                    <Label Text="Crea, organiza y completa tus tareas pendientes. En MyProfile puedes registrar todas tus tareas y se te enviarán recordatorios por si se te olvida."
                            TextColor="#8E8E93" FontSize="13" />
                 </VerticalStackLayout>
             </Frame>
@@ -68,7 +68,7 @@
             <Frame BackgroundColor="#172033" BorderColor="#245b78" CornerRadius="16" Padding="16" HasShadow="False">
                 <VerticalStackLayout Spacing="6">
                     <Label Text="💰  Ahorro" TextColor="White" FontSize="15" FontAttributes="Bold" />
-                    <Label Text="Registra tus ingresos y gastos, y controla tu saldo para alcanzar tus metas."
+                    <Label Text="Registra tus ingresos y gastos, y controla tus ahorros de una forma fácil y sencilla."
                            TextColor="#8E8E93" FontSize="13" />
                 </VerticalStackLayout>
             </Frame>

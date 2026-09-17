@@ -22,9 +22,7 @@
                         CornerRadius="10" HeightRequest="42" WidthRequest="62"
                         VerticalOptions="Center"
                         Clicked="OnLogoutClicked" />
-                <Frame Grid.Column="2" WidthRequest="42" HeightRequest="42" CornerRadius="21" BackgroundColor="#1E1E1E" BorderColor="#2C2C2C" Padding="0" HorizontalOptions="End" VerticalOptions="Center">
-                    <Image Source="user_icon.png" WidthRequest="20" HeightRequest="20" HorizontalOptions="Center" VerticalOptions="Center" />
-                </Frame>
+             
             </Grid>
 
             <!-- Tarjeta: Tareas Activas -->
@@ -88,6 +86,8 @@
             <Label Text="Conoce nuestro propósito"
                    TextColor="White"
                    FontAttributes="Bold"
+
+
                    FontSize="13"
                    TextDecorations="Underline"
                    HorizontalOptions="Center">

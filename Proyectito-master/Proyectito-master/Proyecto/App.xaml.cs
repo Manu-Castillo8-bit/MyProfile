@@ -18,7 +18,11 @@ namespace Proyecto
 
             var window = new Window(new AppShell());
 
-            window.Created += (_, _) => RecordatorioScheduler.EnPrimerPlano = true;
+            window.Created += (_, _) =>
+            {
+                RecordatorioScheduler.EnPrimerPlano = true;
+                ProgresoSalud.IniciarAutoReinicioDiario();
+            };
             window.Resumed += OnResumed;
             window.Activated += (_, _) =>
             {

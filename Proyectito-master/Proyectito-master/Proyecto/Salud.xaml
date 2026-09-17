@@ -127,7 +127,7 @@
                     <Grid ColumnDefinitions="*, Auto" VerticalOptions="Center">
                         <VerticalStackLayout Grid.Column="0" Spacing="2">
                             <Label Text="Recordatorio de descanso visual" TextColor="White" FontSize="14" />
-                            <Label Text="Te avisará para mirar a lo lejos" TextColor="#8E8E93" FontSize="12" />
+                            <Label Text="Se enviará un mensaje para mirar a lo lejos" TextColor="#8E8E93" FontSize="12" />
                         </VerticalStackLayout>
                         <Switch x:Name="SwDescanso" Grid.Column="1" IsToggled="True" OnColor="Black" Toggled="OnRecordatorioToggled" />
                     </Grid>
@@ -181,8 +181,8 @@
                     <!-- Suspender pantalla al llegar el aviso -->
                     <Grid ColumnDefinitions="*, Auto" VerticalOptions="Center">
                         <VerticalStackLayout Grid.Column="0" Spacing="2">
-                            <Label Text="Suspender pantalla al avisar" TextColor="White" FontSize="14" />
-                            <Label Text="Después del aviso apaga la pantalla en 1 minuto" TextColor="#8E8E93" FontSize="12" />
+                            <Label Text="Suspender pantalla" TextColor="White" FontSize="14" />
+                            <Label Text="Después del aviso se APAGARÁ la pantalla en 1 minuto (opcional)" TextColor="#8E8E93" FontSize="12" />
                         </VerticalStackLayout>
                         <Switch x:Name="SwSuspenderPantalla" Grid.Column="1" IsToggled="False" OnColor="Black" />
                     </Grid>
@@ -195,14 +195,14 @@
                             <Label Text="👁️" FontSize="22" HorizontalOptions="Center" VerticalOptions="Center" />
                         </Frame>
                         <VerticalStackLayout Grid.Column="1" Spacing="6" VerticalOptions="Center">
-                            <Label x:Name="LblProximo" Text="Activa el recordatorio para ver el próximo descanso" TextColor="White" FontSize="14" FontAttributes="Bold" />
-                            <Label x:Name="LblDescansos" Text="Descansos registrados hoy: 0" TextColor="#8E8E93" FontSize="12" />
+                          <!--  <Label x:Name="LblProximo" Text="Activa el recordatorio para ver el próximo descanso" TextColor="White" FontSize="14" FontAttributes="Bold" /> -->
+                            <Label x:Name="LblDescansos" Text="Descansos registrados hoy: 0" TextColor="white" FontSize="14" FontAttributes="Bold"/>
                         </VerticalStackLayout>
                     </Grid>
 
                     <Grid ColumnDefinitions="*, *" ColumnSpacing="10">
-                        <Button Grid.Column="0" Text="✓  Registrar descanso" BackgroundColor="white" TextColor="Black" FontAttributes="Bold" FontSize="13" CornerRadius="10" HeightRequest="42" BorderColor="#2C2C2C" Clicked="OnMasDescansoClicked" />
-                        <Button Grid.Column="1" Text="−  Quitar descanso" BackgroundColor="#1E1E1E" TextColor="#FF3B30" FontAttributes="Bold" FontSize="13" CornerRadius="10" HeightRequest="42" BorderColor="#2C2C2C" Clicked="OnMenosDescansoClicked" />
+                        <Button Grid.Column="0" Text="✓  Registrar descanso" BackgroundColor="white" TextColor="Black" FontAttributes="Bold" FontSize="13" CornerRadius="10" HeightRequest="42" BorderColor="Red" Clicked="OnMasDescansoClicked" />
+                        <Button Grid.Column="1" Text="−  Quitar descanso" BackgroundColor="#1E1E1E" TextColor="#FF3B30" FontAttributes="Bold" FontSize="13" CornerRadius="10" HeightRequest="42" BorderColor="Red" Clicked="OnMenosDescansoClicked" />
                     </Grid>
                 </VerticalStackLayout>
             </Frame>

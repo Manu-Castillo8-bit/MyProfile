@@ -13,7 +13,27 @@ public partial class DashboardPage : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+        ProgresoSalud.DiaReiniciado += OnDiaReiniciado;
         await CargarDatosAsync();
+    }
+
+    protected override void OnDisappearing()
+    {
+        base.OnDisappearing();
+        ProgresoSalud.DiaReiniciado -= OnDiaReiniciado;
+    }
+
+    private void OnDiaReiniciado(object? sender, EventArgs e)
+    {
+        RefrescarContadoresSalud();
+    }
+
+    private void RefrescarContadoresSalud()
+    {
+        int vasosHoy = ProgresoSalud.VasosHoy();
+        int descansosHoy = ProgresoSalud.DescansosHoy();
+        LblDatosAgua.Text = $"Vasos hoy: {vasosHoy}";
+        LblDatosDescanso.Text = $"{descansosHoy} hoy";
     }
 
     private async Task CargarDatosAsync()
@@ -41,10 +61,7 @@ public partial class DashboardPage : ContentPage
             var saldo = await SupabaseService.ObtenerSaldoAsync();
             LblSaldoDashboard.Text = "$" + saldo.ToString("N2", CultureInfo.InvariantCulture);
 
-            int vasosHoy = ProgresoSalud.VasosHoy();
-            int descansosHoy = ProgresoSalud.DescansosHoy();
-            LblDatosAgua.Text = $"Vasos hoy: {vasosHoy}";
-            LblDatosDescanso.Text = $"{descansosHoy} hoy";
+            RefrescarContadoresSalud();
         }
         catch (Exception ex)
         {

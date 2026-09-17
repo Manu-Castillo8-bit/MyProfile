@@ -18,7 +18,19 @@ public partial class Salud : ContentPage
     protected override async void OnAppearing()
     {
         base.OnAppearing();
+        ProgresoSalud.DiaReiniciado += OnDiaReiniciado;
         await CargarDatosAsync();
+    }
+
+    protected override void OnDisappearing()
+    {
+        base.OnDisappearing();
+        ProgresoSalud.DiaReiniciado -= OnDiaReiniciado;
+    }
+
+    private void OnDiaReiniciado(object? sender, EventArgs e)
+    {
+        RefrescarVista();
     }
 
     private async Task CargarDatosAsync()
@@ -128,8 +140,8 @@ public partial class Salud : ContentPage
 
         LblDescansos.Text = $"Descansos registrados hoy: {ProgresoSalud.DescansosHoy()}";
 
-        LblProximo.Text = TextoCadencia(SwDescanso.IsToggled, TxtFrecDescanso, PckUnidadDescanso,
-            "Activa el recordatorio para ver el próximo descanso");
+      /*  LblProximo.Text = TextoCadencia(SwDescanso.IsToggled, TxtFrecDescanso, PckUnidadDescanso,
+            "Activa el recordatorio para ver el próximo descanso");*/
 
         LblEstadoTareas.Text = TextoCadencia(SwTareas.IsToggled, TxtFrecTareas, PckUnidadTareas,
             "Activa el recordatorio para recibir avisos");

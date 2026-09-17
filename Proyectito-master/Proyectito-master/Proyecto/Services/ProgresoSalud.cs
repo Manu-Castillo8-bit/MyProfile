@@ -1,3 +1,4 @@
+using Microsoft.Maui.Dispatching;
 using Microsoft.Maui.Storage;
 
 namespace Proyecto.Services;
@@ -9,6 +10,12 @@ public static class ProgresoSalud
     private const string ClaveDia = "salud_dia";
     private const string ClaveVasos = "salud_vasos";
     private const string ClaveDescansos = "salud_descansos";
+
+    private const int IntervaloComprobacionSegundos = 30;
+    private static IDispatcherTimer? _timer;
+
+    // Se dispara cuando el contador se reinicia al cambiar el día.
+    public static event EventHandler? DiaReiniciado;
 
     private static bool EsHoy()
     {
@@ -23,6 +30,24 @@ public static class ProgresoSalud
         Preferences.Default.Set(ClaveDia, DateTime.Today.ToString("yyyyMMdd"));
         Preferences.Default.Set(ClaveVasos, 0);
         Preferences.Default.Set(ClaveDescansos, 0);
+        DiaReiniciado?.Invoke(null, EventArgs.Empty);
+    }
+
+    // Inicia un timer ligero que vigila el cambio de día y reinicia los
+    // contadores aunque la app (y sus páginas) sigan abiertas.
+    public static void IniciarAutoReinicioDiario()
+    {
+        if (_timer is not null)
+            return;
+
+        var dispatcher = Application.Current?.Dispatcher;
+        if (dispatcher is null)
+            return;
+
+        _timer = dispatcher.CreateTimer();
+        _timer.Interval = TimeSpan.FromSeconds(IntervaloComprobacionSegundos);
+        _timer.Tick += (_, _) => IniciarDiaSiEsNecesario();
+        _timer.Start();
     }
 
     public static int VasosHoy()

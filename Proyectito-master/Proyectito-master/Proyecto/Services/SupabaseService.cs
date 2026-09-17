@@ -554,6 +554,29 @@ public static class SupabaseService
         await LocalDatabase.OcultarMovimientoAsync(fila);
     }
 
+    public static async Task ActualizarMovimientoAsync(int idMovimiento, decimal monto, string tipo, string descripcion)
+    {
+        var usuario = UsuarioActual;
+        if (usuario is null || usuario.Id <= 0)
+            throw new InvalidOperationException("No hay una sesión activa con ID de usuario válido.");
+
+        var fila = await LocalDatabase.ObtenerMovimientoPorInterfazAsync(usuario.Id, idMovimiento);
+        if (fila is null)
+            throw new InvalidOperationException("El movimiento ya no existe.");
+
+        if (fila.Oculto)
+            throw new InvalidOperationException("No se puede modificar un movimiento oculto.");
+
+        fila.Monto = monto;
+        fila.Tipo = tipo;
+        fila.Descripcion = descripcion.Trim();
+
+        await LocalDatabase.ActualizarMovimientoPendienteAsync(fila);
+
+        if (SyncService.Conectado)
+            await SyncService.SincronizarAsync();
+    }
+
     // ── CONTRASEÑAS (CRUD) ──
 
     public static async Task<List<Contrasena>> ObtenerContrasenasAsync()
