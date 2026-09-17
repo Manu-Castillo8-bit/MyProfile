@@ -475,6 +475,10 @@ public static class RecordatorioScheduler
 #if ANDROID
         try
         {
+            // Se usa la Activity activa y no el AppContext para que el panel de
+            // Ajustes no se cierre al abrirlo desde un contexto sin ventana.
+            var actividad = Microsoft.Maui.ApplicationModel.Platform.CurrentActivity
+                ?? Microsoft.Maui.ApplicationModel.Platform.AppContext;
             var contexto = Microsoft.Maui.ApplicationModel.Platform.AppContext;
             var admin = new Android.Content.ComponentName(contexto,
                 Java.Lang.Class.FromType(typeof(Proyecto.ScreenOffAdminReceiver)));
@@ -482,8 +486,13 @@ public static class RecordatorioScheduler
             intent.PutExtra(Android.App.Admin.DevicePolicyManager.ExtraDeviceAdmin, admin);
             intent.PutExtra(Android.App.Admin.DevicePolicyManager.ExtraAddExplanation,
                 "Permite apagar la pantalla durante tus descansos visuales.");
-            intent.AddFlags(Android.Content.ActivityFlags.NewTask);
-            contexto.StartActivity(intent);
+            if (actividad is Android.App.Activity activity)
+                activity.StartActivity(intent);
+            else
+            {
+                intent.AddFlags(Android.Content.ActivityFlags.NewTask);
+                contexto.StartActivity(intent);
+            }
         }
         catch { }
 #endif
