@@ -3,6 +3,8 @@ using Microsoft.Maui.Dispatching;
 using Microsoft.Maui.Storage;
 using Plugin.LocalNotification;
 using Plugin.LocalNotification.Core.Models;
+using Plugin.LocalNotification.Core.Models.AndroidOption;
+using Plugin.LocalNotification.EventArgs;
 
 #if WINDOWS
 using Microsoft.Windows.AppNotifications;
@@ -24,6 +26,10 @@ public static class RecordatorioScheduler
     public const string UnidadMin = "min";
     public const string UnidadHora = "h";
     public const string UnidadDia = "d";
+
+    // IDs de los botones de la notificación de "suspender pantalla".
+    public const int AccionSuspender = 100;
+    public const int AccionCancelar = 101;
 
     private const string PrefUltimo = "rec_ultimo_";
     private const string PrefSuspenderPantalla = "rec_suspender_pantalla";
@@ -50,10 +56,6 @@ public static class RecordatorioScheduler
     private static IDispatcherTimer? _temporizador;
     private static bool _iniciado;
     private static bool _evaluando;
-
-    // Cuenta atrás de 1 minuto antes de apagar la pantalla (descanso visual).
-    private static IDispatcherTimer? _temporizadorSuspension;
-    private static bool _suspensionCancelada;
 
     public static async Task IniciarAsync()
     {
@@ -104,6 +106,38 @@ public static class RecordatorioScheduler
                 await LocalNotificationCenter.Current.RequestNotificationPermission();
         }
         catch { }
+    }
+
+    // Atiende los botones de la notificación de suspensión. Se registra en
+    // MauiProgram para que funcione incluso si la app estaba cerrada.
+    public static void OnAccionNotificacion(NotificationActionEventArgs e)
+    {
+        if (e.IsDismissed)
+            return;
+
+        EjecutarAccion(e.ActionId);
+    }
+
+    private static DateTime _ultimaSuspension = DateTime.MinValue;
+
+    // "Suspender ahora" apaga la pantalla de inmediato; "Cancelar" no hace
+    // nada: el aviso volverá a dispararse en el siguiente intervalo.
+    public static void EjecutarAccion(int actionId)
+    {
+        if (actionId == AccionSuspender)
+        {
+            // Evita apagar dos veces si la acción llega por el evento y por
+            // el arranque en frío a la vez.
+            if ((DateTime.Now - _ultimaSuspension).TotalSeconds < 2)
+                return;
+
+            _ultimaSuspension = DateTime.Now;
+            SuspenderSistema();
+        }
+        else if (actionId == AccionCancelar)
+        {
+            CancelarSuspension();
+        }
     }
 
 #if ANDROID
@@ -197,12 +231,17 @@ public static class RecordatorioScheduler
             return;
         }
 
+        // El descanso visual con "suspender pantalla" usa una notificación
+        // interactiva (botones Suspender / Cancelar) en lugar del aviso normal.
+        bool esSuspension = string.Equals(tipo, TipoDescanso, StringComparison.OrdinalIgnoreCase)
+            && SuspenderPantalla;
+
         if (!onlyReSchedule && LeDebeAvisar(tipo, intervalo))
         {
             GuardarUltimo(tipo, DateTime.Now);
             try { LocalNotificationCenter.Current.Cancel(id); } catch { }
 
-            if (string.Equals(tipo, TipoDescanso, StringComparison.OrdinalIgnoreCase) && SuspenderPantalla)
+            if (esSuspension)
                 await MostrarSuspensionAsync(id, titulo);
             else
                 await MostrarAsync(id, titulo, mensaje);
@@ -215,7 +254,7 @@ public static class RecordatorioScheduler
             GuardarUltimo(tipo, DateTime.Now);
         }
 
-        ProgramarProximaNotificacion(id, tipo, intervalo, titulo, mensaje);
+        ProgramarProximaNotificacion(id, tipo, intervalo, titulo, mensaje, esSuspension);
     }
 
     private static async Task EvaluarTipoTareasAsync(List<RecordatorioSalud> lista, bool onlyReSchedule)
@@ -260,7 +299,7 @@ public static class RecordatorioScheduler
             GuardarUltimo(TipoTareas, DateTime.Now);
         }
 
-        ProgramarProximaNotificacion(id, TipoTareas, intervalo, titulo, mensaje);
+        ProgramarProximaNotificacion(id, TipoTareas, intervalo, titulo, mensaje, false);
     }
 
     private static bool LeDebeAvisar(string tipo, TimeSpan intervalo)
@@ -272,7 +311,7 @@ public static class RecordatorioScheduler
         return DateTime.Now >= ultimo.Add(intervalo);
     }
 
-    private static void ProgramarProximaNotificacion(int id, string tipo, TimeSpan intervalo, string titulo, string mensaje)
+    private static void ProgramarProximaNotificacion(int id, string tipo, TimeSpan intervalo, string titulo, string mensaje, bool esSuspension)
     {
         try
         {
@@ -308,6 +347,15 @@ public static class RecordatorioScheduler
                 Description = mensaje,
                 Schedule = schedule
             };
+
+            if (esSuspension)
+            {
+                // Adjunta los botones "Suspender ahora" / "Cancelar" a la
+                // notificación que dispara el sistema con la app cerrada.
+                request.CategoryType = NotificationCategoryType.Status;
+                request.Android.Priority = AndroidPriority.High;
+                request.Android.ChannelId = "recordatorios";
+            }
 
             LocalNotificationCenter.Current.Show(request);
 #else
@@ -353,71 +401,43 @@ public static class RecordatorioScheduler
         });
     }
 
-    // Aviso de descanso visual que además apaga la pantalla: arma una cuenta
-    // atrás de 1 minuto y muestra el mensaje. El usuario puede apagar ya o
-    // cancelar; si no hace nada, la pantalla se apaga sola al cumplirse el minuto.
+    // Notificación de descanso visual con dos botones: "Suspender ahora" apaga
+    // la pantalla de inmediato y "Cancelar" la descarta hasta el próximo aviso.
     private static async Task MostrarSuspensionAsync(int id, string titulo)
     {
-        ProgramarSuspension();
+        await AsegurarPermisoAsync();
 
-        await MainThread.InvokeOnMainThreadAsync(async () =>
+        await MainThread.InvokeOnMainThreadAsync(() =>
         {
-            if (EnPrimerPlano && Shell.Current is not null)
+            try
             {
-                try
+#if WINDOWS
+                MostrarSuspensionWindows(id, titulo,
+                    "Es hora de descansar la vista. ¿Apagar la pantalla ahora?");
+#else
+                LocalNotificationCenter.Current.Show(new NotificationRequest
                 {
-                    var apagarYa = await Shell.Current.DisplayAlert(
-                        titulo,
-                        "Tu pantalla se suspenderá en 1 minuto. Descansa la vista 👁️",
-                        "Apagar ahora",
-                        "Cancelar");
-
-                    // Cualquier respuesta cancela la cuenta atrás; si elige
-                    // "Apagar ahora" se apaga de inmediato.
-                    CancelarSuspension();
-                    if (apagarYa)
-                        SuspenderSistema();
-                }
-                catch
-                {
-                    CancelarSuspension();
-                }
+                    NotificationId = id,
+                    Title = titulo,
+                    Description = "Es hora de descansar la vista. ¿Apagar la pantalla ahora?",
+                    CategoryType = NotificationCategoryType.Status,
+                    Android =
+                    {
+                        Priority = AndroidPriority.High,
+                        ChannelId = "recordatorios"
+                    }
+                });
+#endif
             }
+            catch { }
         });
     }
 
-    // Inicia la cuenta atrás de 1 minuto antes de apagar la pantalla.
-    private static void ProgramarSuspension()
-    {
-        CancelarSuspension();
-        _suspensionCancelada = false;
-
-        var timer = Application.Current?.Dispatcher.CreateTimer();
-        if (timer is null)
-            return;
-
-        _temporizadorSuspension = timer;
-        timer.Interval = TimeSpan.FromMinutes(1);
-        timer.Tick += (_, _) =>
-        {
-            timer.Stop();
-            _temporizadorSuspension = null;
-            if (!_suspensionCancelada)
-                SuspenderSistema();
-        };
-        timer.Start();
-    }
-
-    // Cancela la cuenta atrás (lo usa "Cancelar" y el aviso de descanso normal).
+    // "Cancelar" en la notificación: no se apaga la pantalla ahora. El aviso
+    // volverá a dispararse con el siguiente intervalo configurado.
     public static void CancelarSuspension()
     {
-        _suspensionCancelada = true;
-        var timer = _temporizadorSuspension;
-        _temporizadorSuspension = null;
-        if (timer is not null)
-        {
-            timer.Stop();
-        }
+        try { LocalNotificationCenter.Current.Cancel(IdsPorTipo[TipoDescanso]); } catch { }
     }
 
     // Apaga/suspende la pantalla según la plataforma:
@@ -590,6 +610,24 @@ public static class RecordatorioScheduler
             .AddArgument("notificationId", id.ToString(System.Globalization.CultureInfo.InvariantCulture))
             .AddText(titulo)
             .AddText(mensaje)
+            .BuildNotification();
+
+        notificacion.Tag = id.ToString(System.Globalization.CultureInfo.InvariantCulture);
+        AppNotificationManager.Default.Show(notificacion);
+    }
+
+    // Toast de Windows con los botones "Suspender ahora" y "Cancelar".
+    // La pulsación se atiende en Platforms/Windows/App.xaml.cs.
+    private static void MostrarSuspensionWindows(int id, string titulo, string mensaje)
+    {
+        var notificacion = new AppNotificationBuilder()
+            .AddArgument("notificationId", id.ToString(System.Globalization.CultureInfo.InvariantCulture))
+            .AddText(titulo)
+            .AddText(mensaje)
+            .AddButton(new AppNotificationButton("Suspender ahora")
+                .AddArgument("accion", AccionSuspender.ToString(System.Globalization.CultureInfo.InvariantCulture)))
+            .AddButton(new AppNotificationButton("Cancelar")
+                .AddArgument("accion", AccionCancelar.ToString(System.Globalization.CultureInfo.InvariantCulture)))
             .BuildNotification();
 
         notificacion.Tag = id.ToString(System.Globalization.CultureInfo.InvariantCulture);

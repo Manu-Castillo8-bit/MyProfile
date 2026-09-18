@@ -1,5 +1,6 @@
 ﻿using Microsoft.UI.Xaml;
 using Microsoft.Windows.AppNotifications;
+using Proyecto.Services;
 
 // To learn more about WinUI, the WinUI project structure,
 // and more about our project templates, see: http://aka.ms/winui-project-info.
@@ -25,6 +26,17 @@ namespace Proyecto.WinUI
             try
             {
                 AppNotificationManager.Default.Register();
+
+                // Atiende los botones de la notificación de "suspender pantalla".
+                AppNotificationManager.Default.NotificationInvoked += (_, args) =>
+                {
+                    if (args.Arguments is not null &&
+                        args.Arguments.TryGetValue("accion", out var valor) &&
+                        int.TryParse(valor, out int accion))
+                    {
+                        RecordatorioScheduler.EjecutarAccion(accion);
+                    }
+                };
             }
             catch
             {
@@ -35,6 +47,20 @@ namespace Proyecto.WinUI
         }
 
         protected override MauiApp CreateMauiApp() => MauiProgram.CreateMauiApp();
-    }
 
+        protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs args)
+        {
+            base.OnLaunched(args);
+
+            // Mantiene la app viva en la bandeja del sistema al cerrar la
+            // ventana, para no perder los recordatorios de Windows.
+            try
+            {
+                var ventanaMaui = Microsoft.Maui.Controls.Application.Current?.Windows.FirstOrDefault();
+                if (ventanaMaui?.Handler?.PlatformView is Microsoft.UI.Xaml.Window ventana)
+                    BandejaSistema.Configurar(ventana);
+            }
+            catch { }
+        }
+    }
 }
