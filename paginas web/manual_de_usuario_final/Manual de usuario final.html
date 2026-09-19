@@ -1374,15 +1374,21 @@
             </div>
         </div>
     </section>
-
-    <footer>
-        <a href="#" class="btn-main" id="btn-download-pdf" onclick="downloadPDF()">
-        <i class="fa-solid fa-file-pdf"></i> Descargar Manual en PDF
+<footer>
+    <!-- BOTÓN PARA DESCARGAR EL MANUAL DE USUARIO FINAL -->
+    <a href="pdf/Manual%20de%20usuario%20final%20MyProfile.pdf" download class="btn-main" style="display: inline-flex; align-items: center; gap: 8px;">
+        <i class="fa-solid fa-file-pdf"></i>
+        Descargar Manual (PDF)
     </a>
-        <div><strong>MyProfile v1.0</strong> — Disponible para PC y Dispositivos Móviles.</div>
-        <div>© 2026 NEXO - El Salvador. Todos los derechos reservados.</div>
-    </footer>
 
+    <div style="margin-top: 12px;">
+        <strong>MyProfile v1.0</strong> — Disponible para PC y Dispositivos Móviles.
+    </div>
+    
+    <div>
+        © 2026 NEXO - El Salvador. Todos los derechos reservados.
+    </div>
+</footer>
     <script>
         // ---------- Estado de la aplicación (en memoria) ----------
         let tasks = [
