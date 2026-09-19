@@ -348,13 +348,14 @@ public static class RecordatorioScheduler
                 Schedule = schedule
             };
 
+            request.Android.Priority = AndroidPriority.High;
+            request.Android.ChannelId = "recordatorios";
+
             if (esSuspension)
             {
                 // Adjunta los botones "Suspender ahora" / "Cancelar" a la
                 // notificación que dispara el sistema con la app cerrada.
                 request.CategoryType = NotificationCategoryType.Status;
-                request.Android.Priority = AndroidPriority.High;
-                request.Android.ChannelId = "recordatorios";
             }
 
             LocalNotificationCenter.Current.Show(request);
@@ -387,7 +388,12 @@ public static class RecordatorioScheduler
                 {
                     NotificationId = id,
                     Title = titulo,
-                    Description = mensaje
+                    Description = mensaje,
+                    Android =
+                    {
+                        Priority = AndroidPriority.High,
+                        ChannelId = "recordatorios"
+                    }
                 });
 #endif
             }

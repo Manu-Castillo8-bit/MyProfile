@@ -1,6 +1,6 @@
 ; Proyecto -Instalador (Windows x64, autosuficiente)
 #define Nombre "Proyecto"
-#define Version "1.0.0"
+#define Version "1.1.0"
 #define Editor "Proyecto"
 #define PublicadoDir "..\publish\sc"
 

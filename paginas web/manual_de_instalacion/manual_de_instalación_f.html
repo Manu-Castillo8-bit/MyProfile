@@ -355,8 +355,11 @@
     display:block;
     width:100%;
     height:auto;
+    min-height:180px;
+    background:var(--panel-3);
     cursor:zoom-in;
     transition:opacity .2s ease;
+    object-fit:cover;
   }
   .zoomable-img:hover{opacity:.92;}
 
@@ -461,7 +464,8 @@
       <p class="explorer-title">▸ myprofile</p>
       <ul class="file-list">
         <li><a href="#requisitos" class="file-link"><span class="file-icon json">{ }</span>requisitos</a></li>
-        <li><a href="#instalacion" class="file-link"><span class="file-icon sh">$</span>instalación</a></li>
+        <li><a href="#instalacion-pc" class="file-link"><span class="file-icon sh">$</span>instalación-pc</a></li>
+        <li><a href="#instalacion-android" class="file-link"><span class="file-icon sh">$</span>instalación-android</a></li>
         <li><a href="#creditos" class="file-link"><span class="file-icon md">#</span>créditos</a></li>
       </ul>
     </aside>
@@ -475,7 +479,22 @@
             <span class="badge">android</span>
           </div>
           <h1>MyProfile</h1>
-          <p class="sub">Manual de instalación para usuarios finales e información del proyecto.</p>
+          <p class="sub">Manual de instalación paso a paso para dispositivos Android y PC (Windows).</p>
+
+          <div class="terminal">
+            <div class="terminal-bar">
+              <span class="tl red"></span><span class="tl yellow"></span><span class="tl green"></span>
+              <span class="terminal-title">bash — setup.sh</span>
+            </div>
+            <div class="terminal-body">
+              <div class="line"><span class="prompt">$</span> <span id="typedCmd"></span><span class="cursor" id="cmdCursor"></span></div>
+              <div class="progress-row" id="progressRow" style="display:none;">
+                <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+                <div class="progress-label" id="progressLabel">0%</div>
+              </div>
+              <div class="result" id="terminalResult" style="display:none;">[✓] Guía de instalación lista para PC y Android</div>
+            </div>
+          </div>
         </div>
 
         <!-- REQUISITOS -->
@@ -491,24 +510,26 @@
                 <li><span class="key">sistemaOperativo</span><span class="colon">:</span><span class="val">"Android 5.0 (Lollipop / API nivel 21) o superior"</span></li>
                 <li><span class="key">arquitectura</span><span class="colon">:</span><span class="val">"ARM 32/64 bits (ARM64) y x86/x86_64"</span></li>
                 <li><span class="key">memoriaRAM</span><span class="colon">:</span><span class="val">"2 GB mínimo recomendado"</span></li>
+                <li><span class="key">formatoArchivo</span><span class="colon">:</span><span class="val">".APK"</span></li>
               </ul>
             </div>
             <div class="manifest-file">
               <div class="manifest-head"><span class="file-icon json sm">{ }</span>windows.json</div>
               <ul class="kv-list">
-                <li><span class="key">sistemaOperativo</span><span class="colon">:</span><span class="val">"Windows 10 (v1809 / build 17763+) o Windows 11"</span></li>
+                <li><span class="key">sistemaOperativo</span><span class="colon">:</span><span class="val">"Windows 10 (v1809+) o Windows 11"</span></li>
                 <li><span class="key">arquitectura</span><span class="colon">:</span><span class="val">"x86, x64 o ARM64"</span></li>
                 <li><span class="key">memoriaRAM</span><span class="colon">:</span><span class="val">"4 GB mínimo, 8 GB recomendado"</span></li>
-                <li><span class="key">dependencias</span><span class="colon">:</span><span class="val">"Windows App SDK / WinUI 3, .NET runtime"</span></li>
+                <li><span class="key">formatoArchivo</span><span class="colon">:</span><span class="val">".EXE / .MSI"</span></li>
               </ul>
             </div>
           </div>
         </section>
 
-        <!-- INSTALACIÓN -->
-        <section id="instalacion">
-          <p class="comment">// instalación paso a paso</p>
-          <h2>Cómo instalar el programa</h2>
+        <!-- INSTALACIÓN EN PC (WINDOWS) -->
+        <section id="instalacion-pc">
+          <p class="comment">// instalación en computadora</p>
+          <h2>Cómo instalar en PC (Windows)</h2>
+          <p class="section-intro">Sigue estos pasos para llevar a cabo la instalación del programa en tu equipo con Windows.</p>
 
           <div class="pipeline">
 
@@ -516,14 +537,10 @@
               <div class="step-node"><span class="step-index">01</span></div>
               <div class="step-body">
                 <h4>Ejecutar el instalador</h4>
-                <p>Abrir la carpeta llamada Installer y damos doble clic al archivo que aparecerá dentro de la carpeta.</p>
+                <p>Abre la carpeta de descargas o la carpeta <code>Installer</code> y haz doble clic sobre el archivo ejecutable del instalador (<code>.exe</code>).</p>
                 <div class="shot">
-                  <div class="shot-bar"><span class="tl red"></span><span class="tl yellow"></span><span class="tl green"></span><span class="shot-name">1.png</span></div>
-                  <img src="./imagenes/1.png" alt="Paso 1: Abrir carpeta Installer y ejecutar instalador" class="zoomable-img" onclick="openModal(this)">
-                </div>
-                <div class="shot">
-                  <div class="shot-bar"><span class="tl red"></span><span class="tl yellow"></span><span class="tl green"></span><span class="shot-name">2.png</span></div>
-                  <img src="./imagenes/2.png" alt="Paso 1: Abrir carpeta Installer y ejecutar instalador" class="zoomable-img" onclick="openModal(this)">
+                  <div class="shot-bar"><span class="tl red"></span><span class="tl yellow"></span><span class="tl green"></span><span class="shot-name">pc-paso1.png</span></div>
+                  <img src="./imagenes/pc-paso1.png" alt="Paso 1 PC: Abrir carpeta y ejecutar instalador" class="zoomable-img" onclick="openModal(this)">
                 </div>
               </div>
             </div>
@@ -531,11 +548,11 @@
             <div class="step">
               <div class="step-node"><span class="step-index">02</span></div>
               <div class="step-body">
-                <h4>Conceder permisos</h4>
-                <p>Damos los permisos de instalación requeridos por el sistema.</p>
+                <h4>Conceder permisos de administrador</h4>
+                <p>Acepta el mensaje del Control de Cuentas de Usuario (UAC) para otorgar los permisos de instalación necesarios en el sistema.</p>
                 <div class="shot">
-                  <div class="shot-bar"><span class="tl red"></span><span class="tl yellow"></span><span class="tl green"></span><span class="shot-name">3.png</span></div>
-                  <img src="./imagenes/3.png" alt="Paso 2: Permisos de instalación" class="zoomable-img" onclick="openModal(this)">
+                  <div class="shot-bar"><span class="tl red"></span><span class="tl yellow"></span><span class="tl green"></span><span class="shot-name">pc-paso2.png</span></div>
+                  <img src="./imagenes/pc-paso2.png" alt="Paso 2 PC: Otorgar permisos de administrador" class="zoomable-img" onclick="openModal(this)">
                 </div>
               </div>
             </div>
@@ -543,11 +560,11 @@
             <div class="step">
               <div class="step-node"><span class="step-index">03</span></div>
               <div class="step-body">
-                <h4>Elegir idioma</h4>
-                <p>Seleccionamos el idioma que deseamos utilizar en el asistente.</p>
+                <h4>Elegir idioma y aceptar términos</h4>
+                <p>Selecciona el idioma de tu preferencia para el asistente de instalación y acepta los términos del acuerdo de licencia.</p>
                 <div class="shot">
-                  <div class="shot-bar"><span class="tl red"></span><span class="tl yellow"></span><span class="tl green"></span><span class="shot-name">4.png</span></div>
-                  <img src="./imagenes/4.png" alt="Paso 3: Selección de idioma" class="zoomable-img" onclick="openModal(this)">
+                  <div class="shot-bar"><span class="tl red"></span><span class="tl yellow"></span><span class="tl green"></span><span class="shot-name">pc-paso3.png</span></div>
+                  <img src="./imagenes/pc-paso3.png" alt="Paso 3 PC: Selección de idioma y acuerdo de licencia" class="zoomable-img" onclick="openModal(this)">
                 </div>
               </div>
             </div>
@@ -555,11 +572,11 @@
             <div class="step">
               <div class="step-node"><span class="step-index">04</span></div>
               <div class="step-body">
-                <h4>Confirmar ubicación</h4>
-                <p>Aceptamos todo lo que nos pida el asistente (esto es para ubicar los archivos en carpetas específicas del sistema).</p>
+                <h4>Confirmar carpeta de destino</h4>
+                <p>Selecciona la ruta de instalación donde se almacenarán los archivos del programa o mantén la carpeta predeterminada.</p>
                 <div class="shot">
-                  <div class="shot-bar"><span class="tl red"></span><span class="tl yellow"></span><span class="tl green"></span><span class="shot-name">5.png</span></div>
-                  <img src="./imagenes/5.png" alt="Paso 4: Aceptar ubicación y configuración" class="zoomable-img" onclick="openModal(this)">
+                  <div class="shot-bar"><span class="tl red"></span><span class="tl yellow"></span><span class="tl green"></span><span class="shot-name">pc-paso4.png</span></div>
+                  <img src="./imagenes/pc-paso4.png" alt="Paso 4 PC: Elegir carpeta de destino" class="zoomable-img" onclick="openModal(this)">
                 </div>
               </div>
             </div>
@@ -567,11 +584,11 @@
             <div class="step">
               <div class="step-node"><span class="step-index">05</span></div>
               <div class="step-body">
-                <h4>Iniciar instalación</h4>
-                <p>Hacemos clic en instalar.</p>
+                <h4>Iniciar proceso de instalación</h4>
+                <p>Haz clic en el botón <strong>Instalar</strong> y espera a que la barra de progreso complete la extracción de archivos.</p>
                 <div class="shot">
-                  <div class="shot-bar"><span class="tl red"></span><span class="tl yellow"></span><span class="tl green"></span><span class="shot-name">6.png</span></div>
-                  <img src="./imagenes/6.png" alt="Paso 5: Clic en instalar" class="zoomable-img" onclick="openModal(this)">
+                  <div class="shot-bar"><span class="tl red"></span><span class="tl yellow"></span><span class="tl green"></span><span class="shot-name">pc-paso5.png</span></div>
+                  <img src="./imagenes/pc-paso5.png" alt="Paso 5 PC: Progreso de la instalación" class="zoomable-img" onclick="openModal(this)">
                 </div>
               </div>
             </div>
@@ -579,15 +596,82 @@
             <div class="step">
               <div class="step-node"><span class="step-index">06</span></div>
               <div class="step-body">
-                <h4>Finalizar</h4>
-                <p>Damos click en finalizar y el programa se abrirá automáticamente mostrando la interfaz final.</p>
+                <h4>Finalizar e iniciar la aplicación</h4>
+                <p>Haz clic en <strong>Finalizar</strong>. Marca la casilla para abrir el programa automáticamente y comprobar su funcionamiento.</p>
                 <div class="shot">
-                  <div class="shot-bar"><span class="tl red"></span><span class="tl yellow"></span><span class="tl green"></span><span class="shot-name">7.png</span></div>
-                  <img src="./imagenes/7.png" alt="Paso 6: Finalizar e interfaz principal" class="zoomable-img" onclick="openModal(this)">
+                  <div class="shot-bar"><span class="tl red"></span><span class="tl yellow"></span><span class="tl green"></span><span class="shot-name">pc-paso6.png</span></div>
+                  <img src="./imagenes/pc-paso6.png" alt="Paso 6 PC: Finalización del asistente e interfaz principal" class="zoomable-img" onclick="openModal(this)">
                 </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- INSTALACIÓN EN ANDROID -->
+        <section id="instalacion-android">
+          <p class="comment">// instalación en móvil</p>
+          <h2>Cómo instalar en Android</h2>
+          <p class="section-intro">Sigue estos pasos para instalar el paquete de la aplicación (<code>.apk</code>) en tu dispositivo móvil Android.</p>
+
+          <div class="pipeline">
+
+            <div class="step">
+              <div class="step-node"><span class="step-index">01</span></div>
+              <div class="step-body">
+                <h4>Descargar el archivo APK</h4>
+                <p>Descarga el paquete de instalación <code>.apk</code> en tu teléfono desde el enlace proporcionado o transfiérelo a la memoria del dispositivo.</p>
                 <div class="shot">
-                  <div class="shot-bar"><span class="tl red"></span><span class="tl yellow"></span><span class="tl green"></span><span class="shot-name">8.png</span></div>
-                  <img src="./imagenes/8.png" alt="Paso 1: Abrir carpeta Installer y ejecutar instalador" class="zoomable-img" onclick="openModal(this)">
+                  <div class="shot-bar"><span class="tl red"></span><span class="tl yellow"></span><span class="tl green"></span><span class="shot-name">android-paso1.png</span></div>
+                  <img src="./imagenes/android-paso1.png" alt="Paso 1 Android: Descargar o ubicar archivo APK" class="zoomable-img" onclick="openModal(this)">
+                </div>
+              </div>
+            </div>
+
+            <div class="step">
+              <div class="step-node"><span class="step-index">02</span></div>
+              <div class="step-body">
+                <h4>Permitir orígenes desconocidos</h4>
+                <p>Si es la primera vez que instalas una app fuera de Google Play, ve a <strong>Ajustes &gt; Seguridad</strong> (o activa la opción desde el navegador/administrador de archivos) para autorizar la instalación de fuentes desconocidas.</p>
+                <div class="shot">
+                  <div class="shot-bar"><span class="tl red"></span><span class="tl yellow"></span><span class="tl green"></span><span class="shot-name">android-paso2.png</span></div>
+                  <img src="./imagenes/android-paso2.png" alt="Paso 2 Android: Habilitar orígenes desconocidos" class="zoomable-img" onclick="openModal(this)">
+                </div>
+              </div>
+            </div>
+
+            <div class="step">
+              <div class="step-node"><span class="step-index">03</span></div>
+              <div class="step-body">
+                <h4>Abrir el archivo APK</h4>
+                <p>Abre el administrador de archivos de tu teléfono, dirígete a la carpeta <strong>Descargas</strong> y pulsa sobre el archivo <code>.apk</code>.</p>
+                <div class="shot">
+                  <div class="shot-bar"><span class="tl red"></span><span class="tl yellow"></span><span class="tl green"></span><span class="shot-name">android-paso3.png</span></div>
+                  <img src="./imagenes/android-paso3.png" alt="Paso 3 Android: Ejecutar el archivo APK" class="zoomable-img" onclick="openModal(this)">
+                </div>
+              </div>
+            </div>
+
+            <div class="step">
+              <div class="step-node"><span class="step-index">04</span></div>
+              <div class="step-body">
+                <h4>Confirmar la instalación</h4>
+                <p>Aparecerá un mensaje emergente solicitando la confirmación. Pulsa sobre la opción <strong>Instalar</strong>.</p>
+                <div class="shot">
+                  <div class="shot-bar"><span class="tl red"></span><span class="tl yellow"></span><span class="tl green"></span><span class="shot-name">android-paso4.png</span></div>
+                  <img src="./imagenes/android-paso4.png" alt="Paso 4 Android: Confirmar botón de instalación" class="zoomable-img" onclick="openModal(this)">
+                </div>
+              </div>
+            </div>
+
+            <div class="step">
+              <div class="step-node"><span class="step-index">05</span></div>
+              <div class="step-body">
+                <h4>Abrir la aplicación</h4>
+                <p>Una vez completado el proceso, presiona <strong>Abrir</strong> para iniciar la aplicación MyProfile en tu dispositivo Android.</p>
+                <div class="shot">
+                  <div class="shot-bar"><span class="tl red"></span><span class="tl yellow"></span><span class="tl green"></span><span class="shot-name">android-paso5.png</span></div>
+                  <img src="./imagenes/android-paso5.png" alt="Paso 5 Android: Aplicación instalada y abierta" class="zoomable-img" onclick="openModal(this)">
                 </div>
               </div>
             </div>
@@ -710,7 +794,7 @@
   document.addEventListener('scroll', updateScrollProgress);
   updateScrollProgress();
 
-  // Animación de terminal en el hero (se ejecuta una sola vez)
+  // Animación de terminal en el hero
   (function(){
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     const cmdEl = document.getElementById('typedCmd');
@@ -719,15 +803,17 @@
     const progressFill = document.getElementById('progressFill');
     const progressLabel = document.getElementById('progressLabel');
     const resultEl = document.getElementById('terminalResult');
-    const command = './MyProfile-Setup.exe --guia';
+    const command = './MyProfile-Setup.sh --instalar';
+
+    if(!cmdEl) return;
 
     if (reduced) {
       cmdEl.textContent = command;
-      cursorEl.style.display = 'none';
-      progressRow.style.display = 'flex';
-      progressFill.style.width = '100%';
-      progressLabel.textContent = '100%';
-      resultEl.style.display = 'block';
+      if(cursorEl) cursorEl.style.display = 'none';
+      if(progressRow) progressRow.style.display = 'flex';
+      if(progressFill) progressFill.style.width = '100%';
+      if(progressLabel) progressLabel.textContent = '100%';
+      if(resultEl) resultEl.style.display = 'block';
       return;
     }
 
@@ -742,17 +828,17 @@
       }
     }
     function startProgress(){
-      cursorEl.style.display = 'none';
-      progressRow.style.display = 'flex';
-      requestAnimationFrame(()=>{ progressFill.style.width = '100%'; });
+      if(cursorEl) cursorEl.style.display = 'none';
+      if(progressRow) progressRow.style.display = 'flex';
+      requestAnimationFrame(()=>{ if(progressFill) progressFill.style.width = '100%'; });
       let pct = 0;
       const interval = setInterval(()=>{
         pct = Math.min(100, pct + Math.round(8 + Math.random()*14));
-        progressLabel.textContent = pct + '%';
+        if(progressLabel) progressLabel.textContent = pct + '%';
         if(pct >= 100){
           clearInterval(interval);
-          progressLabel.textContent = '100%';
-          setTimeout(()=>{ resultEl.style.display = 'block'; }, 150);
+          if(progressLabel) progressLabel.textContent = '100%';
+          setTimeout(()=>{ if(resultEl) resultEl.style.display = 'block'; }, 150);
         }
       }, 120);
     }
