@@ -1,5 +1,7 @@
 using System.Runtime.InteropServices;
 using H.NotifyIcon;
+using Microsoft.UI;
+using Microsoft.UI.Windowing;
 using Microsoft.UI.Xaml.Controls;
 using Microsoft.Win32;
 using Window = Microsoft.UI.Xaml.Window;
@@ -22,11 +24,9 @@ public static class BandejaSistema
     private const string NombreMutex = "Proyecto.InstanciaUnica";
     private const string NombreEventoMostrar = "Proyecto.MostrarVentana";
 
-    private const int SwOcultar = 0;
-    private const int SwMostrar = 5;
-
     private static TaskbarIcon? _icono;
     private static Window? _ventana;
+    private static AppWindow? _appWindow;
     private static bool _saliendo;
     private static bool _avisoMostrado;
     private static Mutex? _mutex;
@@ -44,16 +44,38 @@ public static class BandejaSistema
             return;
         }
 
-        // La "X" no cierra la app: oculta la ventana y la deja en la bandeja.
-        ventana.Closed += (_, e) =>
+        // La ventana WinUI y su AppWindow: AppWindow.Closing permite cancelar el
+        // cierre de forma fiable (la "X" oculta en vez de cerrar de verdad) y
+        // AppWindow.Hide/Show gestiona la visibilidad sin romper el renderizado.
+        try
         {
-            if (_saliendo)
-                return;
+            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(ventana);
+            var windowId = Win32Interop.GetWindowIdFromWindow(hwnd);
+            _appWindow = AppWindow.GetFromWindowId(windowId);
 
-            e.Handled = true;
-            Ocultar();
-            MostrarAviso();
-        };
+            _appWindow.Closing += (_, e) =>
+            {
+                if (_saliendo)
+                    return;
+
+                e.Cancel = true;
+                Ocultar();
+                MostrarAviso();
+            };
+        }
+        catch
+        {
+            // Respaldo si AppWindow no está disponible: interceptar "Closed".
+            ventana.Closed += (_, e) =>
+            {
+                if (_saliendo)
+                    return;
+
+                e.Handled = true;
+                Ocultar();
+                MostrarAviso();
+            };
+        }
 
         CrearIcono();
         RegistrarAutoarranque();
@@ -78,8 +100,8 @@ public static class BandejaSistema
 
         try
         {
+            _appWindow?.Show();
             var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(_ventana);
-            ShowWindow(hwnd, SwMostrar);
             SetForegroundWindow(hwnd);
             _ventana.Activate();
         }
@@ -93,8 +115,7 @@ public static class BandejaSistema
 
         try
         {
-            var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(_ventana);
-            ShowWindow(hwnd, SwOcultar);
+            _appWindow?.Hide();
         }
         catch { }
     }
@@ -123,7 +144,10 @@ public static class BandejaSistema
                 LeftClickCommand = new ComandoAccion(Mostrar),
                 DoubleClickCommand = new ComandoAccion(Mostrar)
             };
-            _icono.ForceCreate();
+            // enablesEfficiencyMode=false: el "Efficiency Mode" que activa la
+            // bandeja por defecto limita la CPU del proceso y deja la app
+            // lenta/trabada (incluso no despierta los hilos rapidamente).
+            _icono.ForceCreate(false);
         }
         catch
         {
@@ -246,10 +270,6 @@ public static class BandejaSistema
 
         public void Execute(object? parameter) => _accion();
     }
-
-    [DllImport("user32.dll")]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static extern bool ShowWindow(IntPtr hWnd, int nCmdShow);
 
     [DllImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
