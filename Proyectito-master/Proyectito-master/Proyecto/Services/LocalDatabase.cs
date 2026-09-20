@@ -117,11 +117,49 @@ public static class LocalDatabase
         return _conexion;
     }
 
+    // Bases de instalaciones antiguas pueden tener columnas con otro nombre
+    // (p. ej. "id_usuario" en minúsculas) y romper las consultas con
+    // "no such column". Las tablas con esquema desactualizado se recrean:
+    // el próximo pull de SyncService vuelve a descargar los datos reales.
+    private class ColumnaInfo
+    {
+        [SQLite.Column("name")]
+        public string Nombre { get; set; } = "";
+    }
+
+    private static async Task RepararEsquemaAsync(SQLiteAsyncConnection conexion)
+    {
+        var requeridas = new (string tabla, string columna)[]
+        {
+            ("tarea_offline", "IdUsuario"),
+            ("movimiento_offline", "IdUsuario"),
+            ("movimiento_offline", "Oculto"),
+            ("contrasena_offline", "IdUsuario"),
+            ("recordatorio_offline", "IdUsuario"),
+        };
+
+        foreach (var (tabla, columna) in requeridas)
+        {
+            try
+            {
+                var actuales = await conexion.QueryAsync<ColumnaInfo>($"PRAGMA table_info({tabla})");
+                if (actuales.All(c => !string.Equals(c.Nombre, columna, StringComparison.OrdinalIgnoreCase)))
+                    await conexion.ExecuteAsync($"DROP TABLE IF EXISTS {tabla}");
+            }
+            catch
+            {
+                // Tabla aún sin crear o ya válida: no requiere reparación.
+            }
+        }
+    }
+
     private static async Task<SQLiteAsyncConnection> CrearConexionAsync()
     {
         var ruta = Path.Combine(FileSystem.AppDataDirectory, NombreDb);
         var conexion = new SQLiteAsyncConnection(ruta,
             SQLiteOpenFlags.ReadWrite | SQLiteOpenFlags.Create | SQLiteOpenFlags.SharedCache);
+
+        await RepararEsquemaAsync(conexion);
 
         await conexion.CreateTableAsync<TareaOffline>();
         await conexion.CreateTableAsync<MovimientoOffline>();
@@ -170,6 +208,23 @@ public static class LocalDatabase
     public static int IdInterfaz(int? serverId, int idLocal) => serverId ?? -idLocal;
     private static bool EsIdLocal(int id) => id < 0;
     private static int IdLocalDeInterfaz(int id) => -id;
+
+    // Reasigna los datos de un "dueño" local a otro. Se usa para sanar la base
+    // local cuando una sesión sin id de servidor (id nominal derivado del correo)
+    // se convierte, tras un login en línea, en una sesión con id real: así los
+    // movimientos/tareas/contraseñas creados offline no quedan huérfanos y
+    // pueden sincronizarse a Supabase.
+    public static async Task ReatribuirDuennoAsync(int idAnterior, int idNuevo)
+    {
+        if (idAnterior == idNuevo)
+            return;
+
+        var db = await GetConexionAsync();
+        await db.ExecuteAsync("UPDATE tarea_offline SET IdUsuario = ? WHERE IdUsuario = ?", idNuevo, idAnterior);
+        await db.ExecuteAsync("UPDATE movimiento_offline SET IdUsuario = ? WHERE IdUsuario = ?", idNuevo, idAnterior);
+        await db.ExecuteAsync("UPDATE contrasena_offline SET IdUsuario = ? WHERE IdUsuario = ?", idNuevo, idAnterior);
+        await db.ExecuteAsync("UPDATE recordatorio_offline SET IdUsuario = ? WHERE IdUsuario = ?", idNuevo, idAnterior);
+    }
 
     // ── USUARIOS / CREDENCIALES OFFLINE ──
 
@@ -221,7 +276,13 @@ public static class LocalDatabase
     {
         var db = await GetConexionAsync();
         if (EsIdLocal(id))
-            return await db.Table<TareaOffline>().Where(t => t.IdLocal == IdLocalDeInterfaz(id) && t.IdUsuario == idUsuario).FirstOrDefaultAsync();
+        {
+            // El cálculo debe hacerse FUERA de la expresión LINQ: sqlite-net-pcl
+            // convierte los métodos desconocidos dentro del Where en funciones
+            // SQL, lo que provocaba "no such function: idlocaldeinterfaz".
+            int idLocal = IdLocalDeInterfaz(id);
+            return await db.Table<TareaOffline>().Where(t => t.IdLocal == idLocal && t.IdUsuario == idUsuario).FirstOrDefaultAsync();
+        }
         return await db.Table<TareaOffline>().Where(t => t.ServerId == id && t.IdUsuario == idUsuario).FirstOrDefaultAsync();
     }
 
@@ -376,7 +437,11 @@ public static class LocalDatabase
     {
         var db = await GetConexionAsync();
         if (EsIdLocal(id))
-            return await db.Table<MovimientoOffline>().Where(m => m.IdLocal == IdLocalDeInterfaz(id) && m.IdUsuario == idUsuario).FirstOrDefaultAsync();
+        {
+            // Cálculo fuera de la expresión LINQ (evita "no such function: idlocaldeinterfaz").
+            int idLocal = IdLocalDeInterfaz(id);
+            return await db.Table<MovimientoOffline>().Where(m => m.IdLocal == idLocal && m.IdUsuario == idUsuario).FirstOrDefaultAsync();
+        }
         return await db.Table<MovimientoOffline>().Where(m => m.ServerId == id && m.IdUsuario == idUsuario).FirstOrDefaultAsync();
     }
 
@@ -401,7 +466,11 @@ public static class LocalDatabase
     {
         var db = await GetConexionAsync();
         if (EsIdLocal(id))
-            return await db.Table<ContrasenaOffline>().Where(c => c.IdLocal == IdLocalDeInterfaz(id) && c.IdUsuario == idUsuario).FirstOrDefaultAsync();
+        {
+            // Cálculo fuera de la expresión LINQ (evita "no such function: idlocaldeinterfaz").
+            int idLocal = IdLocalDeInterfaz(id);
+            return await db.Table<ContrasenaOffline>().Where(c => c.IdLocal == idLocal && c.IdUsuario == idUsuario).FirstOrDefaultAsync();
+        }
         return await db.Table<ContrasenaOffline>().Where(c => c.ServerId == id && c.IdUsuario == idUsuario).FirstOrDefaultAsync();
     }
 

@@ -22,6 +22,12 @@ public static class SyncService
         if (SupabaseService.UsuarioActual is null)
             return;
 
+        // Una sesión nominal (offline sin id de servidor) no tiene a quién
+        // subirle datos: se sincronizará cuando el usuario inicie sesión en
+        // línea, momento en que sus datos locales se reatribuyen al id real.
+        if (!SupabaseService.SesionConIdServidor)
+            return;
+
         if (!await LockSincronizacion.WaitAsync(0))
             return; // Ya hay una sincronización en curso.
 
@@ -30,19 +36,30 @@ public static class SyncService
             var client = await SupabaseService.GetClientAsync();
             int idUsuario = SupabaseService.UsuarioActual.Id;
 
-            await SincronizarTareasAsync(client, idUsuario);
-            await SincronizarMovimientosAsync(client, idUsuario);
-            await SincronizarContrasenasAsync(client, idUsuario);
-            await SincronizarRecordatoriosAsync(client, idUsuario);
-        }
-        catch
-        {
-            // Sin conexión efectiva o error del servidor:
-            // los cambios locales quedan pendientes para el próximo intento.
+            // Cada tabla se sincroniza de forma independiente: un fallo en una
+            // (p. ej. un registro con id_usuario inválido) no bloquea a las demás.
+            await EjecutarSeguroAsync(() => SincronizarTareasAsync(client, idUsuario));
+            await EjecutarSeguroAsync(() => SincronizarMovimientosAsync(client, idUsuario));
+            await EjecutarSeguroAsync(() => SincronizarContrasenasAsync(client, idUsuario));
+            await EjecutarSeguroAsync(() => SincronizarRecordatoriosAsync(client, idUsuario));
         }
         finally
         {
             LockSincronizacion.Release();
+        }
+    }
+
+    private static async Task EjecutarSeguroAsync(Func<Task> accion)
+    {
+        try
+        {
+            await accion();
+        }
+        catch (Exception ex)
+        {
+            // Sin conexión efectiva o error del servidor: los cambios locales
+            // de esa tabla quedan pendientes para el próximo intento.
+            System.Diagnostics.Debug.WriteLine($"[SyncService] fallo de sincronización: {ex.Message}");
         }
     }
 
@@ -55,40 +72,53 @@ public static class SyncService
         var pendientes = await LocalDatabase.TareasPorSyncStateAsync(idUsuario, SyncStatus.Pendiente);
         foreach (var local in pendientes)
         {
-            if (local.ServerId is int serverId)
+            try
             {
-                var q = client.From<Tarea>().Where(t => t.IdTarea == serverId);
-                q = q.Set(t => t.Titulo, local.Titulo)
-                     .Set(t => t.Descripcion, local.Descripcion)
-                     .Set(t => t.FechaVencimiento, local.FechaVencimiento)
-                     .Set(t => t.Estado, local.Estado);
-                await q.Update();
-                await LocalDatabase.MarcarTareaSincronizadaAsync(local.IdLocal, serverId);
-            }
-            else
-            {
-                var creado = await client.From<Tarea>().Insert(new Tarea
+                if (local.ServerId is int serverId)
                 {
-                    IdUsuario = idUsuario,
-                    Titulo = local.Titulo,
-                    Descripcion = local.Descripcion,
-                    FechaVencimiento = local.FechaVencimiento,
-                    Estado = local.Estado
-                });
-                var remoto = creado.Models.FirstOrDefault();
-                if (remoto is not null)
-                    await LocalDatabase.MarcarTareaSincronizadaAsync(local.IdLocal, remoto.IdTarea);
+                    var q = client.From<Tarea>().Where(t => t.IdTarea == serverId);
+                    q = q.Set(t => t.Titulo, local.Titulo)
+                         .Set(t => t.Descripcion, local.Descripcion)
+                         .Set(t => t.FechaVencimiento, local.FechaVencimiento)
+                         .Set(t => t.Estado, local.Estado);
+                    await q.Update();
+                    await LocalDatabase.MarcarTareaSincronizadaAsync(local.IdLocal, serverId);
+                }
+                else
+                {
+                    var creado = await client.From<Tarea>().Insert(new Tarea
+                    {
+                        IdUsuario = idUsuario,
+                        Titulo = local.Titulo,
+                        Descripcion = local.Descripcion,
+                        FechaVencimiento = local.FechaVencimiento,
+                        Estado = local.Estado
+                    });
+                    var remoto = creado.Models.FirstOrDefault();
+                    if (remoto is not null)
+                        await LocalDatabase.MarcarTareaSincronizadaAsync(local.IdLocal, remoto.IdTarea);
+                }
+            }
+            catch
+            {
+                // La fila queda pendiente para el próximo intento.
             }
         }
 
         var eliminadas = await LocalDatabase.TareasPorSyncStateAsync(idUsuario, SyncStatus.Eliminado);
         foreach (var local in eliminadas)
         {
-            if (local.ServerId is int serverId)
+            try
             {
-                try { await client.From<Tarea>().Where(t => t.IdTarea == serverId).Delete(); } catch { }
+                if (local.ServerId is int serverId)
+                {
+                    try { await client.From<Tarea>().Where(t => t.IdTarea == serverId).Delete(); } catch { }
+                }
+                await LocalDatabase.BorrarTareaLocalAsync(local.IdLocal);
             }
-            await LocalDatabase.BorrarTareaLocalAsync(local.IdLocal);
+            catch
+            {
+            }
         }
 
         await TraerTareasAsync(client, idUsuario);
@@ -145,40 +175,53 @@ public static class SyncService
         var pendientes = await LocalDatabase.MovimientosPorSyncStateAsync(idUsuario, SyncStatus.Pendiente);
         foreach (var local in pendientes)
         {
-            if (local.ServerId is int serverId)
+            try
             {
-                var q = client.From<MovimientoFinanciero>().Where(m => m.IdMovimiento == serverId);
-                q = q.Set(m => m.Monto, local.Monto)
-                     .Set(m => m.Tipo, local.Tipo)
-                     .Set(m => m.Descripcion, local.Descripcion)
-                     .Set(m => m.Fecha, local.Fecha);
-                await q.Update();
-                await LocalDatabase.MarcarMovimientoSincronizadoAsync(local.IdLocal, serverId);
-            }
-            else
-            {
-                var creado = await client.From<MovimientoFinanciero>().Insert(new MovimientoFinanciero
+                if (local.ServerId is int serverId)
                 {
-                    IdUsuario = idUsuario,
-                    Monto = local.Monto,
-                    Tipo = local.Tipo,
-                    Descripcion = local.Descripcion,
-                    Fecha = local.Fecha
-                });
-                var remoto = creado.Models.FirstOrDefault();
-                if (remoto is not null)
-                    await LocalDatabase.MarcarMovimientoSincronizadoAsync(local.IdLocal, remoto.IdMovimiento);
+                    var q = client.From<MovimientoFinanciero>().Where(m => m.IdMovimiento == serverId);
+                    q = q.Set(m => m.Monto, local.Monto)
+                         .Set(m => m.Tipo, local.Tipo)
+                         .Set(m => m.Descripcion, local.Descripcion)
+                         .Set(m => m.Fecha, local.Fecha);
+                    await q.Update();
+                    await LocalDatabase.MarcarMovimientoSincronizadoAsync(local.IdLocal, serverId);
+                }
+                else
+                {
+                    var creado = await client.From<MovimientoFinanciero>().Insert(new MovimientoFinanciero
+                    {
+                        IdUsuario = idUsuario,
+                        Monto = local.Monto,
+                        Tipo = local.Tipo,
+                        Descripcion = local.Descripcion,
+                        Fecha = local.Fecha
+                    });
+                    var remoto = creado.Models.FirstOrDefault();
+                    if (remoto is not null)
+                        await LocalDatabase.MarcarMovimientoSincronizadoAsync(local.IdLocal, remoto.IdMovimiento);
+                }
+            }
+            catch
+            {
+                // La fila queda pendiente para el próximo intento.
             }
         }
 
         var eliminados = await LocalDatabase.MovimientosPorSyncStateAsync(idUsuario, SyncStatus.Eliminado);
         foreach (var local in eliminados)
         {
-            if (local.ServerId is int serverId)
+            try
             {
-                try { await client.From<MovimientoFinanciero>().Where(m => m.IdMovimiento == serverId).Delete(); } catch { }
+                if (local.ServerId is int serverId)
+                {
+                    try { await client.From<MovimientoFinanciero>().Where(m => m.IdMovimiento == serverId).Delete(); } catch { }
+                }
+                await LocalDatabase.BorrarMovimientoLocalAsync(local.IdLocal);
             }
-            await LocalDatabase.BorrarMovimientoLocalAsync(local.IdLocal);
+            catch
+            {
+            }
         }
 
         await TraerMovimientosAsync(client, idUsuario);
@@ -235,38 +278,51 @@ public static class SyncService
         var pendientes = await LocalDatabase.ContrasenasPorSyncStateAsync(idUsuario, SyncStatus.Pendiente);
         foreach (var local in pendientes)
         {
-            if (local.ServerId is int serverId)
+            try
             {
-                var q = client.From<Contrasena>().Where(c => c.IdContrasena == serverId);
-                q = q.Set(c => c.SitioWeb, local.SitioWeb)
-                     .Set(c => c.UsuarioCuenta, local.UsuarioCuenta)
-                     .Set(c => c.ClaveCifrada, local.ClaveCifrada);
-                await q.Update();
-                await LocalDatabase.MarcarContrasenaSincronizadaAsync(local.IdLocal, serverId);
-            }
-            else
-            {
-                var creado = await client.From<Contrasena>().Insert(new Contrasena
+                if (local.ServerId is int serverId)
                 {
-                    IdUsuario = idUsuario,
-                    SitioWeb = local.SitioWeb,
-                    UsuarioCuenta = local.UsuarioCuenta,
-                    ClaveCifrada = local.ClaveCifrada
-                });
-                var remoto = creado.Models.FirstOrDefault();
-                if (remoto is not null)
-                    await LocalDatabase.MarcarContrasenaSincronizadaAsync(local.IdLocal, remoto.IdContrasena);
+                    var q = client.From<Contrasena>().Where(c => c.IdContrasena == serverId);
+                    q = q.Set(c => c.SitioWeb, local.SitioWeb)
+                         .Set(c => c.UsuarioCuenta, local.UsuarioCuenta)
+                         .Set(c => c.ClaveCifrada, local.ClaveCifrada);
+                    await q.Update();
+                    await LocalDatabase.MarcarContrasenaSincronizadaAsync(local.IdLocal, serverId);
+                }
+                else
+                {
+                    var creado = await client.From<Contrasena>().Insert(new Contrasena
+                    {
+                        IdUsuario = idUsuario,
+                        SitioWeb = local.SitioWeb,
+                        UsuarioCuenta = local.UsuarioCuenta,
+                        ClaveCifrada = local.ClaveCifrada
+                    });
+                    var remoto = creado.Models.FirstOrDefault();
+                    if (remoto is not null)
+                        await LocalDatabase.MarcarContrasenaSincronizadaAsync(local.IdLocal, remoto.IdContrasena);
+                }
+            }
+            catch
+            {
+                // La fila queda pendiente para el próximo intento.
             }
         }
 
         var eliminadas = await LocalDatabase.ContrasenasPorSyncStateAsync(idUsuario, SyncStatus.Eliminado);
         foreach (var local in eliminadas)
         {
-            if (local.ServerId is int serverId)
+            try
             {
-                try { await client.From<Contrasena>().Where(c => c.IdContrasena == serverId).Delete(); } catch { }
+                if (local.ServerId is int serverId)
+                {
+                    try { await client.From<Contrasena>().Where(c => c.IdContrasena == serverId).Delete(); } catch { }
+                }
+                await LocalDatabase.BorrarContrasenaLocalAsync(local.IdLocal);
             }
-            await LocalDatabase.BorrarContrasenaLocalAsync(local.IdLocal);
+            catch
+            {
+            }
         }
 
         await TraerContrasenasAsync(client, idUsuario);
@@ -321,42 +377,55 @@ public static class SyncService
         var pendientes = await LocalDatabase.RecordatoriosPorSyncStateAsync(idUsuario, SyncStatus.Pendiente);
         foreach (var local in pendientes)
         {
-            if (local.ServerId is int serverId)
+            try
             {
-                var q = client.From<RecordatorioSalud>().Where(r => r.Id == serverId);
-                q = q.Set(r => r.Tipo, local.Tipo)
-                     .Set(r => r.FrecuenciaMinutos, local.FrecuenciaMinutos)
-                     .Set(r => r.FrecuenciaValor, local.FrecuenciaValor)
-                     .Set(r => r.FrecuenciaUnidad, local.FrecuenciaUnidad)
-                     .Set(r => r.Activo, local.Activo);
-                await q.Update();
-                await LocalDatabase.MarcarRecordatorioSincronizadoAsync(local.IdLocal, serverId);
-            }
-            else
-            {
-                var creado = await client.From<RecordatorioSalud>().Insert(new RecordatorioSalud
+                if (local.ServerId is int serverId)
                 {
-                    IdUsuario = idUsuario,
-                    Tipo = local.Tipo,
-                    FrecuenciaMinutos = local.FrecuenciaMinutos,
-                    FrecuenciaValor = local.FrecuenciaValor,
-                    FrecuenciaUnidad = local.FrecuenciaUnidad,
-                    Activo = local.Activo
-                });
-                var remoto = creado.Models.FirstOrDefault();
-                if (remoto is not null)
-                    await LocalDatabase.MarcarRecordatorioSincronizadoAsync(local.IdLocal, remoto.Id);
+                    var q = client.From<RecordatorioSalud>().Where(r => r.Id == serverId);
+                    q = q.Set(r => r.Tipo, local.Tipo)
+                         .Set(r => r.FrecuenciaMinutos, local.FrecuenciaMinutos)
+                         .Set(r => r.FrecuenciaValor, local.FrecuenciaValor)
+                         .Set(r => r.FrecuenciaUnidad, local.FrecuenciaUnidad)
+                         .Set(r => r.Activo, local.Activo);
+                    await q.Update();
+                    await LocalDatabase.MarcarRecordatorioSincronizadoAsync(local.IdLocal, serverId);
+                }
+                else
+                {
+                    var creado = await client.From<RecordatorioSalud>().Insert(new RecordatorioSalud
+                    {
+                        IdUsuario = idUsuario,
+                        Tipo = local.Tipo,
+                        FrecuenciaMinutos = local.FrecuenciaMinutos,
+                        FrecuenciaValor = local.FrecuenciaValor,
+                        FrecuenciaUnidad = local.FrecuenciaUnidad,
+                        Activo = local.Activo
+                    });
+                    var remoto = creado.Models.FirstOrDefault();
+                    if (remoto is not null)
+                        await LocalDatabase.MarcarRecordatorioSincronizadoAsync(local.IdLocal, remoto.Id);
+                }
+            }
+            catch
+            {
+                // La fila queda pendiente para el próximo intento.
             }
         }
 
         var eliminados = await LocalDatabase.RecordatoriosPorSyncStateAsync(idUsuario, SyncStatus.Eliminado);
         foreach (var local in eliminados)
         {
-            if (local.ServerId is int serverId)
+            try
             {
-                try { await client.From<RecordatorioSalud>().Where(r => r.Id == serverId).Delete(); } catch { }
+                if (local.ServerId is int serverId)
+                {
+                    try { await client.From<RecordatorioSalud>().Where(r => r.Id == serverId).Delete(); } catch { }
+                }
+                await LocalDatabase.BorrarRecordatorioLocalAsync(local.IdLocal);
             }
-            await LocalDatabase.BorrarRecordatorioLocalAsync(local.IdLocal);
+            catch
+            {
+            }
         }
 
         await TraerRecordatoriosAsync(client, idUsuario);

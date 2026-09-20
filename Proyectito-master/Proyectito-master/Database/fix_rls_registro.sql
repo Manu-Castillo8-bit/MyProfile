@@ -1,0 +1,26 @@
+-- SOLUCION SIMPLE (recomendada): apagar RLS en la tabla usuario.
+-- Un solo comando; hace que INSERT/SELECT/UPDATE funcionen para todos.
+alter table public.usuario disable row level security;
+
+-- (Alternativa segura) Si prefieres mantener RLS con políticas por dueño,
+-- ejecuta esto EN VEZ del alter anterior:
+--
+-- drop policy if exists "usuario lee su fila" on public.usuario;
+-- create policy "usuario lee su fila" on public.usuario
+--   for select to authenticated
+--   using (auth.uid() = auth_user_id);
+--
+-- drop policy if exists "registro crea su fila" on public.usuario;
+-- create policy "registro crea su fila" on public.usuario
+--   for insert to authenticated
+--   with check (auth.uid() = auth_user_id);
+--
+-- drop policy if exists "usuario edita su fila" on public.usuario;
+-- create policy "usuario edita su fila" on public.usuario
+--   for update to authenticated
+--   using (auth.uid() = auth_user_id);
+--
+-- drop policy if exists "usuario borra su fila" on public.usuario;
+-- create policy "usuario borra su fila" on public.usuario
+--   for delete to authenticated
+--   using (auth.uid() = auth_user_id);

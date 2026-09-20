@@ -204,6 +204,15 @@ public static class SupabaseService
     private const string PrefCorreo = "user_correo";
     private const string PrefAuthUserId = "user_auth_user_id";
 
+    // Los ids nominales (sesión offline sin id de servidor) viven en un rango
+    // alto para no chocar con los id_usuario reales de Supabase.
+    private const int RangoInicioIdNominal = 1_000_000;
+
+    // True cuando la sesión tiene un id_de_usuario real (no nominal), es decir,
+    // hay a dónde subir los datos a Supabase.
+    public static bool SesionConIdServidor =>
+        UsuarioActual is { Id: > 0 } && !EsIdNominal(UsuarioActual.Id);
+
     public static void EstablecerSesion(Usuario usuario)
     {
         UsuarioActual = usuario;
@@ -237,10 +246,19 @@ public static class SupabaseService
         if (UsuarioActual is not null || !Preferences.Default.ContainsKey(PrefId))
             return;
 
+        // Una sesión restaurada sin id real sería inservible (todas las
+        // operaciones la rechazarían): mejor descartarla y pedir login.
+        int id = Preferences.Default.Get(PrefId, 0);
+        if (id <= 0)
+        {
+            CerrarSesion();
+            return;
+        }
+
         var authUserId = Preferences.Default.Get(PrefAuthUserId, "");
         UsuarioActual = new Usuario
         {
-            Id = Preferences.Default.Get(PrefId, 0),
+            Id = id,
             Nombre = Preferences.Default.Get(PrefNombre, ""),
             Correo = Preferences.Default.Get(PrefCorreo, ""),
             AuthUserId = string.IsNullOrEmpty(authUserId) ? null : authUserId
@@ -290,35 +308,14 @@ public static class SupabaseService
                 var client = await GetClientAsync();
                 await client.Auth.SignIn(correoNormalizado, contrasena);
 
-                var resultado = await client
-                    .From<Usuario>()
-                    .Where(u => u.Correo == correoNormalizado)
-                    .Get();
-
-                var usuario = resultado.Models.FirstOrDefault();
+                var usuario = await ResolverUsuarioOnlineAsync(client, correoNormalizado);
                 if (usuario is null)
-                {
-                    var autenticado = client.Auth.CurrentUser;
-                    string nombreRegistrado = "Usuario";
-                    if (autenticado?.UserMetadata is { } meta &&
-                        meta.TryGetValue("nombre", out var nombreMeta) &&
-                        !string.IsNullOrWhiteSpace(nombreMeta?.ToString()))
-                    {
-                        nombreRegistrado = nombreMeta.ToString()!;
-                    }
+                    return null;
 
-                    var porCrear = new Usuario
-                    {
-                        Nombre = nombreRegistrado,
-                        Correo = correoNormalizado,
-                        AuthUserId = autenticado?.Id
-                    };
-
-                    var insertado = await client.From<Usuario>().Insert(porCrear);
-                    usuario = insertado.Models.FirstOrDefault();
-                    if (usuario is null)
-                        return null;
-                }
+                // Sana los datos que pudieron crearse en una sesión sin id de
+                // servidor (modo offline): los mueve al id real para que se
+                // sincronicen con Supabase en lugar de quedarse huérfanos.
+                await RepararDatosLocalesAsync(correoNormalizado, usuario.Id);
 
                 // Cacheamos el hash para permitir login offline la próxima vez.
                 await LocalDatabase.GuardarCredencialesAsync(
@@ -331,14 +328,13 @@ public static class SupabaseService
                 EstablecerSesion(usuario);
 
                 // Actualizamos los datos locales desde el servidor.
-                await SyncService.SincronizarAsync();
+                try { await SyncService.SincronizarAsync(); } catch { }
 
                 return usuario;
             }
             catch
             {
-                // Si el servidor rechaza las credenciales, seguimos para no
-                // ocultarle el error al usuario (ver comprobación final).
+                // Si el servidor no respondió, se cae al modo offline.
             }
         }
 
@@ -356,8 +352,9 @@ public static class SupabaseService
 
             if (usuarioOffline.Id <= 0)
             {
-                // Usuario creado localmente antes de sincronizar: no tenemos
-                // id de servidor, así que recurrimos a una sesión nominal.
+                // No tenemos id de servidor, así que recurrimos a una sesión
+                // nominal. Sus datos se reatribuirán al id real en el próximo
+                // login online (ver RepararDatosLocalesAsync).
                 usuarioOffline.Id = ObtenerIdUsuarioNominal(correoNormalizado);
             }
 
@@ -366,21 +363,118 @@ public static class SupabaseService
         }
 
         // 3) Ni online (por error) ni offline: credenciales inválidas.
-        if (SyncService.Conectado)
+        return null;
+    }
+
+    // Resuelve la fila real de la tabla "usuario" para el usuario ya autenticado
+    // en Auth. Con esta lógica una cuenta SIEMPRE queda con un id_usuario real:
+    //   a) Busca por auth_user_id (inmune a correos duplicados y a RLS por dueño).
+    //   b) Si no, por correo.
+    //   c) Si la fila no existe, la crea vinculada al usuario de Auth.
+    // Nunca devuelve un usuario con id <= 0: mejor fallar que crear una sesión rota.
+    private static async Task<Usuario?> ResolverUsuarioOnlineAsync(Client client, string correo)
+    {
+        var autenticado = client.Auth.CurrentUser;
+
+        // a) La vía más fiable: el id de Auth ya está enlazado en la tabla.
+        if (!string.IsNullOrEmpty(autenticado?.Id))
         {
-            try
+            var porAuth = await client.From<Usuario>().Where(u => u.AuthUserId == autenticado.Id).Get();
+            var encontrado = porAuth.Models.FirstOrDefault();
+            if (encontrado is not null && encontrado.Id > 0)
+                return encontrado;
+        }
+
+        // b) Búsqueda por correo.
+        var porCorreo = await client.From<Usuario>().Where(u => u.Correo == correo).Get();
+        var usuario = porCorreo.Models.FirstOrDefault();
+        if (usuario is not null)
+        {
+            if (string.IsNullOrEmpty(usuario.AuthUserId) && !string.IsNullOrEmpty(autenticado?.Id))
             {
-                // Reconfirmamos online para diferenciar "sin red" de "credenciales incorrectas".
-                var client = await GetClientAsync();
-                await client.Auth.SignIn(correoNormalizado, contrasena);
+                // Fila huérfana: enlazamos el id de Auth para que el RLS por
+                // dueño (auth.uid() = auth_user_id) permita verla/modificarla.
+                try
+                {
+                    await client.From<Usuario>()
+                        .Where(u => u.Id == usuario.Id)
+                        .Set(u => u.AuthUserId, autenticado!.Id)
+                        .Update();
+                    usuario.AuthUserId = autenticado.Id;
+                }
+                catch { }
             }
-            catch
+
+            if (usuario.Id > 0)
+                return usuario;
+
+            // El modelo llegó sin id (mala señal): reintento por auth_user_id.
+            if (!string.IsNullOrEmpty(autenticado?.Id))
             {
-                return null; // credenciales incorrectas en servidor
+                var porAuth2 = await client.From<Usuario>().Where(u => u.AuthUserId == autenticado.Id).Get();
+                var conId = porAuth2.Models.FirstOrDefault();
+                if (conId is not null && conId.Id > 0)
+                    return conId;
             }
+            return null;
+        }
+
+        // c) No existe fila: se crea (requiere el usuario de Auth para enlazarlo).
+        if (autenticado is null)
+            return null;
+
+        string nombreRegistrado = "Usuario";
+        if (autenticado.UserMetadata is { } meta &&
+            meta.TryGetValue("nombre", out var nombreMeta) &&
+            !string.IsNullOrWhiteSpace(nombreMeta?.ToString()))
+        {
+            nombreRegistrado = nombreMeta.ToString()!;
+        }
+
+        try
+        {
+            var insertado = await client.From<Usuario>().Insert(new Usuario
+            {
+                Nombre = nombreRegistrado,
+                Correo = correo,
+                AuthUserId = autenticado.Id
+            });
+            var creado = insertado.Models.FirstOrDefault();
+            if (creado is not null && creado.Id > 0)
+                return creado;
+
+            // La creación no devolvió la fila (RLS de escritura o preferencias
+            // de PostgREST): la releemos por correo para recuperar el id real.
+            var releido = await client.From<Usuario>().Where(u => u.Correo == correo).Get();
+            var re = releido.Models.FirstOrDefault();
+            if (re is not null && re.Id > 0)
+                return re;
+        }
+        catch
+        {
+            // Posible correo duplicado con fila invisible por RLS: reintento lectura.
+            var releido = await client.From<Usuario>().Where(u => u.Correo == correo).Get();
+            var re = releido.Models.FirstOrDefault();
+            if (re is not null && re.Id > 0)
+                return re;
         }
 
         return null;
+    }
+
+    // Si antes se trabajó sin id de servidor (sesión nominal derivada del
+    // correo), mueve sus datos locales al id real recién obtenido.
+    private static async Task RepararDatosLocalesAsync(string correo, int idReal)
+    {
+        if (idReal <= 0)
+            return;
+
+        int idNominalAntiguo = ObtenerIdUsuarioNominal(correo);
+        await LocalDatabase.ReatribuirDuennoAsync(idNominalAntiguo, idReal);
+
+        // Datos de sesiones rotas antiguas (id_usuario = 0) también pasan al
+        // dueño real. Asume un solo usuario por dispositivo.
+        await LocalDatabase.ReatribuirDuennoAsync(0, idReal);
     }
 
     // Id estable y positivo para usuarios que aún no tienen un id real de servidor.
@@ -390,8 +484,10 @@ public static class SupabaseService
         // con ids reales pequeños en la práctica (suelen ser ≤ algunos miles).
         var bytes = SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(correo));
         int valor = BitConverter.ToInt32(bytes, 0) & 0x7FFFFFFF;
-        return 1_000_000 + (valor % 900_000_000);
+        return RangoInicioIdNominal + (valor % 900_000_000);
     }
+
+    private static bool EsIdNominal(int id) => id >= RangoInicioIdNominal;
 
     public static async Task RegistrarAsync(string nombre, string correo, string contrasena)
     {
@@ -403,61 +499,56 @@ public static class SupabaseService
         var cliente = await GetClientAsync();
         try
         {
-            await cliente.Auth.SignUp(correoNormalizado, contrasena);
+            await cliente.Auth.SignUp(correoNormalizado, contrasena, new Supabase.Gotrue.SignUpOptions
+            {
+                Data = new Dictionary<string, object> { ["nombre"] = nombre }
+            });
         }
         catch (Exception ex)
         {
+            if (ex.Message.Contains("already registered", StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException(
+                    "Ese correo ya está registrado. Prueba con otro o usa tu cuenta existente.");
             throw new InvalidOperationException($"No se pudo crear la cuenta: {ex.Message}");
         }
 
-        var usuarioAutenticado = cliente.Auth.CurrentUser;
-
-        var existente = await cliente
-            .From<Usuario>()
-            .Where(u => u.Correo == correoNormalizado)
-            .Get();
-
-        var usuarioExistente = existente.Models.FirstOrDefault();
-        if (usuarioExistente is not null)
+        // La versión de gotrue usada no siempre fija la sesión tras el alta
+        // (por eso a veces fallaba con "No se pudo confirmar tu cuenta").
+        // Si no hay usuario autenticado, hacemos login explícito con las
+        // credenciales recién creadas para resolver la fila de la tabla usuario.
+        if (cliente.Auth.CurrentUser is null)
         {
-            if (string.IsNullOrEmpty(usuarioExistente.AuthUserId) && usuarioAutenticado?.Id is not null)
+            try
             {
-                await cliente.From<Usuario>()
-                    .Where(u => u.Id == usuarioExistente.Id)
-                    .Set(u => u.AuthUserId, usuarioAutenticado.Id)
-                    .Update();
+                await cliente.Auth.SignIn(correoNormalizado, contrasena);
             }
-
-            await LocalDatabase.GuardarCredencialesAsync(
-                correoNormalizado,
-                PasswordHasher.Hash(contrasena),
-                usuarioExistente.Nombre,
-                usuarioExistente.Id,
-                usuarioExistente.AuthUserId);
-
-            EstablecerSesion(usuarioExistente);
-            return;
+            catch (Exception ex)
+            {
+                var detalle = ex.Message.Contains("not confirmed", StringComparison.OrdinalIgnoreCase)
+                    ? "El correo requiere confirmación. En Supabase desactiva 'Confirm email' (Authentication → Sign In / Providers → Email) y en 'Authentication → Users' borra este usuario creado antes."
+                    : ex.Message;
+                throw new InvalidOperationException($"La cuenta se creó pero no se pudo iniciar sesión automáticamente. {detalle}");
+            }
         }
 
-        var respuesta = await cliente.From<Usuario>().Insert(new Usuario
-        {
-            Nombre = nombre.Trim(),
-            Correo = correoNormalizado,
-            AuthUserId = usuarioAutenticado?.Id
-        });
+        var usuario = await ResolverUsuarioOnlineAsync(cliente, correoNormalizado);
+        if (usuario is null)
+            throw new InvalidOperationException(
+                "No se pudo iniciar sesión automáticamente tras crear la cuenta. Revisa la conexión e inténtalo de nuevo o ve a Iniciar sesión con tu correo y contraseña.");
 
-        var usuarioCreado = respuesta.Models.FirstOrDefault();
-        if (usuarioCreado is not null)
-        {
-            await LocalDatabase.GuardarCredencialesAsync(
-                correoNormalizado,
-                PasswordHasher.Hash(contrasena),
-                usuarioCreado.Nombre,
-                usuarioCreado.Id,
-                usuarioCreado.AuthUserId);
+        // La reparación/caché local son mejorables: un fallo aquí (p. ej. una
+        // base local antigua) NO debe impedir que la cuenta recién creada entre.
+        try { await RepararDatosLocalesAsync(correoNormalizado, usuario.Id); } catch { }
+        try { await LocalDatabase.GuardarCredencialesAsync(
+            correoNormalizado,
+            PasswordHasher.Hash(contrasena),
+            usuario.Nombre,
+            usuario.Id,
+            usuario.AuthUserId); } catch { }
 
-            EstablecerSesion(usuarioCreado);
-        }
+        EstablecerSesion(usuario);
+
+        try { await SyncService.SincronizarAsync(); } catch { }
     }
 
     private static string NormalizarCorreo(string correo) => correo.Trim().ToLower();
