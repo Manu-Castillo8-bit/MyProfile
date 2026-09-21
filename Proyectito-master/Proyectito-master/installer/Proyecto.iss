@@ -1,6 +1,6 @@
 ; Proyecto -Instalador (Windows x64, autosuficiente)
 #define Nombre "Proyecto"
-#define Version "1.3.0"
+#define Version "1.3.2"
 #define Editor "Proyecto"
 #define PublicadoDir "..\publish\sc"
 
@@ -15,7 +15,7 @@ DisableProgramGroupPage=yes
 UninstallDisplayIcon={app}\Proyecto.exe
 SetupIconFile={#PublicadoDir}\logo.ico
 OutputDir=.
-OutputBaseFilename=Proyecto-Setup
+OutputBaseFilename=Proyecto-Setup_v1.3.2
 Compression=lzma2
 SolidCompression=yes
 WizardStyle=modern

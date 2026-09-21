@@ -392,18 +392,48 @@ public static class SyncService
                 }
                 else
                 {
-                    var creado = await client.From<RecordatorioSalud>().Insert(new RecordatorioSalud
+                    try
                     {
-                        IdUsuario = idUsuario,
-                        Tipo = local.Tipo,
-                        FrecuenciaMinutos = local.FrecuenciaMinutos,
-                        FrecuenciaValor = local.FrecuenciaValor,
-                        FrecuenciaUnidad = local.FrecuenciaUnidad,
-                        Activo = local.Activo
-                    });
-                    var remoto = creado.Models.FirstOrDefault();
-                    if (remoto is not null)
-                        await LocalDatabase.MarcarRecordatorioSincronizadoAsync(local.IdLocal, remoto.Id);
+                        var creado = await client.From<RecordatorioSalud>().Insert(new RecordatorioSalud
+                        {
+                            IdUsuario = idUsuario,
+                            Tipo = local.Tipo,
+                            FrecuenciaMinutos = local.FrecuenciaMinutos,
+                            FrecuenciaValor = local.FrecuenciaValor,
+                            FrecuenciaUnidad = local.FrecuenciaUnidad,
+                            Activo = local.Activo
+                        });
+                        var remoto = creado.Models.FirstOrDefault();
+                        if (remoto is not null)
+                            await LocalDatabase.MarcarRecordatorioSincronizadoAsync(local.IdLocal, remoto.Id);
+                    }
+                    catch
+                    {
+                        // Si el INSERT falla (p. ej. ya existe un recordatorio del
+                        // mismo tipo por unique(id_usuario, tipo_recordatorio)),
+                        // se hace fallback a UPDATE sobre la fila remota existente.
+                        try
+                        {
+                            var existentes = await client.From<RecordatorioSalud>()
+                                .Where(r => r.IdUsuario == idUsuario && r.Tipo == local.Tipo).Get();
+                            var remoto = existentes.Models.FirstOrDefault();
+                            if (remoto is not null)
+                            {
+                                var q = client.From<RecordatorioSalud>().Where(r => r.Id == remoto.Id);
+                                q = q.Set(r => r.Tipo, local.Tipo)
+                                     .Set(r => r.FrecuenciaMinutos, local.FrecuenciaMinutos)
+                                     .Set(r => r.FrecuenciaValor, local.FrecuenciaValor)
+                                     .Set(r => r.FrecuenciaUnidad, local.FrecuenciaUnidad)
+                                     .Set(r => r.Activo, local.Activo);
+                                await q.Update();
+                                await LocalDatabase.MarcarRecordatorioSincronizadoAsync(local.IdLocal, remoto.Id);
+                            }
+                        }
+                        catch
+                        {
+                            // La fila queda pendiente para el próximo intento.
+                        }
+                    }
                 }
             }
             catch
@@ -434,43 +464,64 @@ public static class SyncService
     private static async Task TraerRecordatoriosAsync(Client client, int idUsuario)
     {
         var remotos = await client.From<RecordatorioSalud>().Where(r => r.IdUsuario == idUsuario).Get();
-        var locales = await LocalDatabase.RecordatoriosPorSyncStateAsync(idUsuario, SyncStatus.Sincronizada);
+        var todasLocales = await LocalDatabase.ObtenerRecordatoriosAsync(idUsuario);
 
         foreach (var r in remotos.Models)
         {
-            var local = locales.FirstOrDefault(l => l.ServerId == r.Id);
-            if (local is null)
+            // ¿Alguna fila local ya representa a esta remota?
+            var existente = todasLocales.FirstOrDefault(l => l.ServerId == r.Id);
+            if (existente is not null)
             {
-                var db = await LocalDatabase.GetConexionAsync();
-                await db.InsertAsync(new RecordatorioSaludOffline
+                // Si está sincronizada, se refresca con el servidor. Si está
+                // pendiente (actualización no confirmada), conserva sus cambios.
+                if (existente.SyncState == SyncStatus.Sincronizada)
                 {
-                    ServerId = r.Id,
-                    IdUsuario = idUsuario,
-                    Tipo = r.Tipo,
-                    FrecuenciaMinutos = r.FrecuenciaMinutos,
-                    FrecuenciaValor = r.FrecuenciaValor,
-                    FrecuenciaUnidad = r.FrecuenciaUnidad,
-                    Activo = r.Activo,
-                    SyncState = SyncStatus.Sincronizada,
-                    Modificado = DateTime.UtcNow
-                });
+                    await LocalDatabase.ActualizarRecordatorioDesdeServidorAsync(new RecordatorioSaludOffline
+                    {
+                        ServerId = r.Id,
+                        FrecuenciaMinutos = r.FrecuenciaMinutos,
+                        FrecuenciaValor = r.FrecuenciaValor,
+                        FrecuenciaUnidad = r.FrecuenciaUnidad,
+                        Activo = r.Activo
+                    });
+                }
+                continue;
             }
-            else
+
+            // Si solo existe una fila local pendiente del mismo tipo (sin
+            // ServerId), se vincula a esta remota en lugar de crear un duplicado;
+            // sus valores se subirán con UPDATE en el próximo ciclo.
+            var pendiente = todasLocales.FirstOrDefault(l =>
+                l.ServerId is null &&
+                l.SyncState == SyncStatus.Pendiente &&
+                string.Equals(l.Tipo, r.Tipo, StringComparison.OrdinalIgnoreCase));
+
+            if (pendiente is not null)
             {
-                await LocalDatabase.ActualizarRecordatorioDesdeServidorAsync(new RecordatorioSaludOffline
-                {
-                    ServerId = r.Id,
-                    FrecuenciaMinutos = r.FrecuenciaMinutos,
-                    FrecuenciaValor = r.FrecuenciaValor,
-                    FrecuenciaUnidad = r.FrecuenciaUnidad,
-                    Activo = r.Activo
-                });
+                await LocalDatabase.VincularRecordatorioPendienteAsync(pendiente.IdLocal, r.Id);
+                continue;
             }
+
+            var db = await LocalDatabase.GetConexionAsync();
+            await db.InsertAsync(new RecordatorioSaludOffline
+            {
+                ServerId = r.Id,
+                IdUsuario = idUsuario,
+                Tipo = r.Tipo,
+                FrecuenciaMinutos = r.FrecuenciaMinutos,
+                FrecuenciaValor = r.FrecuenciaValor,
+                FrecuenciaUnidad = r.FrecuenciaUnidad,
+                Activo = r.Activo,
+                SyncState = SyncStatus.Sincronizada,
+                Modificado = DateTime.UtcNow
+            });
         }
 
         var idsRemotos = remotos.Models.Select(r => r.Id).ToHashSet();
-        foreach (var local in locales)
+        foreach (var local in todasLocales)
         {
+            // Solo se borran las locales que representan a filas remotas ya
+            // eliminadas; las pendientes sin ServerId se conservan.
             if (local.ServerId is int serverId && !idsRemotos.Contains(serverId))
                 await LocalDatabase.BorrarRecordatorioLocalAsync(local.IdLocal);
         }

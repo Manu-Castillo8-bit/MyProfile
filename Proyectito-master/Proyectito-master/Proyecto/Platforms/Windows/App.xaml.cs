@@ -52,6 +52,23 @@ namespace Proyecto.WinUI
         {
             base.OnLaunched(args);
 
+            // Atiende los botones de la notificación de "suspender pantalla"
+            // cuando la activación llega por arranque (app unpackaged): la
+            // pulsación del botón de un toast lanza/activa la app por
+            // OnLaunched en lugar de por el evento NotificationInvoked.
+            try
+            {
+                var activacion = Microsoft.Windows.AppLifecycle.AppInstance.GetCurrent().GetActivatedEventArgs();
+                if (activacion.Data is Microsoft.Windows.AppNotifications.AppNotificationActivatedEventArgs notificacion &&
+                    notificacion.Arguments is not null &&
+                    notificacion.Arguments.TryGetValue("accion", out var valor) &&
+                    int.TryParse(valor, out int accion))
+                {
+                    RecordatorioScheduler.EjecutarAccion(accion);
+                }
+            }
+            catch { }
+
             // Mantiene la app viva en la bandeja del sistema al cerrar la
             // ventana, para no perder los recordatorios de Windows.
             try

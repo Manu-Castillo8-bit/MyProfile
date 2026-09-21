@@ -196,6 +196,29 @@ public static class LocalDatabase
             // Sin filas pendientes de corregir.
         }
 
+        // Migración: concilia duplicados de recordatorios. Debe existir una sola
+        // fila por (IdUsuario, Tipo); se conserva la que tiene ServerId (la que
+        // representa al dato sincronizado) y, en caso de empate, la más reciente.
+        try
+        {
+            var todos = await conexion.Table<RecordatorioSaludOffline>()
+                .Where(r => r.SyncState != SyncStatus.Eliminado)
+                .ToListAsync();
+            foreach (var grupo in todos.GroupBy(r => (r.IdUsuario, r.Tipo)))
+            {
+                var canonicos = grupo
+                    .OrderByDescending(r => r.ServerId is not null)
+                    .ThenByDescending(r => r.Modificado)
+                    .ToList();
+                foreach (var sobrante in canonicos.Skip(1))
+                    await conexion.DeleteAsync(sobrante);
+            }
+        }
+        catch
+        {
+            // La tabla aún no existe o no requiere reparación.
+        }
+
         return conexion;
     }
 
@@ -576,6 +599,16 @@ public static class LocalDatabase
             existente.SyncState = SyncStatus.Pendiente;
             existente.Modificado = DateTime.UtcNow;
             await db.UpdateAsync(existente);
+
+            // Concilia duplicados: solo debe quedar una fila por (IdUsuario, Tipo).
+            var duplicados = await db.Table<RecordatorioSaludOffline>()
+                .Where(r => r.IdUsuario == existente.IdUsuario
+                         && r.Tipo == existente.Tipo
+                         && r.IdLocal != existente.IdLocal
+                         && r.SyncState != SyncStatus.Eliminado)
+                .ToListAsync();
+            foreach (var duplicado in duplicados)
+                await db.DeleteAsync(duplicado);
         }
         else
         {
@@ -615,6 +648,20 @@ public static class LocalDatabase
         fila.FrecuenciaUnidad = actualizado.FrecuenciaUnidad;
         fila.Activo = actualizado.Activo;
         fila.SyncState = SyncStatus.Sincronizada;
+        fila.Modificado = DateTime.UtcNow;
+        await db.UpdateAsync(fila);
+    }
+
+    // Vincula una fila local pendiente (mismo tipo, sin ServerId) con su fila
+    // remota: así el próximo ciclo la sube con UPDATE en lugar de intentar un
+    // INSERT que chocaría con unique(id_usuario, tipo_recordatorio).
+    public static async Task VincularRecordatorioPendienteAsync(int idLocal, int serverId)
+    {
+        var db = await GetConexionAsync();
+        var fila = await db.Table<RecordatorioSaludOffline>().Where(r => r.IdLocal == idLocal).FirstOrDefaultAsync();
+        if (fila is null || fila.SyncState != SyncStatus.Pendiente)
+            return;
+        fila.ServerId = serverId;
         fila.Modificado = DateTime.UtcNow;
         await db.UpdateAsync(fila);
     }

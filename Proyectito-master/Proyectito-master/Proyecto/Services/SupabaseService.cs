@@ -847,7 +847,16 @@ public static class SupabaseService
         if (usuario is null) return new List<RecordatorioSalud>();
 
         var locales = await LocalDatabase.ObtenerRecordatoriosAsync(usuario.Id);
+
+        // Solo debe existir una fila por tipo (agua, descanso, tareas). Si por
+        // alguna razón hay duplicados locales, se devuelve el canónico: el que
+        // tiene ServerId (dato sincronizado) o, en su defecto, el más reciente.
         return locales
+            .GroupBy(r => r.Tipo, StringComparer.OrdinalIgnoreCase)
+            .Select(g => g
+                .OrderByDescending(r => r.ServerId is not null)
+                .ThenByDescending(r => r.Modificado)
+                .First())
             .Select(r => new RecordatorioSalud
             {
                 Id = LocalDatabase.IdInterfaz(r.ServerId, r.IdLocal),
@@ -882,10 +891,22 @@ public static class SupabaseService
         var existente = await LocalDatabase.ObtenerRecordatorioPorTipoAsync(usuario.Id, tipo);
         int minutos = ResolverMinutos(frecuenciaValor, frecuenciaUnidad);
 
+        // Si la fila encontrada no tiene ServerId pero existe otra del mismo tipo
+        // que sí lo tiene, se usa ese ServerId: así la sincronización hace UPDATE
+        // en lugar de INSERT (el INSERT chocaría con unique(id_usuario, tipo)).
+        int? serverId = existente?.ServerId;
+        if (serverId is null)
+        {
+            var todas = await LocalDatabase.ObtenerRecordatoriosAsync(usuario.Id);
+            serverId = todas.FirstOrDefault(r =>
+                string.Equals(r.Tipo, tipo, StringComparison.OrdinalIgnoreCase) &&
+                r.ServerId is not null)?.ServerId;
+        }
+
         await LocalDatabase.GuardarRecordatorioPendienteAsync(new RecordatorioSaludOffline
         {
             IdUsuario = usuario.Id,
-            ServerId = existente?.ServerId,
+            ServerId = serverId ?? existente?.ServerId,
             Tipo = tipo,
             FrecuenciaValor = frecuenciaValor,
             FrecuenciaUnidad = frecuenciaUnidad,
