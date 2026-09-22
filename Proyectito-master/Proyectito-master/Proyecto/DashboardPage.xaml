@@ -15,7 +15,15 @@
                     <Label x:Name="LblNombre" Text="Hola, Usuario" FontSize="22" FontAttributes="Bold" TextColor="White" />
                     <Label Text="Bienvenido de vuelta a tu espacio" FontSize="13" TextColor="#8E8E93" />
                 </VerticalStackLayout>
-                <Button Grid.Column="1"
+                <Button x:Name="BtnAdmin" Grid.Column="1"
+                        Text="Admin"
+                        BackgroundColor="#1E3A5F" TextColor="#ffffff"
+                        FontAttributes="Bold" FontSize="13"
+                        CornerRadius="10" HeightRequest="42" WidthRequest="62"
+                        VerticalOptions="Center"
+                        IsVisible="False"
+                        Clicked="OnAdminClicked" />
+                <Button Grid.Column="2"
                         Text="Salir"
                         BackgroundColor="red" TextColor="#ffffff"
                         FontAttributes="Bold" FontSize="13"

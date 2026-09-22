@@ -46,6 +46,16 @@ public partial class DashboardPage : ContentPage
 
         try
         {
+            // Si el rol cambió en Supabase (p. ej. a admin), se aplica automáticamente.
+            await SupabaseService.RefrescarRolAsync();
+
+            // Las cuentas de administrador viven SOLO en el panel de administración.
+            if (SupabaseService.UsuarioActual.Rol == "admin")
+            {
+                await Shell.Current.GoToAsync("//AdminPrincipal/AdminPage");
+                return;
+            }
+
             LblNombre.Text = $"Hola, {SupabaseService.UsuarioActual.Nombre}";
 
             var tareas = await SupabaseService.ObtenerTareasAsync();
@@ -76,6 +86,18 @@ public partial class DashboardPage : ContentPage
 
         SupabaseService.CerrarSesion();
         await Shell.Current.GoToAsync("//LoginPage");
+    }
+
+    private async void OnAdminClicked(object sender, EventArgs e)
+    {
+        try
+        {
+            await Shell.Current.GoToAsync("//AdminPrincipal/AdminPage");
+        }
+        catch
+        {
+            // Ruta no registrada: se ignora.
+        }
     }
 
     private async void OnAccesoTareasClicked(object sender, EventArgs e) => await Shell.Current.GoToAsync("//Principal/MainPage");

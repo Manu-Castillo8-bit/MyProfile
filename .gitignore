@@ -1,0 +1,6 @@
+# Binarios de instalación (superan el límite de 100 MB de GitHub)
+**/installer/*.exe
+**/publish/
+**/obj/
+**/bin/
+*.user

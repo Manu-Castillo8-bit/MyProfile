@@ -39,6 +39,11 @@ public partial class CargandoPage : ContentPage
 
         try
         {
+            // Las cuentas de administrador entran directo al panel y no ven
+            // las secciones de usuario normal (tareas, ahorro, salud, etc.).
+            await SupabaseService.RefrescarRolAsync();
+            bool esAdmin = string.Equals(SupabaseService.UsuarioActual?.Rol, "admin", StringComparison.OrdinalIgnoreCase);
+
             int indice = 0;
             LblConsejo.Text = Consejos[indice];
             LblConsejo.Opacity = 0;
@@ -69,7 +74,9 @@ public partial class CargandoPage : ContentPage
             ProgCarga.Progress = 1;
             LblPorcentaje.Text = "100%";
 
-            await Shell.Current.GoToAsync("//Principal/DashboardPage");
+            await Shell.Current.GoToAsync(esAdmin
+                ? "//AdminPrincipal/AdminPage"
+                : "//Principal/DashboardPage");
         }
         finally
         {

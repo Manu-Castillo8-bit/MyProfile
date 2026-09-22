@@ -21,7 +21,13 @@ public partial class LoginPage : ContentPage
             {
                 try
                 {
-                    await Shell.Current.GoToAsync("//Cargando");
+                    // En el arranque Shell.Current puede estar aún sin asignar:
+                    // se espera brevemente antes de reintentar la navegación.
+                    for (int intento = 0; intento < 5 && Shell.Current is null; intento++)
+                        await Task.Delay(200);
+
+                    if (Shell.Current is { } shell)
+                        await shell.GoToAsync("//Cargando");
                 }
                 catch
                 {

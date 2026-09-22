@@ -50,6 +50,14 @@
             Route="Password" />
     </TabBar>
 
+    <TabBar Route="AdminPrincipal">
+        <ShellContent
+            Title="Administración"
+            Icon="icon_dashboard.png"
+            ContentTemplate="{DataTemplate local:AdminPage}"
+            Route="AdminPage" />
+    </TabBar>
+
     <ShellContent
         Title="Cargando"
         ContentTemplate="{DataTemplate local:CargandoPage}"

@@ -88,6 +88,7 @@ public class UsuarioOffline
     public string Nombre { get; set; } = "";
     public string? AuthUserId { get; set; }
     public string HashContrasena { get; set; } = "";
+    public string Rol { get; set; } = "usuario";
     public DateTime Modificado { get; set; } = DateTime.UtcNow;
 }
 
@@ -166,6 +167,16 @@ public static class LocalDatabase
         await conexion.CreateTableAsync<ContrasenaOffline>();
         await conexion.CreateTableAsync<RecordatorioSaludOffline>();
         await conexion.CreateTableAsync<UsuarioOffline>();
+
+        // Migración: columna de rol en credenciales cacheadas.
+        try
+        {
+            await conexion.ExecuteAsync("ALTER TABLE usuario_offline ADD COLUMN rol TEXT NOT NULL DEFAULT 'usuario'");
+        }
+        catch
+        {
+            // La columna ya existe (base nueva con el modelo actualizado).
+        }
 
         // Migración: agrega las columnas de unidad de frecuencia a bases existentes.
         try
@@ -257,7 +268,7 @@ public static class LocalDatabase
         return await db.Table<UsuarioOffline>().Where(u => u.Correo == correo).FirstOrDefaultAsync();
     }
 
-    public static async Task GuardarCredencialesAsync(string correo, string hashContrasena, string nombre, int? serverId, string? authUserId)
+    public static async Task GuardarCredencialesAsync(string correo, string hashContrasena, string nombre, int? serverId, string? authUserId, string rol)
     {
         var db = await GetConexionAsync();
         var existente = await db.Table<UsuarioOffline>().Where(u => u.Correo == correo).FirstOrDefaultAsync();
@@ -267,6 +278,7 @@ public static class LocalDatabase
             existente.Nombre = nombre;
             existente.ServerId = serverId ?? existente.ServerId;
             existente.AuthUserId = authUserId ?? existente.AuthUserId;
+            existente.Rol = string.IsNullOrWhiteSpace(rol) ? existente.Rol : rol;
             existente.Modificado = DateTime.UtcNow;
             await db.UpdateAsync(existente);
         }
@@ -279,9 +291,26 @@ public static class LocalDatabase
                 Nombre = nombre,
                 ServerId = serverId,
                 AuthUserId = authUserId,
+                Rol = string.IsNullOrWhiteSpace(rol) ? "usuario" : rol,
                 Modificado = DateTime.UtcNow
             });
         }
+    }
+
+    // Actualiza el rol de la caché offline (p. ej. cuando se promueve a admin).
+    public static async Task ActualizarRolAsync(string correo, string rol)
+    {
+        if (string.IsNullOrWhiteSpace(rol))
+            return;
+
+        var db = await GetConexionAsync();
+        var usuario = await db.Table<UsuarioOffline>().Where(u => u.Correo == correo).FirstOrDefaultAsync();
+        if (usuario is null)
+            return;
+
+        usuario.Rol = rol;
+        usuario.Modificado = DateTime.UtcNow;
+        await db.UpdateAsync(usuario);
     }
 
     // ── TAREAS ──

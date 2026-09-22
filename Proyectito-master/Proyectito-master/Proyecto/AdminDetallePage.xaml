@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Proyecto.AdminDetallePage"
+             Title="Detalle"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#0b1120">
+
+    <Grid RowDefinitions="Auto,Auto,Auto,Auto,*,Auto" Padding="20,20,20,0" RowSpacing="12">
+
+        <!-- Volver + título -->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*" ColumnSpacing="12">
+            <Button Text="←" FontSize="22" TextColor="White" BackgroundColor="#172033"
+                    BorderColor="#245b78" CornerRadius="10" HeightRequest="40" WidthRequest="44"
+                    VerticalOptions="Center" Padding="0" Clicked="OnVolverClicked" />
+            <Label Grid.Column="1" Text="Detalle de cuenta" FontSize="22" FontAttributes="Bold"
+                   TextColor="White" VerticalOptions="Center" />
+        </Grid>
+
+        <!-- Tarjeta del usuario -->
+        <Border Grid.Row="1" BackgroundColor="#172033" Stroke="#245b78" StrokeThickness="1"
+                StrokeShape="RoundRectangle 18" Padding="16">
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
+                <Border StrokeThickness="0" BackgroundColor="{Binding BadgeColor}"
+                        StrokeShape="RoundRectangle 24" WidthRequest="48" HeightRequest="48"
+                        VerticalOptions="Center">
+                    <Label x:Name="LblInicialesDet" Text="" TextColor="White" FontSize="16" FontAttributes="Bold"
+                           HorizontalOptions="Center" VerticalOptions="Center" />
+                </Border>
+                <Grid Grid.Column="1" RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                    <Label x:Name="LblNombreDet" FontSize="17" FontAttributes="Bold" TextColor="White"
+                           LineBreakMode="TailTruncation" />
+                    <Label x:Name="LblCorreoDet" Grid.Row="1" FontSize="13" TextColor="#8E8E93"
+                           LineBreakMode="TailTruncation" />
+                    <Border x:Name="BordeRol" Grid.Row="2" Margin="0,6,0,0" HorizontalOptions="Start"
+                            StrokeThickness="0" StrokeShape="RoundRectangle 12" Padding="10,3,10,3">
+                        <Label x:Name="LblRolDet" TextColor="White" FontSize="11" FontAttributes="Bold" />
+                    </Border>
+                </Grid>
+            </Grid>
+        </Border>
+
+        <!-- Acciones del usuario cuentas -->
+        <Grid x:Name="GridAcciones" Grid.Row="2" ColumnDefinitions="*,*,*" ColumnSpacing="8">
+            <Button Text="Editar nombre" FontSize="12" FontAttributes="Bold"
+                    BackgroundColor="#1E3A5F" TextColor="White" CornerRadius="10" HeightRequest="42"
+                    Clicked="OnEditarNombreClicked" />
+            <Button Grid.Column="1" x:Name="BtnCambiarRol" Text="Cambiar rol" FontSize="12" FontAttributes="Bold"
+                    BackgroundColor="#1E3A5F" TextColor="White" CornerRadius="10" HeightRequest="42"
+                    Clicked="OnCambiarRolClicked" />
+            <Button Grid.Column="2" Text="Eliminar" FontSize="12" FontAttributes="Bold"
+                    BackgroundColor="#3A1C1C" TextColor="#FF6B5E" CornerRadius="10" HeightRequest="42"
+                    Clicked="OnEliminarCuentaClicked" />
+        </Grid>
+
+        <!-- Chips de categoría -->
+        <Grid Grid.Row="3" ColumnDefinitions="*,*,*,*" ColumnSpacing="8">
+            <Button x:Name="BtnCatTareas" Text="Tareas (0)" FontSize="12" CornerRadius="10" HeightRequest="38"
+                    Clicked="OnCatTareasClicked" />
+            <Button x:Name="BtnCatAhorro" Grid.Column="1" Text="Ahorro (0)" FontSize="12" CornerRadius="10" HeightRequest="38"
+                    Clicked="OnCatAhorroClicked" />
+            <Button x:Name="BtnCatContrasenas" Grid.Column="2" Text="Claves (0)" FontSize="12" CornerRadius="10" HeightRequest="38"
+                    Clicked="OnCatContrasenasClicked" />
+            <Button x:Name="BtnCatSalud" Grid.Column="3" Text="Salud (0)" FontSize="12" CornerRadius="10" HeightRequest="38"
+                    Clicked="OnCatSaludClicked" />
+        </Grid>
+
+        <!-- Contenido de la categoría activa -->
+        <ScrollView Grid.Row="4">
+            <VerticalStackLayout x:Name="Contenido" Spacing="8" Padding="0,4,0,12" />
+        </ScrollView>
+
+        <!-- Agregar + indicador -->
+        <Grid Grid.Row="5" ColumnDefinitions="*,Auto" ColumnSpacing="10" Padding="0,0,0,16">
+            <Button x:Name="BtnAgregar" Text="＋ Agregar"
+                    FontSize="14" FontAttributes="Bold"
+                    BackgroundColor="#1E3A5F" TextColor="White" CornerRadius="10" HeightRequest="46"
+                    Clicked="OnAgregarClicked" />
+            <ActivityIndicator x:Name="Indicador" Grid.Column="1"
+                               IsVisible="False" IsRunning="False" Color="White"
+                               HeightRequest="46" WidthRequest="46" />
+        </Grid>
+    </Grid>
+</ContentPage>

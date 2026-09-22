@@ -28,6 +28,9 @@ public class Usuario : BaseModel
 
     [Column("auth_user_id")]
     public string? AuthUserId { get; set; }
+
+    [Column("rol")]
+    public string Rol { get; set; } = "usuario";
 }
 
 [Table("movimiento_financiero")]
@@ -203,6 +206,7 @@ public static class SupabaseService
     private const string PrefNombre = "user_nombre";
     private const string PrefCorreo = "user_correo";
     private const string PrefAuthUserId = "user_auth_user_id";
+    private const string PrefRol = "user_rol";
 
     // Los ids nominales (sesión offline sin id de servidor) viven en un rango
     // alto para no chocar con los id_usuario reales de Supabase.
@@ -228,6 +232,7 @@ public static class SupabaseService
         Preferences.Default.Remove(PrefNombre);
         Preferences.Default.Remove(PrefCorreo);
         Preferences.Default.Remove(PrefAuthUserId);
+        Preferences.Default.Remove(PrefRol);
     }
 
     private static void GuardarSesion()
@@ -239,6 +244,7 @@ public static class SupabaseService
         Preferences.Default.Set(PrefNombre, UsuarioActual.Nombre);
         Preferences.Default.Set(PrefCorreo, UsuarioActual.Correo);
         Preferences.Default.Set(PrefAuthUserId, UsuarioActual.AuthUserId ?? "");
+        Preferences.Default.Set(PrefRol, UsuarioActual.Rol ?? "usuario");
     }
 
     public static void RestaurarSesion()
@@ -261,8 +267,47 @@ public static class SupabaseService
             Id = id,
             Nombre = Preferences.Default.Get(PrefNombre, ""),
             Correo = Preferences.Default.Get(PrefCorreo, ""),
-            AuthUserId = string.IsNullOrEmpty(authUserId) ? null : authUserId
+            AuthUserId = string.IsNullOrEmpty(authUserId) ? null : authUserId,
+            Rol = Preferences.Default.Get(PrefRol, "usuario")
         };
+    }
+
+    // Refresca el rol del usuario actual desde Supabase. Si lo cambiaron en el
+    // servidor (p. ej. pasaron la cuenta a admin), se actualiza la sesión y la
+    // caché local sin necesidad de cerrar/reabrir sesión.
+    public static async Task RefrescarRolAsync()
+    {
+        var usuario = UsuarioActual;
+        if (usuario is null || !SyncService.Conectado || !SesionConIdServidor)
+            return;
+
+        try
+        {
+            var client = await GetClientAsync();
+            var filas = await client.From<Usuario>().Where(u => u.Id == usuario.Id).Get();
+            var remoto = filas.Models.FirstOrDefault();
+            if (remoto is null)
+                return;
+
+            if (string.Equals(remoto.Rol, usuario.Rol, StringComparison.OrdinalIgnoreCase))
+                return;
+
+            usuario.Rol = remoto.Rol;
+            GuardarSesion();
+
+            try
+            {
+                await LocalDatabase.ActualizarRolAsync(usuario.Correo, remoto.Rol);
+            }
+            catch
+            {
+                // La caché offline se actualiza en el próximo login.
+            }
+        }
+        catch
+        {
+            // Sin conexión efectiva o error del servidor: se conserva el rol actual.
+        }
     }
 
     public static async Task<Client> GetClientAsync()
@@ -323,7 +368,8 @@ public static class SupabaseService
                     PasswordHasher.Hash(contrasena),
                     usuario.Nombre,
                     usuario.Id,
-                    usuario.AuthUserId);
+                    usuario.AuthUserId,
+                    usuario.Rol);
 
                 EstablecerSesion(usuario);
 
@@ -347,7 +393,8 @@ public static class SupabaseService
                 Id = cache.ServerId ?? 0,
                 Nombre = cache.Nombre,
                 Correo = cache.Correo,
-                AuthUserId = cache.AuthUserId
+                AuthUserId = cache.AuthUserId,
+                Rol = cache.Rol
             };
 
             if (usuarioOffline.Id <= 0)
@@ -544,7 +591,8 @@ public static class SupabaseService
             PasswordHasher.Hash(contrasena),
             usuario.Nombre,
             usuario.Id,
-            usuario.AuthUserId); } catch { }
+            usuario.AuthUserId,
+            usuario.Rol); } catch { }
 
         EstablecerSesion(usuario);
 

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Proyecto.AdminPage"
+             Title="Administración"
+             Shell.NavBarIsVisible="False"
+             BackgroundColor="#0b1120">
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Padding="20,36,20,0" RowSpacing="14">
+
+        <!-- Cabecera -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+            <VerticalStackLayout Spacing="2">
+                <Label Text="Panel de administración" FontSize="24" FontAttributes="Bold" TextColor="White" />
+                <Label x:Name="LblSubtitulo" Text="" FontSize="13" TextColor="#8E8E93" />
+            </VerticalStackLayout>
+            <Button Grid.Column="1"
+                    Text="⟳"
+                    FontSize="20"
+                    BackgroundColor="#172033" BorderColor="#245b78" TextColor="White"
+                    CornerRadius="10" HeightRequest="46" WidthRequest="46"
+                    VerticalOptions="Center"
+                    Clicked="OnRefrescarClicked" />
+            <Button Grid.Column="2"
+                    Text="Salir"
+                    FontSize="13" FontAttributes="Bold"
+                    BackgroundColor="#3A1C1C" BorderColor="#245b78" TextColor="#FF6B5E"
+                    CornerRadius="10" HeightRequest="46" WidthRequest="68"
+                    VerticalOptions="Center"
+                    Clicked="OnCerrarSesionClicked" />
+        </Grid>
+
+        <!-- Buscador -->
+        <Border Grid.Row="1" BackgroundColor="#172033" Stroke="#245b78" StrokeThickness="1" StrokeShape="RoundRectangle 12" Padding="12,0,12,0" HeightRequest="46">
+            <Grid ColumnDefinitions="Auto,*">
+                <Label Text="🔍" FontSize="14" VerticalOptions="Center" Margin="0,0,8,0" />
+                <Entry x:Name="TxtBuscar" Grid.Column="1"
+                       Placeholder="Buscar por nombre o correo..."
+                       BackgroundColor="Transparent" TextColor="White" PlaceholderColor="#8E8E93"
+                       VerticalOptions="Center"
+                       TextChanged="OnBuscarChanged" />
+            </Grid>
+        </Border>
+
+        <!-- Lista de usuarios -->
+        <CollectionView x:Name="ListaUsuarios" Grid.Row="2"
+                        SelectionMode="Single"
+                        SelectionChanged="OnUsuarioSeleccionado">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <SwipeView>
+                        <Frame BackgroundColor="#172033" BorderColor="#245b78" CornerRadius="16"
+                               Padding="14" HasShadow="False" Margin="0,4">
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="12">
+                                <Border StrokeThickness="0" BackgroundColor="#1E3A5F"
+                                        Stroke="#245b78" StrokeShape="RoundRectangle 22"
+                                        WidthRequest="44" HeightRequest="44"
+                                        VerticalOptions="Center">
+                                    <Label x:Name="LblIniciales" Text="{Binding Iniciales}"
+                                           TextColor="White" FontSize="14" FontAttributes="Bold"
+                                           HorizontalOptions="Center" VerticalOptions="Center" />
+                                </Border>
+                                <VerticalStackLayout Grid.Column="1" Spacing="3" VerticalOptions="Center">
+                                    <Label Text="{Binding Nombre}" TextColor="White"
+                                           FontSize="16" FontAttributes="Bold" LineBreakMode="TailTruncation" />
+                                    <Label Text="{Binding Correo}" TextColor="#8E8E93" FontSize="13"
+                                           LineBreakMode="TailTruncation" />
+                                </VerticalStackLayout>
+                                <Grid Grid.Column="2" ColumnDefinitions="Auto,Auto" ColumnSpacing="6" VerticalOptions="Center">
+                                    <Border StrokeThickness="0"
+                                            StrokeShape="RoundRectangle 12"
+                                            BackgroundColor="{Binding BadgeColor}" Padding="8,3,8,3">
+                                        <Label Text="{Binding Rol}" TextColor="White" FontSize="11"
+                                               FontAttributes="Bold" VerticalOptions="Center" />
+                                    </Border>
+                                    <Label Grid.Column="1" Text="›" FontSize="22" TextColor="#8E8E93" VerticalOptions="Center" />
+                                </Grid>
+                            </Grid>
+                        </Frame>
+                    </SwipeView>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- Vacío -->
+        <Label x:Name="LblVacio" Grid.Row="2"
+               Text="No se encontraron usuarios." TextColor="#8E8E93" FontSize="14"
+               HorizontalOptions="Center" VerticalOptions="Center" IsVisible="False" />
+
+        <!-- Indicador -->
+        <ActivityIndicator x:Name="Indicador" Grid.Row="3"
+                           IsVisible="False" IsRunning="False" Color="White"
+                           HeightRequest="40" Margin="0,10" VerticalOptions="Center" />
+    </Grid>
+</ContentPage>
